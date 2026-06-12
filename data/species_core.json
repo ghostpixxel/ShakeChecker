@@ -1,0 +1,7202 @@
+[
+ {
+  "id": 1,
+  "name": "Bulbasaur",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 2,
+  "name": "Ivysaur",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 3,
+  "name": "Venusaur",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 4,
+  "name": "Charmander",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 5,
+  "name": "Charmeleon",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 6,
+  "name": "Charizard",
+  "types": [
+   "FIRE",
+   "FLYING"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 7,
+  "name": "Squirtle",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 8,
+  "name": "Wartortle",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 9,
+  "name": "Blastoise",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 10,
+  "name": "Caterpie",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 11,
+  "name": "Metapod",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 12,
+  "name": "Butterfree",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 13,
+  "name": "Weedle",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 14,
+  "name": "Kakuna",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 15,
+  "name": "Beedrill",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 16,
+  "name": "Pidgey",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 17,
+  "name": "Pidgeotto",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 18,
+  "name": "Pidgeot",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 19,
+  "name": "Rattata",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 20,
+  "name": "Raticate",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 127,
+  "obtainable": true
+ },
+ {
+  "id": 21,
+  "name": "Spearow",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 22,
+  "name": "Fearow",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 23,
+  "name": "Ekans",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 24,
+  "name": "Arbok",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 25,
+  "name": "Pikachu",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 26,
+  "name": "Raichu",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 27,
+  "name": "Sandshrew",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 28,
+  "name": "Sandslash",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 29,
+  "name": "Nidoran\u2640",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 235,
+  "obtainable": true
+ },
+ {
+  "id": 30,
+  "name": "Nidorina",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 31,
+  "name": "Nidoqueen",
+  "types": [
+   "POISON",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 32,
+  "name": "Nidoran\u2642",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 235,
+  "obtainable": true
+ },
+ {
+  "id": 33,
+  "name": "Nidorino",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 34,
+  "name": "Nidoking",
+  "types": [
+   "POISON",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 35,
+  "name": "Clefairy",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 150,
+  "obtainable": true
+ },
+ {
+  "id": 36,
+  "name": "Clefable",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 37,
+  "name": "Vulpix",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 38,
+  "name": "Ninetales",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 39,
+  "name": "Jigglypuff",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 170,
+  "obtainable": true
+ },
+ {
+  "id": 40,
+  "name": "Wigglytuff",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 50,
+  "obtainable": true
+ },
+ {
+  "id": 41,
+  "name": "Zubat",
+  "types": [
+   "POISON",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 42,
+  "name": "Golbat",
+  "types": [
+   "POISON",
+   "FLYING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 43,
+  "name": "Oddish",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 44,
+  "name": "Gloom",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 45,
+  "name": "Vileplume",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 46,
+  "name": "Paras",
+  "types": [
+   "BUG",
+   "GRASS"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 47,
+  "name": "Parasect",
+  "types": [
+   "BUG",
+   "GRASS"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 48,
+  "name": "Venonat",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 49,
+  "name": "Venomoth",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 50,
+  "name": "Diglett",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 51,
+  "name": "Dugtrio",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 50,
+  "obtainable": true
+ },
+ {
+  "id": 52,
+  "name": "Meowth",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 53,
+  "name": "Persian",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 54,
+  "name": "Psyduck",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 55,
+  "name": "Golduck",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 56,
+  "name": "Mankey",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 57,
+  "name": "Primeape",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 58,
+  "name": "Growlithe",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 59,
+  "name": "Arcanine",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 60,
+  "name": "Poliwag",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 61,
+  "name": "Poliwhirl",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 62,
+  "name": "Poliwrath",
+  "types": [
+   "WATER",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 63,
+  "name": "Abra",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 64,
+  "name": "Kadabra",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 100,
+  "obtainable": true
+ },
+ {
+  "id": 65,
+  "name": "Alakazam",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 50,
+  "obtainable": true
+ },
+ {
+  "id": 66,
+  "name": "Machop",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 67,
+  "name": "Machoke",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 68,
+  "name": "Machamp",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 69,
+  "name": "Bellsprout",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 70,
+  "name": "Weepinbell",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 71,
+  "name": "Victreebel",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 72,
+  "name": "Tentacool",
+  "types": [
+   "WATER",
+   "POISON"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 73,
+  "name": "Tentacruel",
+  "types": [
+   "WATER",
+   "POISON"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 74,
+  "name": "Geodude",
+  "types": [
+   "ROCK",
+   "GROUND"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 75,
+  "name": "Graveler",
+  "types": [
+   "ROCK",
+   "GROUND"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 76,
+  "name": "Golem",
+  "types": [
+   "ROCK",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 77,
+  "name": "Ponyta",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 78,
+  "name": "Rapidash",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 79,
+  "name": "Slowpoke",
+  "types": [
+   "WATER",
+   "PSYCHIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 80,
+  "name": "Slowbro",
+  "types": [
+   "WATER",
+   "PSYCHIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 81,
+  "name": "Magnemite",
+  "types": [
+   "ELECTRIC",
+   "STEEL"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 82,
+  "name": "Magneton",
+  "types": [
+   "ELECTRIC",
+   "STEEL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 83,
+  "name": "Farfetch'd",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 84,
+  "name": "Doduo",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 85,
+  "name": "Dodrio",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 86,
+  "name": "Seel",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 87,
+  "name": "Dewgong",
+  "types": [
+   "WATER",
+   "ICE"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 88,
+  "name": "Grimer",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 89,
+  "name": "Muk",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 90,
+  "name": "Shellder",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 91,
+  "name": "Cloyster",
+  "types": [
+   "WATER",
+   "ICE"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 92,
+  "name": "Gastly",
+  "types": [
+   "GHOST",
+   "POISON"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 93,
+  "name": "Haunter",
+  "types": [
+   "GHOST",
+   "POISON"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 94,
+  "name": "Gengar",
+  "types": [
+   "GHOST",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 95,
+  "name": "Onix",
+  "types": [
+   "ROCK",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 96,
+  "name": "Drowzee",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 97,
+  "name": "Hypno",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 98,
+  "name": "Krabby",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 99,
+  "name": "Kingler",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 100,
+  "name": "Voltorb",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 101,
+  "name": "Electrode",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 102,
+  "name": "Exeggcute",
+  "types": [
+   "GRASS",
+   "PSYCHIC"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 103,
+  "name": "Exeggutor",
+  "types": [
+   "GRASS",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 104,
+  "name": "Cubone",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 105,
+  "name": "Marowak",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 106,
+  "name": "Hitmonlee",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 107,
+  "name": "Hitmonchan",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 108,
+  "name": "Lickitung",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 109,
+  "name": "Koffing",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 110,
+  "name": "Weezing",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 111,
+  "name": "Rhyhorn",
+  "types": [
+   "GROUND",
+   "ROCK"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 112,
+  "name": "Rhydon",
+  "types": [
+   "GROUND",
+   "ROCK"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 113,
+  "name": "Chansey",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 114,
+  "name": "Tangela",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 115,
+  "name": "Kangaskhan",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 116,
+  "name": "Horsea",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 117,
+  "name": "Seadra",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 118,
+  "name": "Goldeen",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 119,
+  "name": "Seaking",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 120,
+  "name": "Staryu",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 121,
+  "name": "Starmie",
+  "types": [
+   "WATER",
+   "PSYCHIC"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 122,
+  "name": "Mr. Mime",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 123,
+  "name": "Scyther",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 124,
+  "name": "Jynx",
+  "types": [
+   "ICE",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 125,
+  "name": "Electabuzz",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 126,
+  "name": "Magmar",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 127,
+  "name": "Pinsir",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 128,
+  "name": "Tauros",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 129,
+  "name": "Magikarp",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 130,
+  "name": "Gyarados",
+  "types": [
+   "WATER",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 131,
+  "name": "Lapras",
+  "types": [
+   "WATER",
+   "ICE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 132,
+  "name": "Ditto",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 35,
+  "obtainable": true
+ },
+ {
+  "id": 133,
+  "name": "Eevee",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 134,
+  "name": "Vaporeon",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 135,
+  "name": "Jolteon",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 136,
+  "name": "Flareon",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 137,
+  "name": "Porygon",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 138,
+  "name": "Omanyte",
+  "types": [
+   "ROCK",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 139,
+  "name": "Omastar",
+  "types": [
+   "ROCK",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 140,
+  "name": "Kabuto",
+  "types": [
+   "ROCK",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 141,
+  "name": "Kabutops",
+  "types": [
+   "ROCK",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 142,
+  "name": "Aerodactyl",
+  "types": [
+   "ROCK",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 143,
+  "name": "Snorlax",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 144,
+  "name": "Articuno",
+  "types": [
+   "ICE",
+   "FLYING"
+  ],
+  "catch_rate": 5,
+  "obtainable": true
+ },
+ {
+  "id": 145,
+  "name": "Zapdos",
+  "types": [
+   "ELECTRIC",
+   "FLYING"
+  ],
+  "catch_rate": 5,
+  "obtainable": true
+ },
+ {
+  "id": 146,
+  "name": "Moltres",
+  "types": [
+   "FIRE",
+   "FLYING"
+  ],
+  "catch_rate": 5,
+  "obtainable": true
+ },
+ {
+  "id": 147,
+  "name": "Dratini",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 148,
+  "name": "Dragonair",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 149,
+  "name": "Dragonite",
+  "types": [
+   "DRAGON",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 150,
+  "name": "Mewtwo",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 151,
+  "name": "Mew",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 152,
+  "name": "Chikorita",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 153,
+  "name": "Bayleef",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 154,
+  "name": "Meganium",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 155,
+  "name": "Cyndaquil",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 156,
+  "name": "Quilava",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 157,
+  "name": "Typhlosion",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 158,
+  "name": "Totodile",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 159,
+  "name": "Croconaw",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 160,
+  "name": "Feraligatr",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 161,
+  "name": "Sentret",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 162,
+  "name": "Furret",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 163,
+  "name": "Hoothoot",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 164,
+  "name": "Noctowl",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 165,
+  "name": "Ledyba",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 166,
+  "name": "Ledian",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 167,
+  "name": "Spinarak",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 168,
+  "name": "Ariados",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 169,
+  "name": "Crobat",
+  "types": [
+   "POISON",
+   "FLYING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 170,
+  "name": "Chinchou",
+  "types": [
+   "WATER",
+   "ELECTRIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 171,
+  "name": "Lanturn",
+  "types": [
+   "WATER",
+   "ELECTRIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 172,
+  "name": "Pichu",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 173,
+  "name": "Cleffa",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 150,
+  "obtainable": true
+ },
+ {
+  "id": 174,
+  "name": "Igglybuff",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 170,
+  "obtainable": true
+ },
+ {
+  "id": 175,
+  "name": "Togepi",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 176,
+  "name": "Togetic",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 177,
+  "name": "Natu",
+  "types": [
+   "PSYCHIC",
+   "FLYING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 178,
+  "name": "Xatu",
+  "types": [
+   "PSYCHIC",
+   "FLYING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 179,
+  "name": "Mareep",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 235,
+  "obtainable": true
+ },
+ {
+  "id": 180,
+  "name": "Flaaffy",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 181,
+  "name": "Ampharos",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 182,
+  "name": "Bellossom",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 183,
+  "name": "Marill",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 184,
+  "name": "Azumarill",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 185,
+  "name": "Sudowoodo",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 65,
+  "obtainable": true
+ },
+ {
+  "id": 186,
+  "name": "Politoed",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 187,
+  "name": "Hoppip",
+  "types": [
+   "GRASS",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 188,
+  "name": "Skiploom",
+  "types": [
+   "GRASS",
+   "FLYING"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 189,
+  "name": "Jumpluff",
+  "types": [
+   "GRASS",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 190,
+  "name": "Aipom",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 191,
+  "name": "Sunkern",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 235,
+  "obtainable": true
+ },
+ {
+  "id": 192,
+  "name": "Sunflora",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 193,
+  "name": "Yanma",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 194,
+  "name": "Wooper",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 195,
+  "name": "Quagsire",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 196,
+  "name": "Espeon",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 197,
+  "name": "Umbreon",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 198,
+  "name": "Murkrow",
+  "types": [
+   "DARK",
+   "FLYING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 199,
+  "name": "Slowking",
+  "types": [
+   "WATER",
+   "PSYCHIC"
+  ],
+  "catch_rate": 70,
+  "obtainable": true
+ },
+ {
+  "id": 200,
+  "name": "Misdreavus",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 201,
+  "name": "Unown",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 202,
+  "name": "Wobbuffet",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 203,
+  "name": "Girafarig",
+  "types": [
+   "NORMAL",
+   "PSYCHIC"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 204,
+  "name": "Pineco",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 205,
+  "name": "Forretress",
+  "types": [
+   "BUG",
+   "STEEL"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 206,
+  "name": "Dunsparce",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 207,
+  "name": "Gligar",
+  "types": [
+   "GROUND",
+   "FLYING"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 208,
+  "name": "Steelix",
+  "types": [
+   "STEEL",
+   "GROUND"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 209,
+  "name": "Snubbull",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 210,
+  "name": "Granbull",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 211,
+  "name": "Qwilfish",
+  "types": [
+   "WATER",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 212,
+  "name": "Scizor",
+  "types": [
+   "BUG",
+   "STEEL"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 213,
+  "name": "Shuckle",
+  "types": [
+   "BUG",
+   "ROCK"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 214,
+  "name": "Heracross",
+  "types": [
+   "BUG",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 215,
+  "name": "Sneasel",
+  "types": [
+   "DARK",
+   "ICE"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 216,
+  "name": "Teddiursa",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 217,
+  "name": "Ursaring",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 218,
+  "name": "Slugma",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 219,
+  "name": "Magcargo",
+  "types": [
+   "FIRE",
+   "ROCK"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 220,
+  "name": "Swinub",
+  "types": [
+   "ICE",
+   "GROUND"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 221,
+  "name": "Piloswine",
+  "types": [
+   "ICE",
+   "GROUND"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 222,
+  "name": "Corsola",
+  "types": [
+   "WATER",
+   "ROCK"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 223,
+  "name": "Remoraid",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 224,
+  "name": "Octillery",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 225,
+  "name": "Delibird",
+  "types": [
+   "ICE",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 226,
+  "name": "Mantine",
+  "types": [
+   "WATER",
+   "FLYING"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 227,
+  "name": "Skarmory",
+  "types": [
+   "STEEL",
+   "FLYING"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 228,
+  "name": "Houndour",
+  "types": [
+   "DARK",
+   "FIRE"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 229,
+  "name": "Houndoom",
+  "types": [
+   "DARK",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 230,
+  "name": "Kingdra",
+  "types": [
+   "WATER",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 231,
+  "name": "Phanpy",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 232,
+  "name": "Donphan",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 233,
+  "name": "Porygon2",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 234,
+  "name": "Stantler",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 235,
+  "name": "Smeargle",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 236,
+  "name": "Tyrogue",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 237,
+  "name": "Hitmontop",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 238,
+  "name": "Smoochum",
+  "types": [
+   "ICE",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 239,
+  "name": "Elekid",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 240,
+  "name": "Magby",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 241,
+  "name": "Miltank",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 242,
+  "name": "Blissey",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 243,
+  "name": "Raikou",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 5,
+  "obtainable": true
+ },
+ {
+  "id": 244,
+  "name": "Entei",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 5,
+  "obtainable": true
+ },
+ {
+  "id": 245,
+  "name": "Suicune",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 5,
+  "obtainable": true
+ },
+ {
+  "id": 246,
+  "name": "Larvitar",
+  "types": [
+   "ROCK",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 247,
+  "name": "Pupitar",
+  "types": [
+   "ROCK",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 248,
+  "name": "Tyranitar",
+  "types": [
+   "ROCK",
+   "DARK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 249,
+  "name": "Lugia",
+  "types": [
+   "PSYCHIC",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 250,
+  "name": "Ho-Oh",
+  "types": [
+   "FIRE",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 251,
+  "name": "Celebi",
+  "types": [
+   "PSYCHIC",
+   "GRASS"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 252,
+  "name": "Treecko",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 253,
+  "name": "Grovyle",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 254,
+  "name": "Sceptile",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 255,
+  "name": "Torchic",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 256,
+  "name": "Combusken",
+  "types": [
+   "FIRE",
+   "FIGHTING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 257,
+  "name": "Blaziken",
+  "types": [
+   "FIRE",
+   "FIGHTING"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 258,
+  "name": "Mudkip",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 259,
+  "name": "Marshtomp",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 260,
+  "name": "Swampert",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 261,
+  "name": "Poochyena",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 262,
+  "name": "Mightyena",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 127,
+  "obtainable": true
+ },
+ {
+  "id": 263,
+  "name": "Zigzagoon",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 264,
+  "name": "Linoone",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 265,
+  "name": "Wurmple",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 266,
+  "name": "Silcoon",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 267,
+  "name": "Beautifly",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 268,
+  "name": "Cascoon",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 269,
+  "name": "Dustox",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 270,
+  "name": "Lotad",
+  "types": [
+   "WATER",
+   "GRASS"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 271,
+  "name": "Lombre",
+  "types": [
+   "WATER",
+   "GRASS"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 272,
+  "name": "Ludicolo",
+  "types": [
+   "WATER",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 273,
+  "name": "Seedot",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 274,
+  "name": "Nuzleaf",
+  "types": [
+   "GRASS",
+   "DARK"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 275,
+  "name": "Shiftry",
+  "types": [
+   "GRASS",
+   "DARK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 276,
+  "name": "Taillow",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 277,
+  "name": "Swellow",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 278,
+  "name": "Wingull",
+  "types": [
+   "WATER",
+   "FLYING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 279,
+  "name": "Pelipper",
+  "types": [
+   "WATER",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 280,
+  "name": "Ralts",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 235,
+  "obtainable": true
+ },
+ {
+  "id": 281,
+  "name": "Kirlia",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 282,
+  "name": "Gardevoir",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 283,
+  "name": "Surskit",
+  "types": [
+   "BUG",
+   "WATER"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 284,
+  "name": "Masquerain",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 285,
+  "name": "Shroomish",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 286,
+  "name": "Breloom",
+  "types": [
+   "GRASS",
+   "FIGHTING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 287,
+  "name": "Slakoth",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 288,
+  "name": "Vigoroth",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 289,
+  "name": "Slaking",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 290,
+  "name": "Nincada",
+  "types": [
+   "BUG",
+   "GROUND"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 291,
+  "name": "Ninjask",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 292,
+  "name": "Shedinja",
+  "types": [
+   "BUG",
+   "GHOST"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 293,
+  "name": "Whismur",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 294,
+  "name": "Loudred",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 295,
+  "name": "Exploud",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 296,
+  "name": "Makuhita",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 297,
+  "name": "Hariyama",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 298,
+  "name": "Azurill",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 150,
+  "obtainable": true
+ },
+ {
+  "id": 299,
+  "name": "Nosepass",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 300,
+  "name": "Skitty",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 301,
+  "name": "Delcatty",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 302,
+  "name": "Sableye",
+  "types": [
+   "DARK",
+   "GHOST"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 303,
+  "name": "Mawile",
+  "types": [
+   "STEEL",
+   "STEEL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 304,
+  "name": "Aron",
+  "types": [
+   "STEEL",
+   "ROCK"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 305,
+  "name": "Lairon",
+  "types": [
+   "STEEL",
+   "ROCK"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 306,
+  "name": "Aggron",
+  "types": [
+   "STEEL",
+   "ROCK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 307,
+  "name": "Meditite",
+  "types": [
+   "FIGHTING",
+   "PSYCHIC"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 308,
+  "name": "Medicham",
+  "types": [
+   "FIGHTING",
+   "PSYCHIC"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 309,
+  "name": "Electrike",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 310,
+  "name": "Manectric",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 311,
+  "name": "Plusle",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 312,
+  "name": "Minun",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 313,
+  "name": "Volbeat",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 150,
+  "obtainable": true
+ },
+ {
+  "id": 314,
+  "name": "Illumise",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 150,
+  "obtainable": true
+ },
+ {
+  "id": 315,
+  "name": "Roselia",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 150,
+  "obtainable": true
+ },
+ {
+  "id": 316,
+  "name": "Gulpin",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 317,
+  "name": "Swalot",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 318,
+  "name": "Carvanha",
+  "types": [
+   "WATER",
+   "DARK"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 319,
+  "name": "Sharpedo",
+  "types": [
+   "WATER",
+   "DARK"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 320,
+  "name": "Wailmer",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 125,
+  "obtainable": true
+ },
+ {
+  "id": 321,
+  "name": "Wailord",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 322,
+  "name": "Numel",
+  "types": [
+   "FIRE",
+   "GROUND"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 323,
+  "name": "Camerupt",
+  "types": [
+   "FIRE",
+   "GROUND"
+  ],
+  "catch_rate": 150,
+  "obtainable": true
+ },
+ {
+  "id": 324,
+  "name": "Torkoal",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 325,
+  "name": "Spoink",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 326,
+  "name": "Grumpig",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 327,
+  "name": "Spinda",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 328,
+  "name": "Trapinch",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 329,
+  "name": "Vibrava",
+  "types": [
+   "GROUND",
+   "DRAGON"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 330,
+  "name": "Flygon",
+  "types": [
+   "GROUND",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 331,
+  "name": "Cacnea",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 332,
+  "name": "Cacturne",
+  "types": [
+   "GRASS",
+   "DARK"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 333,
+  "name": "Swablu",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 334,
+  "name": "Altaria",
+  "types": [
+   "DRAGON",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 335,
+  "name": "Zangoose",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 336,
+  "name": "Seviper",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 337,
+  "name": "Lunatone",
+  "types": [
+   "ROCK",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 338,
+  "name": "Solrock",
+  "types": [
+   "ROCK",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 339,
+  "name": "Barboach",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 340,
+  "name": "Whiscash",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 341,
+  "name": "Corphish",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 205,
+  "obtainable": true
+ },
+ {
+  "id": 342,
+  "name": "Crawdaunt",
+  "types": [
+   "WATER",
+   "DARK"
+  ],
+  "catch_rate": 155,
+  "obtainable": true
+ },
+ {
+  "id": 343,
+  "name": "Baltoy",
+  "types": [
+   "GROUND",
+   "PSYCHIC"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 344,
+  "name": "Claydol",
+  "types": [
+   "GROUND",
+   "PSYCHIC"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 345,
+  "name": "Lileep",
+  "types": [
+   "ROCK",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 346,
+  "name": "Cradily",
+  "types": [
+   "ROCK",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 347,
+  "name": "Anorith",
+  "types": [
+   "ROCK",
+   "BUG"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 348,
+  "name": "Armaldo",
+  "types": [
+   "ROCK",
+   "BUG"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 349,
+  "name": "Feebas",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 350,
+  "name": "Milotic",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 351,
+  "name": "Castform",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 352,
+  "name": "Kecleon",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 353,
+  "name": "Shuppet",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 354,
+  "name": "Banette",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 355,
+  "name": "Duskull",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 356,
+  "name": "Dusclops",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 357,
+  "name": "Tropius",
+  "types": [
+   "GRASS",
+   "FLYING"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 358,
+  "name": "Chimecho",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 359,
+  "name": "Absol",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 360,
+  "name": "Wynaut",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 125,
+  "obtainable": true
+ },
+ {
+  "id": 361,
+  "name": "Snorunt",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 362,
+  "name": "Glalie",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 363,
+  "name": "Spheal",
+  "types": [
+   "ICE",
+   "WATER"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 364,
+  "name": "Sealeo",
+  "types": [
+   "ICE",
+   "WATER"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 365,
+  "name": "Walrein",
+  "types": [
+   "ICE",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 366,
+  "name": "Clamperl",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 367,
+  "name": "Huntail",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 368,
+  "name": "Gorebyss",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 369,
+  "name": "Relicanth",
+  "types": [
+   "WATER",
+   "ROCK"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 370,
+  "name": "Luvdisc",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 371,
+  "name": "Bagon",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 372,
+  "name": "Shelgon",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 373,
+  "name": "Salamence",
+  "types": [
+   "DRAGON",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 374,
+  "name": "Beldum",
+  "types": [
+   "STEEL",
+   "PSYCHIC"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 375,
+  "name": "Metang",
+  "types": [
+   "STEEL",
+   "PSYCHIC"
+  ],
+  "catch_rate": 20,
+  "obtainable": true
+ },
+ {
+  "id": 376,
+  "name": "Metagross",
+  "types": [
+   "STEEL",
+   "PSYCHIC"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 377,
+  "name": "Regirock",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 378,
+  "name": "Regice",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 379,
+  "name": "Registeel",
+  "types": [
+   "STEEL",
+   "STEEL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 380,
+  "name": "Latias",
+  "types": [
+   "DRAGON",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 381,
+  "name": "Latios",
+  "types": [
+   "DRAGON",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 382,
+  "name": "Kyogre",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 383,
+  "name": "Groudon",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 384,
+  "name": "Rayquaza",
+  "types": [
+   "DRAGON",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 385,
+  "name": "Jirachi",
+  "types": [
+   "STEEL",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 386,
+  "name": "Deoxys",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 387,
+  "name": "Turtwig",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 388,
+  "name": "Grotle",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 389,
+  "name": "Torterra",
+  "types": [
+   "GRASS",
+   "GROUND"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 390,
+  "name": "Chimchar",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 391,
+  "name": "Monferno",
+  "types": [
+   "FIRE",
+   "FIGHTING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 392,
+  "name": "Infernape",
+  "types": [
+   "FIRE",
+   "FIGHTING"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 393,
+  "name": "Piplup",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 394,
+  "name": "Prinplup",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 395,
+  "name": "Empoleon",
+  "types": [
+   "WATER",
+   "STEEL"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 396,
+  "name": "Starly",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 397,
+  "name": "Staravia",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 398,
+  "name": "Staraptor",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 399,
+  "name": "Bidoof",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 400,
+  "name": "Bibarel",
+  "types": [
+   "NORMAL",
+   "WATER"
+  ],
+  "catch_rate": 127,
+  "obtainable": true
+ },
+ {
+  "id": 401,
+  "name": "Kricketot",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 402,
+  "name": "Kricketune",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 403,
+  "name": "Shinx",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 235,
+  "obtainable": true
+ },
+ {
+  "id": 404,
+  "name": "Luxio",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 405,
+  "name": "Luxray",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 406,
+  "name": "Budew",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 407,
+  "name": "Roserade",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 408,
+  "name": "Cranidos",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 409,
+  "name": "Rampardos",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 410,
+  "name": "Shieldon",
+  "types": [
+   "ROCK",
+   "STEEL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 411,
+  "name": "Bastiodon",
+  "types": [
+   "ROCK",
+   "STEEL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 412,
+  "name": "Burmy",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 413,
+  "name": "Wormadam",
+  "types": [
+   "BUG",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 414,
+  "name": "Mothim",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 415,
+  "name": "Combee",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 416,
+  "name": "Vespiquen",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 417,
+  "name": "Pachirisu",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 418,
+  "name": "Buizel",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 419,
+  "name": "Floatzel",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 420,
+  "name": "Cherubi",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 421,
+  "name": "Cherrim",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 422,
+  "name": "Shellos",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 423,
+  "name": "Gastrodon",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 424,
+  "name": "Ambipom",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 425,
+  "name": "Drifloon",
+  "types": [
+   "GHOST",
+   "FLYING"
+  ],
+  "catch_rate": 125,
+  "obtainable": true
+ },
+ {
+  "id": 426,
+  "name": "Drifblim",
+  "types": [
+   "GHOST",
+   "FLYING"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 427,
+  "name": "Buneary",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 428,
+  "name": "Lopunny",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 429,
+  "name": "Mismagius",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 430,
+  "name": "Honchkrow",
+  "types": [
+   "DARK",
+   "FLYING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 431,
+  "name": "Glameow",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 432,
+  "name": "Purugly",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 433,
+  "name": "Chingling",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 434,
+  "name": "Stunky",
+  "types": [
+   "POISON",
+   "DARK"
+  ],
+  "catch_rate": 225,
+  "obtainable": true
+ },
+ {
+  "id": 435,
+  "name": "Skuntank",
+  "types": [
+   "POISON",
+   "DARK"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 436,
+  "name": "Bronzor",
+  "types": [
+   "STEEL",
+   "PSYCHIC"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 437,
+  "name": "Bronzong",
+  "types": [
+   "STEEL",
+   "PSYCHIC"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 438,
+  "name": "Bonsly",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 439,
+  "name": "Mime Jr.",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 145,
+  "obtainable": true
+ },
+ {
+  "id": 440,
+  "name": "Happiny",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 130,
+  "obtainable": true
+ },
+ {
+  "id": 441,
+  "name": "Chatot",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 442,
+  "name": "Spiritomb",
+  "types": [
+   "GHOST",
+   "DARK"
+  ],
+  "catch_rate": 100,
+  "obtainable": true
+ },
+ {
+  "id": 443,
+  "name": "Gible",
+  "types": [
+   "DRAGON",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 444,
+  "name": "Gabite",
+  "types": [
+   "DRAGON",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 445,
+  "name": "Garchomp",
+  "types": [
+   "DRAGON",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 446,
+  "name": "Munchlax",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 50,
+  "obtainable": true
+ },
+ {
+  "id": 447,
+  "name": "Riolu",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 448,
+  "name": "Lucario",
+  "types": [
+   "FIGHTING",
+   "STEEL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 449,
+  "name": "Hippopotas",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 140,
+  "obtainable": true
+ },
+ {
+  "id": 450,
+  "name": "Hippowdon",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 451,
+  "name": "Skorupi",
+  "types": [
+   "POISON",
+   "BUG"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 452,
+  "name": "Drapion",
+  "types": [
+   "POISON",
+   "DARK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 453,
+  "name": "Croagunk",
+  "types": [
+   "POISON",
+   "FIGHTING"
+  ],
+  "catch_rate": 140,
+  "obtainable": true
+ },
+ {
+  "id": 454,
+  "name": "Toxicroak",
+  "types": [
+   "POISON",
+   "FIGHTING"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 455,
+  "name": "Carnivine",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 456,
+  "name": "Finneon",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 457,
+  "name": "Lumineon",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 458,
+  "name": "Mantyke",
+  "types": [
+   "WATER",
+   "FLYING"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 459,
+  "name": "Snover",
+  "types": [
+   "GRASS",
+   "ICE"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 460,
+  "name": "Abomasnow",
+  "types": [
+   "GRASS",
+   "ICE"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 461,
+  "name": "Weavile",
+  "types": [
+   "DARK",
+   "ICE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 462,
+  "name": "Magnezone",
+  "types": [
+   "ELECTRIC",
+   "STEEL"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 463,
+  "name": "Lickilicky",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 464,
+  "name": "Rhyperior",
+  "types": [
+   "GROUND",
+   "ROCK"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 465,
+  "name": "Tangrowth",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 466,
+  "name": "Electivire",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 467,
+  "name": "Magmortar",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 468,
+  "name": "Togekiss",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 469,
+  "name": "Yanmega",
+  "types": [
+   "BUG",
+   "FLYING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 470,
+  "name": "Leafeon",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 471,
+  "name": "Glaceon",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 472,
+  "name": "Gliscor",
+  "types": [
+   "GROUND",
+   "FLYING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 473,
+  "name": "Mamoswine",
+  "types": [
+   "ICE",
+   "GROUND"
+  ],
+  "catch_rate": 50,
+  "obtainable": true
+ },
+ {
+  "id": 474,
+  "name": "Porygon-Z",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 475,
+  "name": "Gallade",
+  "types": [
+   "PSYCHIC",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 476,
+  "name": "Probopass",
+  "types": [
+   "ROCK",
+   "STEEL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 477,
+  "name": "Dusknoir",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 478,
+  "name": "Froslass",
+  "types": [
+   "ICE",
+   "GHOST"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 479,
+  "name": "Rotom",
+  "types": [
+   "ELECTRIC",
+   "GHOST"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 480,
+  "name": "Uxie",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 481,
+  "name": "Mesprit",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 482,
+  "name": "Azelf",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 483,
+  "name": "Dialga",
+  "types": [
+   "STEEL",
+   "DRAGON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 484,
+  "name": "Palkia",
+  "types": [
+   "WATER",
+   "DRAGON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 485,
+  "name": "Heatran",
+  "types": [
+   "FIRE",
+   "STEEL"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 486,
+  "name": "Regigigas",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 487,
+  "name": "Giratina",
+  "types": [
+   "GHOST",
+   "DRAGON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 488,
+  "name": "Cresselia",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 489,
+  "name": "Phione",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 490,
+  "name": "Manaphy",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 491,
+  "name": "Darkrai",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 492,
+  "name": "Shaymin",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 493,
+  "name": "Arceus",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 494,
+  "name": "Victini",
+  "types": [
+   "PSYCHIC",
+   "FIRE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 495,
+  "name": "Snivy",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 496,
+  "name": "Servine",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 497,
+  "name": "Serperior",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 498,
+  "name": "Tepig",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 499,
+  "name": "Pignite",
+  "types": [
+   "FIRE",
+   "FIGHTING"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 500,
+  "name": "Emboar",
+  "types": [
+   "FIRE",
+   "FIGHTING"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 501,
+  "name": "Oshawott",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 502,
+  "name": "Dewott",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 503,
+  "name": "Samurott",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 504,
+  "name": "Patrat",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 505,
+  "name": "Watchog",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 506,
+  "name": "Lillipup",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 507,
+  "name": "Herdier",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 508,
+  "name": "Stoutland",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 509,
+  "name": "Purrloin",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 510,
+  "name": "Liepard",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 511,
+  "name": "Pansage",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 512,
+  "name": "Simisage",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 513,
+  "name": "Pansear",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 514,
+  "name": "Simisear",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 515,
+  "name": "Panpour",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 516,
+  "name": "Simipour",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 517,
+  "name": "Munna",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 518,
+  "name": "Musharna",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 519,
+  "name": "Pidove",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 520,
+  "name": "Tranquill",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 521,
+  "name": "Unfezant",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 522,
+  "name": "Blitzle",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 523,
+  "name": "Zebstrika",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 524,
+  "name": "Roggenrola",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 525,
+  "name": "Boldore",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 526,
+  "name": "Gigalith",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 527,
+  "name": "Woobat",
+  "types": [
+   "PSYCHIC",
+   "FLYING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 528,
+  "name": "Swoobat",
+  "types": [
+   "PSYCHIC",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 529,
+  "name": "Drilbur",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 530,
+  "name": "Excadrill",
+  "types": [
+   "GROUND",
+   "STEEL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 531,
+  "name": "Audino",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 532,
+  "name": "Timburr",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 533,
+  "name": "Gurdurr",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 534,
+  "name": "Conkeldurr",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 535,
+  "name": "Tympole",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 536,
+  "name": "Palpitoad",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 537,
+  "name": "Seismitoad",
+  "types": [
+   "WATER",
+   "GROUND"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 538,
+  "name": "Throh",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 539,
+  "name": "Sawk",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 540,
+  "name": "Sewaddle",
+  "types": [
+   "BUG",
+   "GRASS"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 541,
+  "name": "Swadloon",
+  "types": [
+   "BUG",
+   "GRASS"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 542,
+  "name": "Leavanny",
+  "types": [
+   "BUG",
+   "GRASS"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 543,
+  "name": "Venipede",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 544,
+  "name": "Whirlipede",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 545,
+  "name": "Scolipede",
+  "types": [
+   "BUG",
+   "POISON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 546,
+  "name": "Cottonee",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 547,
+  "name": "Whimsicott",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 548,
+  "name": "Petilil",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 549,
+  "name": "Lilligant",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 550,
+  "name": "Basculin",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 551,
+  "name": "Sandile",
+  "types": [
+   "GROUND",
+   "DARK"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 552,
+  "name": "Krokorok",
+  "types": [
+   "GROUND",
+   "DARK"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 553,
+  "name": "Krookodile",
+  "types": [
+   "GROUND",
+   "DARK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 554,
+  "name": "Darumaka",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 555,
+  "name": "Darmanitan",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 556,
+  "name": "Maractus",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 557,
+  "name": "Dwebble",
+  "types": [
+   "BUG",
+   "ROCK"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 558,
+  "name": "Crustle",
+  "types": [
+   "BUG",
+   "ROCK"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 559,
+  "name": "Scraggy",
+  "types": [
+   "DARK",
+   "FIGHTING"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 560,
+  "name": "Scrafty",
+  "types": [
+   "DARK",
+   "FIGHTING"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 561,
+  "name": "Sigilyph",
+  "types": [
+   "PSYCHIC",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 562,
+  "name": "Yamask",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 563,
+  "name": "Cofagrigus",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 564,
+  "name": "Tirtouga",
+  "types": [
+   "WATER",
+   "ROCK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 565,
+  "name": "Carracosta",
+  "types": [
+   "WATER",
+   "ROCK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 566,
+  "name": "Archen",
+  "types": [
+   "ROCK",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 567,
+  "name": "Archeops",
+  "types": [
+   "ROCK",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 568,
+  "name": "Trubbish",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 569,
+  "name": "Garbodor",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 570,
+  "name": "Zorua",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 571,
+  "name": "Zoroark",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 572,
+  "name": "Minccino",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 573,
+  "name": "Cinccino",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 574,
+  "name": "Gothita",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 575,
+  "name": "Gothorita",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 100,
+  "obtainable": true
+ },
+ {
+  "id": 576,
+  "name": "Gothitelle",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 50,
+  "obtainable": true
+ },
+ {
+  "id": 577,
+  "name": "Solosis",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 578,
+  "name": "Duosion",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 100,
+  "obtainable": true
+ },
+ {
+  "id": 579,
+  "name": "Reuniclus",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 50,
+  "obtainable": true
+ },
+ {
+  "id": 580,
+  "name": "Ducklett",
+  "types": [
+   "WATER",
+   "FLYING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 581,
+  "name": "Swanna",
+  "types": [
+   "WATER",
+   "FLYING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 582,
+  "name": "Vanillite",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 583,
+  "name": "Vanillish",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 584,
+  "name": "Vanilluxe",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 585,
+  "name": "Deerling",
+  "types": [
+   "NORMAL",
+   "GRASS"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 586,
+  "name": "Sawsbuck",
+  "types": [
+   "NORMAL",
+   "GRASS"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 587,
+  "name": "Emolga",
+  "types": [
+   "ELECTRIC",
+   "FLYING"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 588,
+  "name": "Karrablast",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 589,
+  "name": "Escavalier",
+  "types": [
+   "BUG",
+   "STEEL"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 590,
+  "name": "Foongus",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 591,
+  "name": "Amoonguss",
+  "types": [
+   "GRASS",
+   "POISON"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 592,
+  "name": "Frillish",
+  "types": [
+   "WATER",
+   "GHOST"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 593,
+  "name": "Jellicent",
+  "types": [
+   "WATER",
+   "GHOST"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 594,
+  "name": "Alomomola",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 595,
+  "name": "Joltik",
+  "types": [
+   "BUG",
+   "ELECTRIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 596,
+  "name": "Galvantula",
+  "types": [
+   "BUG",
+   "ELECTRIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 597,
+  "name": "Ferroseed",
+  "types": [
+   "GRASS",
+   "STEEL"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 598,
+  "name": "Ferrothorn",
+  "types": [
+   "GRASS",
+   "STEEL"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 599,
+  "name": "Klink",
+  "types": [
+   "STEEL",
+   "STEEL"
+  ],
+  "catch_rate": 130,
+  "obtainable": true
+ },
+ {
+  "id": 600,
+  "name": "Klang",
+  "types": [
+   "STEEL",
+   "STEEL"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 601,
+  "name": "Klinklang",
+  "types": [
+   "STEEL",
+   "STEEL"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 602,
+  "name": "Tynamo",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 603,
+  "name": "Eelektrik",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 604,
+  "name": "Eelektross",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": 30,
+  "obtainable": true
+ },
+ {
+  "id": 605,
+  "name": "Elgyem",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 255,
+  "obtainable": true
+ },
+ {
+  "id": 606,
+  "name": "Beheeyem",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 607,
+  "name": "Litwick",
+  "types": [
+   "GHOST",
+   "FIRE"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 608,
+  "name": "Lampent",
+  "types": [
+   "GHOST",
+   "FIRE"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 609,
+  "name": "Chandelure",
+  "types": [
+   "GHOST",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 610,
+  "name": "Axew",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 611,
+  "name": "Fraxure",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 612,
+  "name": "Haxorus",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 613,
+  "name": "Cubchoo",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 614,
+  "name": "Beartic",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 615,
+  "name": "Cryogonal",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": 25,
+  "obtainable": true
+ },
+ {
+  "id": 616,
+  "name": "Shelmet",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 200,
+  "obtainable": true
+ },
+ {
+  "id": 617,
+  "name": "Accelgor",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 618,
+  "name": "Stunfisk",
+  "types": [
+   "GROUND",
+   "ELECTRIC"
+  ],
+  "catch_rate": 75,
+  "obtainable": true
+ },
+ {
+  "id": 619,
+  "name": "Mienfoo",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 180,
+  "obtainable": true
+ },
+ {
+  "id": 620,
+  "name": "Mienshao",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 621,
+  "name": "Druddigon",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 622,
+  "name": "Golett",
+  "types": [
+   "GROUND",
+   "GHOST"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 623,
+  "name": "Golurk",
+  "types": [
+   "GROUND",
+   "GHOST"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 624,
+  "name": "Pawniard",
+  "types": [
+   "DARK",
+   "STEEL"
+  ],
+  "catch_rate": 120,
+  "obtainable": true
+ },
+ {
+  "id": 625,
+  "name": "Bisharp",
+  "types": [
+   "DARK",
+   "STEEL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 626,
+  "name": "Bouffalant",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 627,
+  "name": "Rufflet",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 628,
+  "name": "Braviary",
+  "types": [
+   "NORMAL",
+   "FLYING"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 629,
+  "name": "Vullaby",
+  "types": [
+   "DARK",
+   "FLYING"
+  ],
+  "catch_rate": 190,
+  "obtainable": true
+ },
+ {
+  "id": 630,
+  "name": "Mandibuzz",
+  "types": [
+   "DARK",
+   "FLYING"
+  ],
+  "catch_rate": 60,
+  "obtainable": true
+ },
+ {
+  "id": 631,
+  "name": "Heatmor",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 632,
+  "name": "Durant",
+  "types": [
+   "BUG",
+   "STEEL"
+  ],
+  "catch_rate": 90,
+  "obtainable": true
+ },
+ {
+  "id": 633,
+  "name": "Deino",
+  "types": [
+   "DARK",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 634,
+  "name": "Zweilous",
+  "types": [
+   "DARK",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 635,
+  "name": "Hydreigon",
+  "types": [
+   "DARK",
+   "DRAGON"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 636,
+  "name": "Larvesta",
+  "types": [
+   "BUG",
+   "FIRE"
+  ],
+  "catch_rate": 45,
+  "obtainable": true
+ },
+ {
+  "id": 637,
+  "name": "Volcarona",
+  "types": [
+   "BUG",
+   "FIRE"
+  ],
+  "catch_rate": 15,
+  "obtainable": true
+ },
+ {
+  "id": 638,
+  "name": "Cobalion",
+  "types": [
+   "STEEL",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 639,
+  "name": "Terrakion",
+  "types": [
+   "ROCK",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 640,
+  "name": "Virizion",
+  "types": [
+   "GRASS",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 641,
+  "name": "Tornadus",
+  "types": [
+   "FLYING",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 642,
+  "name": "Thundurus",
+  "types": [
+   "ELECTRIC",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 643,
+  "name": "Reshiram",
+  "types": [
+   "DRAGON",
+   "FIRE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 644,
+  "name": "Zekrom",
+  "types": [
+   "DRAGON",
+   "ELECTRIC"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 645,
+  "name": "Landorus",
+  "types": [
+   "GROUND",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 646,
+  "name": "Kyurem",
+  "types": [
+   "DRAGON",
+   "ICE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 647,
+  "name": "Keldeo",
+  "types": [
+   "WATER",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": true
+ },
+ {
+  "id": 648,
+  "name": "Meloetta",
+  "types": [
+   "NORMAL",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 649,
+  "name": "Genesect",
+  "types": [
+   "BUG",
+   "STEEL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 650,
+  "name": "Deoxys",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 651,
+  "name": "Deoxys",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 652,
+  "name": "Deoxys",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 653,
+  "name": "Wormadam",
+  "types": [
+   "BUG",
+   "GROUND"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 654,
+  "name": "Wormadam",
+  "types": [
+   "BUG",
+   "STEEL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 655,
+  "name": "Shaymin",
+  "types": [
+   "GRASS",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 656,
+  "name": "Giratina",
+  "types": [
+   "GHOST",
+   "DRAGON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 657,
+  "name": "Rotom",
+  "types": [
+   "ELECTRIC",
+   "FIRE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 658,
+  "name": "Rotom",
+  "types": [
+   "ELECTRIC",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 659,
+  "name": "Rotom",
+  "types": [
+   "ELECTRIC",
+   "ICE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 660,
+  "name": "Rotom",
+  "types": [
+   "ELECTRIC",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 661,
+  "name": "Rotom",
+  "types": [
+   "ELECTRIC",
+   "GRASS"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 662,
+  "name": "Castform",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 663,
+  "name": "Castform",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 664,
+  "name": "Castform",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 665,
+  "name": "Basculin",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 666,
+  "name": "Darmanitan",
+  "types": [
+   "FIRE",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 667,
+  "name": "Meloetta",
+  "types": [
+   "NORMAL",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1000,
+  "name": "Pumpking",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1001,
+  "name": "Pumpking",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1002,
+  "name": "Pumpking",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1003,
+  "name": "Fighting Elfbot",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1004,
+  "name": "Flying Elfbot",
+  "types": [
+   "FLYING",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1005,
+  "name": "Poison Elfbot",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1006,
+  "name": "Ground Elfbot",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1007,
+  "name": "Rock Elfbot",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1008,
+  "name": "Bug Elfbot",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1009,
+  "name": "Ghost Elfbot",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1010,
+  "name": "Steel Elfbot",
+  "types": [
+   "STEEL",
+   "STEEL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1011,
+  "name": "Fire Elfbot",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1012,
+  "name": "Water Elfbot",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1013,
+  "name": "Grass Elfbot",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1014,
+  "name": "Electric Elfbot",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1015,
+  "name": "Psychic Elfbot",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1016,
+  "name": "Ice Elfbot",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1017,
+  "name": "Dragon Elfbot",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1018,
+  "name": "Dark Elfbot",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1019,
+  "name": "Pumprince",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1020,
+  "name": "Pumprincess",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1021,
+  "name": "Li'l Pump",
+  "types": [
+   "GHOST",
+   "FIRE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1022,
+  "name": "???",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1023,
+  "name": "Giratina",
+  "types": [
+   "GHOST",
+   "DRAGON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1024,
+  "name": "Nian",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1025,
+  "name": "Jumpeon",
+  "types": [
+   "FLYING",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1026,
+  "name": "Circuitree",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1027,
+  "name": "Robosanta",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1028,
+  "name": "Mountain Muncher",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1029,
+  "name": "Fighting Elfbot",
+  "types": [
+   "FIGHTING",
+   "FIGHTING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1030,
+  "name": "Flying Elfbot",
+  "types": [
+   "FLYING",
+   "FLYING"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1031,
+  "name": "Poison Elfbot",
+  "types": [
+   "POISON",
+   "POISON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1032,
+  "name": "Ground Elfbot",
+  "types": [
+   "GROUND",
+   "GROUND"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1033,
+  "name": "Rock Elfbot",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1034,
+  "name": "Bug Elfbot",
+  "types": [
+   "BUG",
+   "BUG"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1035,
+  "name": "Ghost Elfbot",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1036,
+  "name": "Steel Elfbot",
+  "types": [
+   "STEEL",
+   "STEEL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1037,
+  "name": "Fire Elfbot",
+  "types": [
+   "FIRE",
+   "FIRE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1038,
+  "name": "Water Elfbot",
+  "types": [
+   "WATER",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1039,
+  "name": "Grass Elfbot",
+  "types": [
+   "GRASS",
+   "GRASS"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1040,
+  "name": "Electric Elfbot",
+  "types": [
+   "ELECTRIC",
+   "ELECTRIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1041,
+  "name": "Psychic Elfbot",
+  "types": [
+   "PSYCHIC",
+   "PSYCHIC"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1042,
+  "name": "Ice Elfbot",
+  "types": [
+   "ICE",
+   "ICE"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1043,
+  "name": "Dragon Elfbot",
+  "types": [
+   "DRAGON",
+   "DRAGON"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1044,
+  "name": "Dark Elfbot",
+  "types": [
+   "DARK",
+   "DARK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1045,
+  "name": "Normal Elfbot",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1046,
+  "name": "Normal Elfbot",
+  "types": [
+   "NORMAL",
+   "NORMAL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1047,
+  "name": "Pumpaladin",
+  "types": [
+   "GHOST",
+   "STEEL"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1048,
+  "name": "Pumpmage",
+  "types": [
+   "GHOST",
+   "WATER"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1049,
+  "name": "Pumpreaper",
+  "types": [
+   "GHOST",
+   "DARK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1050,
+  "name": "Botcracker",
+  "types": [
+   "ROCK",
+   "ROCK"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1051,
+  "name": "Pumpthief",
+  "types": [
+   "GHOST",
+   "GHOST"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ },
+ {
+  "id": 1052,
+  "name": "DEBUG_ST1000",
+  "types": [
+   "NORMAL",
+   "GROUND"
+  ],
+  "catch_rate": null,
+  "obtainable": false
+ }
+]
