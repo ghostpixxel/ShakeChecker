@@ -179,6 +179,13 @@
         { "name": "Tentacool", "level": 24, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
       ],
       "notes": "1920x1080 client resolution; battle UI elements keep their fixed pixel size (bar still 218 px)."
+    },
+    "login_screen.png": {
+      "scene": "login",
+      "location": null,
+      "overlay_visible": false,
+      "enemies": [],
+      "notes": "PokeMMO login screen (dark Zekrom over a light backdrop). Has no enemy HP bar; must NOT be detected as a battle even though dark pixels exist in the bottom region."
     }
   },
   "_action_fixtures_note": "Single battle frames captured at the moment an action resolves, for the turn counter (milestone 2). A turn is counted only when a committed-action textbox appears (not when the menu merely closes, e.g. BAG -> cancel). Battle text shows bottom-left of the viewport. Filenames keep the user's spelling ('batle_').",

@@ -57,9 +57,12 @@ def test_status(name, exp):
         assert bar.status.value == enemy["status"]
 
 
+BATTLE_SCENES = {"wild_single", "wild_double", "trainer"}
+
+
 @pytest.mark.parametrize(("name", "exp"), CASES, ids=IDS)
 def test_battle_ui_presence(name, exp):
-    # The command panel marks any battle (wild/double/trainer); overworld has none.
+    # The command panel marks a battle; overworld and login screen have none.
     img = cv2.imread(str(FIXTURES / name))
-    expected_present = exp["scene"] != "overworld"
+    expected_present = exp["scene"] in BATTLE_SCENES
     assert is_battle_ui_present(img, CAL.battle_ui) is expected_present

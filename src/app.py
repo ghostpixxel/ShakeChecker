@@ -166,8 +166,8 @@ def analyze_image(
             turns_completed = turn - 1 if turn else 0
             ctx = battle_context(enemy, turns_completed=turns_completed)
             probs = ball_probs(bar.hp_pct, enemy["catch_rate"], status_rates[status], balls, ctx)
-            turn_note = f"  (chat turn {turn})" if turn else ""
-            print("  " + format_line(label, bar.hp_pct, status, probs) + turn_note)
+            turn_note = f"[turn {turn}] " if turn else "[turn ?] "
+            print("  " + turn_note + format_line(label, bar.hp_pct, status, probs))
 
 
 def list_windows() -> None:
@@ -276,8 +276,11 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                     turns.observe(read_turn_number(frame, cal.chat), bar.status is Status.SLP)
                     last_chat_ocr = now
 
+                turn_note = f"turn {turns.turns_completed + 1}"
+                if turns.turns_asleep:
+                    turn_note += f", asleep {turns.turns_asleep}"
                 if cached is None:
-                    line = f"{'?':12.12s} HP {bar.hp_pct:5.1f}% [{status}]  (identifying...)"
+                    line = f"{'?':12.12s} HP {bar.hp_pct:5.1f}% [{status}]  ({turn_note})"
                 else:
                     ctx = battle_context(
                         cached,
@@ -287,7 +290,9 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                     probs = ball_probs(
                         bar.hp_pct, cached["catch_rate"], status_rates[status], balls, ctx
                     )
-                    line = format_line(cached["name"], bar.hp_pct, status, probs)
+                    line = f"[{turn_note}] " + format_line(
+                        cached["name"], bar.hp_pct, status, probs
+                    )
                 if line != last_line:
                     print(line)
                     last_line = line
