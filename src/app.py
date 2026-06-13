@@ -30,6 +30,7 @@ from battle_reader import (
     read_battle,
 )
 from catch_calc import BattleContext, ball_multiplier, catch_probability
+from hp_settler import HpSettler
 from name_reader import NameReader
 from turn_tracker import TurnTracker
 from window_capture import (
@@ -213,6 +214,7 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
     last_line = ""
     cached: dict | None = None  # enemy for the current battle
     turns = TurnTracker()
+    hp = HpSettler()
 
     species_src = f"override {species_override['name']}" if species_override else "OCR from screen"
     status_src = f"override {status_override}" if status_override else "detected from screen"
@@ -256,6 +258,7 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                 cached = None  # new battle: re-identify the species
                 last_line = ""
                 turns.reset()
+                hp.reset()
                 last_chat_ocr = 0.0
                 print("battle detected")
 
@@ -264,6 +267,7 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
 
             if reading.state is BattleState.SINGLE:
                 bar = reading.bars[0]
+                hp_pct = hp.update(bar.hp_pct)  # wait for the bar to settle
                 status = status_override or bar.status.value
                 if species_override is not None:
                     cached = species_override
@@ -283,7 +287,7 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                 if turns.turns_asleep:
                     turn_note += f", asleep {turns.turns_asleep}"
                 if cached is None:
-                    line = f"{'?':12.12s} HP {bar.hp_pct:5.1f}% [{status}]  ({turn_note})"
+                    line = f"{'?':12.12s} HP {hp_pct:5.1f}% [{status}]  ({turn_note})"
                 else:
                     ctx = battle_context(
                         cached,
@@ -291,11 +295,9 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                         turns_asleep=turns.turns_asleep,
                     )
                     probs = ball_probs(
-                        bar.hp_pct, cached["catch_rate"], status_rates[status], balls, ctx
+                        hp_pct, cached["catch_rate"], status_rates[status], balls, ctx
                     )
-                    line = f"[{turn_note}] " + format_line(
-                        cached["name"], bar.hp_pct, status, probs
-                    )
+                    line = f"[{turn_note}] " + format_line(cached["name"], hp_pct, status, probs)
                 if line != last_line:
                     print(line)
                     last_line = line
