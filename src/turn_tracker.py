@@ -59,6 +59,9 @@ class TurnTracker:
                 self.turns_asleep += turn_number - self._turn_number
             self._turn_number = turn_number
             self.turns_completed = max(self.turns_completed, turn_number - 1)
+            # keep the menu counter in step with the chat so it continues from the
+            # corrected value (e.g. after a horde, where menu counting is paused)
+            self._menu_turns = max(self._menu_turns, self.turns_completed)
 
     def observe_menu(self, menu_present: bool, action_seen: bool) -> None:
         """Chat-independent turn count from the command menu (see module docstring).

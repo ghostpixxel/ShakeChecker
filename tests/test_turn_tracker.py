@@ -229,12 +229,17 @@ def test_chat_overrides_menu_count_upward():
     assert t.turns_completed == 4
 
 
-def test_menu_count_never_lowers_chat_value():
+def test_menu_resumes_from_chat_value():
+    # after the chat jumps the turn (e.g. it tracked a horde while menu counting
+    # was paused), the menu must continue from there, not from its own stale count.
     t = TurnTracker()
-    t.observe(5, enemy_asleep=False)
     start_battle(t)
-    commit_turn(t)  # would be turn 2 from menu, must not reduce 4
+    commit_turn(t)
+    assert t.turns_completed == 1
+    t.observe(5, enemy_asleep=False)  # chat jumps to turn 5
     assert t.turns_completed == 4
+    commit_turn(t)  # next real turn continues from 4 -> 5, not back to 2
+    assert t.turns_completed == 5
 
 
 def test_menu_count_survives_reset():

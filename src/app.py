@@ -369,7 +369,12 @@ class LiveLoop:
         # passed in: it drives the chat-independent turn counter (command menu
         # reappears each turn) and catch detection ("Gotcha!").
         before = self.turns.turns_completed
-        self.turns.observe_menu(bt.menu_present, bt.action)
+        # Count menu turns only in a SINGLE battle. During a horde (MULTI) the
+        # multi-target attack/faint animation makes the menu flicker repeatedly,
+        # which would over-count; the chat tracks the real turn through the horde,
+        # and menu counting resumes once one Pokemon remains.
+        if reading.state is BattleState.SINGLE:
+            self.turns.observe_menu(bt.menu_present, bt.action)
         # Decide trainer vs wild ONCE per battle, and only while the command menu is
         # up: then the scene is static, so the party-icon strip below the bar is
         # reliable. Checking during animations gave false positives.
