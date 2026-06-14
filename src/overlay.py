@@ -40,8 +40,13 @@ BASE_COL_SPACING = 4
 BASE_HEADER_SPACING = 8
 BASE_ROW_SPACING = 6
 BASE_PCT_MINW = 48
-DOCK_MARGIN = 12  # gap from the game window's corner
+DOCK_MARGIN = 12  # gap from the game window's side edge
 DOCK_SIDE = "left"  # "left" or "right"
+# Push the overlay down past the game's fixed top-left HUD (location, money,
+# time, ability, and a possible donator line) plus ~0.5 cm of gap. The HUD is a
+# fixed pixel size regardless of window size, so this is a constant PHYSICAL
+# offset added to the client top before conversion.
+DOCK_TOP_OFFSET = 160
 
 # Window-height (physical px) at/above which the overlay is at full size, and the
 # smallest scale it will shrink to. Below REF the overlay scales down with the
@@ -283,16 +288,18 @@ class Overlay(QWidget):
         self.hide()
 
     def dock_to(self, left: int, top: int, width: int) -> None:
-        """Dock to the top-left or top-right inside a client rect (PHYSICAL screen
-        coords from win32). Convert to Qt logical coords (DPI), anchor by the
-        constant panel width, and only move on change so it cannot jitter."""
+        """Dock below the game's top-left HUD, on the configured side, inside a
+        client rect (PHYSICAL screen coords from win32). Convert to Qt logical
+        coords (DPI), anchor by the constant panel width, and only move on change
+        so it cannot jitter."""
+        top += DOCK_TOP_OFFSET  # clear the location/money/time/ability HUD
         if DOCK_SIDE == "left":
             lx, ly = phys_to_logical(left, top)
             x = lx + DOCK_MARGIN
         else:
             lx, ly = phys_to_logical(left + width, top)
             x = lx - self._panel_w - DOCK_MARGIN
-        pos = (x, ly + DOCK_MARGIN)
+        pos = (x, ly)
         if pos != self._last_pos:
             self._last_pos = pos
             self.move(*pos)
