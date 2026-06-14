@@ -13,15 +13,17 @@ width_tolerance_px = 8
 # the empty-part check (full_health_*.png: run == 218).
 full_fill_min_px = 206
 
-# Search region for enemy HP bars, relative to the captured frame.
-# Enemy bars sit top-left: y=200/1432=0.14, x=345/1996=0.17 in the Eterna and
-# cave fixtures; y=184/1077=0.17 in 1920x1080_resolution.png. Ally bars sit at
-# x>=0.70 (full_health_water.png) and stay outside search_right; scenery false
-# positives below 0.30 height (yellow_health_sleeping_cave.png) are excluded.
+# Search region for enemy HP bars, relative to the captured frame. Spans the full
+# top band: a single enemy sits top-left (y=200/1432=0.14, x=0.17) but HORDE bars
+# run horizontally across the top (horde_triple_wild_encounter.png: three bars at
+# y=199, x=0.32/0.45/0.58), so the last surviving horde mon can be anywhere. The
+# player's own bar sits lower (y~0.45) and stays below search_bottom. NB the bar
+# is at a FIXED pixel y (~200), so search_bottom must stay generous enough to
+# include it on short windows (200/895=0.22 in batle_action_attack_chat_minimized_3).
 search_top = 0.0
 search_bottom = 0.30
-search_left = 0.05
-search_right = 0.50
+search_left = 0.03
+search_right = 0.97
 
 # Fill blob geometry: bar fill is 3-6 px tall in all fixtures (10x6 px in
 # red_health_no_status_cave.png); window-toolbar icons, status badges and
@@ -30,9 +32,12 @@ min_fill_height_px = 3
 max_fill_height_px = 8
 min_fill_width_px = 2
 
-# Two stacked enemy bars are 46 px apart (double_battle_no_status.png);
-# detections closer than this in y are merged as one bar.
+# Duplicate blobs of ONE bar resolve to the same fill run (same x) and y; merge
+# only when BOTH are within these gaps. Two stacked enemy bars are 46 px apart in
+# y (double_battle_no_status.png); horde bars are ~280 px apart in x — both stay
+# unmerged so the bar count is right.
 merge_y_px = 10
+merge_x_px = 30
 
 [hp_bar.hsv]
 # OpenCV HSV (H 0-179). Saturation/value floors separate the bar fill from
@@ -98,6 +103,18 @@ yellow = [18, 38]
 magenta = [140, 175]
 red = [0, 12]
 cyan = [85, 99]
+
+[trainer]
+# Trainer battles show a party indicator — six small icons (grey circles / Poke
+# balls / Pokemon icons) — in a fixed strip just below the enemy HP bar, which
+# wild battles lack. Detect it by edge density (Canny) in that strip, relative to
+# the bar's (x, y). Measured: trainer fixtures (full_health_trainer_battle_*) ->
+# edge_frac ~0.01-0.03; EVERY wild fixture -> exactly 0.000, so the threshold has
+# a wide margin. width_px matches the bar inner width (218).
+dy0 = 20
+dy1 = 60
+width_px = 218
+edge_frac_min = 0.004
 
 [battle_ui]
 # Authoritative "in a battle" signal: the battle screen has a uniform dark

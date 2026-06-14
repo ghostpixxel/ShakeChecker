@@ -32,6 +32,7 @@ from battle_reader import (
     Calibration,
     Status,
     is_battle_ui_present,
+    is_trainer_battle,
     load_calibration,
     read_battle,
 )
@@ -349,11 +350,19 @@ class LiveLoop:
         if self.caught_handled:
             return  # enemy caught: stop updating; battle ends when the UI clears
         if reading.state is BattleState.SINGLE:
-            self._update_single(frame, reading.bars[0], rect)
+            if is_trainer_battle(frame, reading.bars[0], self.cal.trainer):
+                # trainer battle: nothing catchable -> hide the overlay
+                if self.last_line != "trainer":
+                    print("trainer battle: overlay hidden")
+                    self.last_line = "trainer"
+                self.overlay.hide_battle()
+            else:
+                self._update_single(frame, reading.bars[0], rect)
         elif reading.state is BattleState.MULTI and self.last_line != "multi":
-            print("multiple enemy bars (horde/double): ignored in v1")
+            # horde / double: wait until a single wild Pokemon remains
+            print("multiple enemy bars (horde): waiting for one to remain")
             self.last_line = "multi"
-            self.overlay.hide_battle()  # not a catchable v1 scenario
+            self.overlay.hide_battle()
         # NO_BATTLE while in battle = intro/animation: keep the overlay as is
 
     def _update_single(self, frame, bar, rect) -> None:

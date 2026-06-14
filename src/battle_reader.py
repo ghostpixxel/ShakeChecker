@@ -94,6 +94,7 @@ class HpBarCalibration(BaseModel):
     max_fill_height_px: int
     min_fill_width_px: int
     merge_y_px: int
+    merge_x_px: int
     hsv: HsvCalibration
     frame: FrameCalibration
     empty: EmptyBarCalibration
@@ -157,6 +158,13 @@ class BattleTextCalibration(BaseModel):
     menu_keywords_min: int
 
 
+class TrainerCalibration(BaseModel):
+    dy0: int
+    dy1: int
+    width_px: int
+    edge_frac_min: float
+
+
 class Calibration(BaseModel):
     hp_bar: HpBarCalibration
     status: StatusCalibration
@@ -164,6 +172,7 @@ class Calibration(BaseModel):
     battle_ui: BattleUiCalibration
     chat: ChatCalibration
     battle_text: BattleTextCalibration
+    trainer: TrainerCalibration
 
 
 def load_calibration(path: Path | str) -> Calibration:
@@ -339,12 +348,19 @@ def read_enemy_bars(frame_bgr: np.ndarray, cal: Calibration) -> list[BarReading]
         status = read_status(hsv_full, rx0, fy, cal.status)
         bars.append(BarReading(hp_pct=round(hp_pct, 1), color=color, status=status, x=rx0, y=fy))
 
-    # merge duplicate detections of the same bar (multiple blobs per fill)
+    # Merge duplicate detections of the SAME bar (multiple blobs per fill), which
+    # land at the same x AND y. Horde bars sit at the same y but different x, so
+    # requiring x-proximity too keeps them as separate bars (and counts the horde).
     bars.sort(key=lambda b: (b.y, b.x))
     merged: list[BarReading] = []
     for bar in bars:
-        if merged and abs(bar.y - merged[-1].y) <= c.merge_y_px:
-            if bar.hp_pct > merged[-1].hp_pct:
+        last = merged[-1] if merged else None
+        if (
+            last is not None
+            and abs(bar.y - last.y) <= c.merge_y_px
+            and abs(bar.x - last.x) <= c.merge_x_px
+        ):
+            if bar.hp_pct > last.hp_pct:
                 merged[-1] = bar
             continue
         merged.append(bar)
@@ -362,6 +378,26 @@ def is_battle_ui_present(frame_bgr: np.ndarray, cal: BattleUiCalibration) -> boo
         return False
     gray = cv2.cvtColor(band, cv2.COLOR_BGR2GRAY)
     return float(np.mean(gray < cal.dark_val_max)) >= cal.min_dark_frac
+
+
+def is_trainer_battle(frame_bgr: np.ndarray, bar: BarReading, cal: TrainerCalibration) -> bool:
+    """True if the enemy bar belongs to a TRAINER battle (nothing catchable).
+
+    A trainer's party indicator — six small icons (grey circles / Poke balls /
+    Pokemon icons) — sits in a fixed strip just below the enemy HP bar. Wild
+    battles have only the battle scene there. We detect the icons by edge density
+    in that strip: trainer fixtures measure well above zero, every wild fixture
+    is exactly zero. See [trainer] in calibration.toml."""
+    y0, y1 = bar.y + cal.dy0, bar.y + cal.dy1
+    x0, x1 = bar.x, bar.x + cal.width_px
+    if y0 < 0 or x0 < 0 or y1 > frame_bgr.shape[0] or x1 > frame_bgr.shape[1]:
+        return False
+    strip = frame_bgr[y0:y1, x0:x1]
+    if strip.size == 0:
+        return False
+    gray = cv2.cvtColor(strip, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 50, 150)
+    return float(np.mean(edges)) / 255.0 >= cal.edge_frac_min
 
 
 def read_battle(frame_bgr: np.ndarray, cal: Calibration) -> BattleReading:
