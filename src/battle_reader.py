@@ -259,6 +259,47 @@ def _empty_part_is_crosshatch(
     return float(np.mean(light)) >= cal.empty.min_light_ratio
 
 
+def _inner_width(
+    hsv: np.ndarray, fill_top: int, fill_bottom: int, x0: int, cal: HpBarCalibration
+) -> int:
+    """Measure the bar's actual inner width from its gray frame outline (the thin
+    uniform line above/below the fill), which spans exactly fill+empty and is
+    bounded by the sky/scene. Lets a narrower horde bar (212 px) read as 100% when
+    full instead of fill/218. Falls back to the nominal width if no outline is found."""
+    f = cal.frame
+    limit = min(x0 + cal.inner_width_px + cal.width_tolerance_px + 4, hsv.shape[1])
+
+    def gray_width(y: int) -> int:
+        if not 0 <= y < hsv.shape[0]:
+            return 0
+        last = x0 - 1
+        gap = 0
+        x = x0
+        while x < limit:
+            px = hsv[y, x]
+            if px[1] <= 40 and f.val_mean_min <= px[2] <= f.val_mean_max:  # uniform gray
+                last = x
+                gap = 0
+            else:
+                gap += 1
+                if gap > 2:
+                    break
+            x += 1
+        width = last - x0 + 1
+        ok = cal.min_fill_width_px <= width <= cal.inner_width_px + cal.width_tolerance_px
+        return width if ok else 0
+
+    # The true outline is the gray line immediately bordering the fill. Scan
+    # outward from the fill and take the nearest ring that yields an outline on
+    # either side -- a non-adjacent gray line (a neighbouring horde bar's frame,
+    # scenery) sits farther away and is ignored. Median guards a one-off misread.
+    for dy in range(1, f.search_px + 1):
+        ring = [w for w in (gray_width(fill_top - dy), gray_width(fill_bottom + dy)) if w]
+        if ring:
+            return int(round(float(np.median(ring))))
+    return cal.inner_width_px
+
+
 def _is_frame_outline_row(hsv: np.ndarray, y: int, x0: int, cal: HpBarCalibration) -> bool:
     if not 0 <= y < hsv.shape[0] or x0 + cal.inner_width_px > hsv.shape[1]:
         return False
@@ -363,7 +404,11 @@ def read_enemy_bars(frame_bgr: np.ndarray, cal: Calibration) -> list[BarReading]
             continue
         hues = hsv_full[fy, rx0 : rx1 + 1, 0].astype(float)
         color = _classify_color(float(np.median(hues)), c.hsv)
-        hp_pct = min(100.0, 100.0 * fill_w / c.inner_width_px)
+        # Size the bar by its OWN inner width (measured from the gray frame outline),
+        # not a fixed count: a full but narrower horde bar (212 px) then reads 100%,
+        # not 97%. Single bars measure 218 and are unchanged.
+        inner = _inner_width(hsv_full, y0 + by, y0 + by + bh - 1, rx0, c)
+        hp_pct = min(100.0, 100.0 * fill_w / inner)
         status = read_status(hsv_full, rx0, fy, cal.status)
         bars.append(BarReading(hp_pct=round(hp_pct, 1), color=color, status=status, x=rx0, y=fy))
 
