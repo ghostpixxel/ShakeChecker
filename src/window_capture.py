@@ -7,6 +7,7 @@ input, never touches the game process.
 from __future__ import annotations
 
 import ctypes
+from ctypes import wintypes
 from dataclasses import dataclass
 
 import mss
@@ -14,6 +15,10 @@ import numpy as np
 import win32gui
 
 WINDOW_TITLE = "PokeMMO"
+
+# DwmGetWindowAttribute: the VISIBLE window rectangle (what a window screenshot
+# captures), excluding the invisible DWM resize borders that GetWindowRect adds.
+_DWMWA_EXTENDED_FRAME_BOUNDS = 9
 
 # The PokeMMO client presents a window title built from Cyrillic/Greek
 # homoglyphs (observed: 'РokеMМO' with Cyrillic Р U+0420, е U+0435, М U+041C)
@@ -137,7 +142,8 @@ def is_window_alive(hwnd: int) -> bool:
 
 def get_client_rect(hwnd: int) -> ClientRect | None:
     """Client area of `hwnd` in screen coordinates, or None if not usable
-    (window gone, minimized, or zero-sized)."""
+    (window gone, minimized, or zero-sized). Used to dock the overlay inside the
+    game (below the HUD)."""
     try:
         if win32gui.IsIconic(hwnd):
             return None
@@ -148,6 +154,33 @@ def get_client_rect(hwnd: int) -> ClientRect | None:
     if right <= 0 or bottom <= 0:
         return None
     return ClientRect(left=left, top=top, width=right, height=bottom)
+
+
+def get_window_rect(hwnd: int) -> ClientRect | None:
+    """Full visible window rectangle (incl. title bar) in screen coordinates, or
+    None if not usable. This is what a window screenshot captures, so the live
+    frames match the fixtures the CV regions are calibrated on — unlike the client
+    area, which omits the title bar and shifts every fractional region. Uses the
+    DWM extended frame bounds (excludes invisible resize borders); falls back to
+    GetWindowRect."""
+    try:
+        if win32gui.IsIconic(hwnd):
+            return None
+        r = wintypes.RECT()
+        hr = ctypes.windll.dwmapi.DwmGetWindowAttribute(
+            wintypes.HWND(hwnd),
+            wintypes.DWORD(_DWMWA_EXTENDED_FRAME_BOUNDS),
+            ctypes.byref(r),
+            ctypes.sizeof(r),
+        )
+        if hr != 0:  # DWM unavailable -> plain window rect
+            r.left, r.top, r.right, r.bottom = win32gui.GetWindowRect(hwnd)
+    except (OSError, win32gui.error):
+        return None
+    width, height = r.right - r.left, r.bottom - r.top
+    if width <= 0 or height <= 0:
+        return None
+    return ClientRect(left=r.left, top=r.top, width=width, height=height)
 
 
 class WindowCapture:

@@ -29,6 +29,23 @@ def test_read_turn_number_none_in_overworld():
     assert read_turn_number(img, CAL.chat) is None
 
 
+def test_read_high_turn_number_from_live_frame():
+    # real long-battle frame (chat shows "Turn 9 started!"); the chat read must
+    # return 9 so the counter self-corrects instead of sticking on an old turn.
+    img = cv2.imread(str(ROOT / "fixtures" / "live_turn9_gible.png"))
+    assert read_turn_number(img, CAL.chat) == 9
+
+
+def test_chat_corrects_an_undercounting_fallback():
+    # the menu fallback under-counted (stuck at "turn 5"); a later chat reading of
+    # a higher turn must correct turns_completed, not be ignored.
+    t = TurnTracker()
+    t.observe(5, enemy_asleep=False)
+    assert t.turns_completed == 4
+    t.observe(9, enemy_asleep=False)
+    assert t.turns_completed == 8
+
+
 def test_is_catch_banner_keywords():
     # OCR mangles "Gotcha"->"Gotoha" and splits/drops "was"; detection keys on
     # the surviving "caught"/"gotcha" tokens, not the exact phrase.

@@ -49,6 +49,7 @@ from window_capture import (
     find_pokemmo_hwnd,
     fold_confusables,
     get_client_rect,
+    get_window_rect,
     is_window_alive,
     iter_visible_windows,
     set_dpi_awareness,
@@ -282,8 +283,11 @@ class LiveLoop:
             self.state = AppState.IDLE
 
         assert self.hwnd is not None
-        rect = get_client_rect(self.hwnd)
-        if rect is None:
+        # Capture the FULL window (matches the full-window fixtures the CV regions
+        # are calibrated on); dock the overlay to the client area (below the HUD).
+        win_rect = get_window_rect(self.hwnd)
+        client_rect = get_client_rect(self.hwnd)
+        if win_rect is None or client_rect is None:
             if not is_window_alive(self.hwnd):
                 print("window lost, waiting...")
                 self.state = AppState.WAITING
@@ -291,7 +295,7 @@ class LiveLoop:
                 self.overlay.hide_battle()
             return WAITING_POLL_S
 
-        frame = self.capture.grab(rect)
+        frame = self.capture.grab(win_rect)
         now = time.monotonic()
         reading = read_battle(frame, self.cal)
         has_bar = reading.state in (BattleState.SINGLE, BattleState.MULTI)
@@ -305,7 +309,7 @@ class LiveLoop:
             self.last_seen_battle = now
             if self.state is not AppState.BATTLE:
                 self._enter_battle()
-            self._battle_step(frame, reading, rect, now)
+            self._battle_step(frame, reading, client_rect, now)
         elif self.state is AppState.BATTLE and now - self.last_seen_battle > BATTLE_END_GRACE_S:
             self.state = AppState.IDLE
             self.last_line = ""
