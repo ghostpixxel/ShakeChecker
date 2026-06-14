@@ -40,7 +40,9 @@ SPRITE_H = 24  # Pokemon sprite height (px) — kept compact so the panel stays 
 BALL_H = 20  # ball icon height (px)
 # Fixed panel width. Must exceed the content's natural width or Qt enforces a
 # larger, content-dependent minimum and the dock position jitters frame to frame.
-PANEL_W = 168
+# Sized (QFontMetrics) to fit the widest obtainable name + " Lv.100" at 16px bold
+# ("Charmander" -> 206px); a few px spare. So real species names never clip.
+PANEL_W = 210
 DOCK_MARGIN = 12  # gap from the game window's top-right corner
 
 # probability colour thresholds (fraction 0-1) -> hex
