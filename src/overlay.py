@@ -20,8 +20,9 @@ from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from sprite_loader import SpriteLoader
 
-SPRITE_H = 40  # Pokemon sprite height (px) — kept compact so the panel stays small
-BALL_H = 26  # ball icon height (px)
+SPRITE_H = 28  # Pokemon sprite height (px) — kept compact so the panel stays small
+BALL_H = 24  # ball icon height (px)
+PANEL_W = 190  # fixed panel width: stops the dock position jumping as text widths change
 DOCK_MARGIN = 12  # gap from the game window's top-right corner
 
 # probability colour thresholds (fraction 0-1) -> hex
@@ -46,8 +47,10 @@ class Overlay(QWidget):
         super().__init__()
         self._loader = loader or SpriteLoader()
         self._movie: QMovie | None = None
+        self._current_dex: int | None = None  # avoid restarting the GIF every frame
         self._pct_labels: dict[str, QLabel] = {}
 
+        self.setFixedWidth(PANEL_W)
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
@@ -136,23 +139,27 @@ class Overlay(QWidget):
             else:
                 label.setText(f"{100 * prob:5.1f}%")
                 label.setStyleSheet(f"color: {prob_color_hex(prob)};")
-        self.adjustSize()
         self.show()
 
     def hide_battle(self) -> None:
         if self._movie is not None:
             self._movie.stop()
+        self._current_dex = None  # so re-entering a battle restarts the sprite
         self.hide()
 
     def dock_to(self, left: int, top: int, width: int) -> None:
-        """Place the overlay at the top-right inside a client rect (screen coords)."""
-        self.adjustSize()
-        x = left + width - self.width() - DOCK_MARGIN
-        self.move(x, top + DOCK_MARGIN)
+        """Place the overlay at the top-right inside a client rect (screen coords).
+        Width is fixed, so this is a stable position (no per-frame jitter)."""
+        self.move(left + width - self.width() - DOCK_MARGIN, top + DOCK_MARGIN)
 
     # --- internals ---
 
     def _set_sprite(self, dex_id: int) -> None:
+        # Only (re)load on a species change; otherwise an animated GIF would be
+        # restarted to frame 0 every tick and look frozen.
+        if dex_id == self._current_dex:
+            return
+        self._current_dex = dex_id
         if self._movie is not None:
             self._movie.stop()
             self._movie = None
