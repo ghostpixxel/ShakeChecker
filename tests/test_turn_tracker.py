@@ -149,114 +149,74 @@ def test_reset_clears_battle_state():
     assert t.turns_completed == 1
 
 
-# --- chat-independent HP-bar-cycle fallback ---
+# --- chat-independent command-menu turn counter (duration-gated) ---
+
+# small absent threshold keeps the tests readable; production default is larger
+GATE = 4
 
 
-def feed_bar(t: TurnTracker, presence: list[bool]) -> None:
+def feed_menu(t: TurnTracker, presence: list[bool]) -> None:
     for p in presence:
-        t.observe_bar(p)
+        t.observe_menu(p)
 
 
-def test_bar_present_throughout_turn_one_stays_zero():
-    t = TurnTracker()
-    feed_bar(t, [True, True, True])  # no animation yet
-    assert t.turns_completed == 0
+def commit_turn(t: TurnTracker) -> None:
+    """Simulate one committed turn: the menu is gone for a sustained action
+    animation (>= the gate), then returns for the next turn's prompt."""
+    feed_menu(t, [False] * GATE + [True])
 
 
-def test_bar_vanish_and_return_marks_past_turn_one():
-    t = TurnTracker()
-    feed_bar(t, [True, True, False, False, True])  # action animation cycle
-    assert t.turns_completed == 1
-
-
-def test_bar_cycle_only_raises_a_floor_not_a_count():
-    t = TurnTracker()
-    # several animation cycles must not push turns beyond 1 on their own
-    feed_bar(t, [True, False, True, False, True, False, True])
-    assert t.turns_completed == 1
-
-
-def test_chat_overrides_bar_floor_upward():
-    t = TurnTracker()
-    feed_bar(t, [True, False, True])  # floor -> 1
-    t.observe(5, enemy_asleep=False)  # chat is authoritative
-    assert t.turns_completed == 4
-
-
-def test_bar_floor_never_lowers_chat_value():
-    t = TurnTracker()
-    t.observe(5, enemy_asleep=False)
-    feed_bar(t, [True, False, True])  # floor 1 must not reduce 4
-    assert t.turns_completed == 4
-
-
-# --- chat-independent command-menu turn counter ---
-
-
-def play_turn(t: TurnTracker) -> None:
-    """Simulate one committed turn: menu up -> player acts (bar vanishes during
-    the animation) -> menu reappears for the next turn."""
-    t.observe_menu(True)  # waiting for input
-    t.observe_menu(False)  # action committed, menu closes
-    feed_bar(t, [True, False, True])  # attack animation: bar vanishes & returns
-
-
-def test_menu_first_appearance_is_turn_one():
-    t = TurnTracker()
-    t.observe_menu(True)  # turn 1 prompt, no action yet
+def test_menu_present_whole_time_counts_nothing():
+    # player sits at the menu and does nothing: turn must NOT advance
+    t = TurnTracker(menu_absent_samples_for_turn=GATE)
+    feed_menu(t, [True] * 20)
     assert t.turns_completed == 0
 
 
 def test_menu_counts_each_committed_turn():
-    t = TurnTracker()
-    play_turn(t)  # turn 1 committed
-    t.observe_menu(True)  # turn 2 prompt
+    t = TurnTracker(menu_absent_samples_for_turn=GATE)
+    t.observe_menu(True)  # turn 1 prompt
+    assert t.turns_completed == 0
+    commit_turn(t)  # turn 1 -> committed, turn 2 prompt
     assert t.turns_completed == 1
-    play_turn(t)  # turn 2 committed (already at menu, re-open after action)
-    t.observe_menu(True)  # turn 3 prompt
+    commit_turn(t)  # turn 2 -> committed, turn 3 prompt
     assert t.turns_completed == 2
 
 
-def test_menu_reopen_without_action_does_not_count():
-    # player opens FIGHT/BAG then cancels: menu closes and reopens with NO action
-    t = TurnTracker()
-    t.observe_menu(True)
-    t.observe_menu(False)  # opened a submenu
-    t.observe_menu(True)  # cancelled back to the menu
+def test_brief_menu_absence_does_not_count():
+    # OCR flicker / sprite-animation frame / chat toggle: menu absent only briefly
+    t = TurnTracker(menu_absent_samples_for_turn=GATE)
+    feed_menu(t, [True, False, True])  # 1 absent sample
+    feed_menu(t, [True, False, False, True])  # 2 absent samples
+    feed_menu(t, [True] + [False] * (GATE - 1) + [True])  # just under the gate
     assert t.turns_completed == 0
 
 
-def test_menu_ocr_flicker_does_not_count():
-    # a single missed OCR frame (menu briefly reads absent) is not a turn
-    t = TurnTracker()
-    t.observe_menu(True)
-    t.observe_menu(False)  # flicker
-    t.observe_menu(True)
-    t.observe_menu(False)  # flicker
-    t.observe_menu(True)
+def test_absence_must_be_contiguous():
+    # a flicker back to "present" resets the run, so scattered absences don't add up
+    t = TurnTracker(menu_absent_samples_for_turn=GATE)
+    feed_menu(t, [False, False, True, False, False, True])
     assert t.turns_completed == 0
 
 
 def test_chat_overrides_menu_count_upward():
-    t = TurnTracker()
-    play_turn(t)  # menu count -> 1
+    t = TurnTracker(menu_absent_samples_for_turn=GATE)
+    commit_turn(t)  # menu count -> 1
     t.observe(5, enemy_asleep=False)  # chat is authoritative
     assert t.turns_completed == 4
 
 
 def test_menu_count_never_lowers_chat_value():
-    t = TurnTracker()
+    t = TurnTracker(menu_absent_samples_for_turn=GATE)
     t.observe(5, enemy_asleep=False)
-    play_turn(t)
-    t.observe_menu(True)  # would be turn 2 from menu, must not reduce 4
+    commit_turn(t)  # would be turn 2 from menu, must not reduce 4
     assert t.turns_completed == 4
 
 
 def test_menu_count_survives_reset():
-    t = TurnTracker()
-    play_turn(t)
-    t.observe_menu(True)
+    t = TurnTracker(menu_absent_samples_for_turn=GATE)
+    commit_turn(t)
     assert t.turns_completed == 1
     t.reset()
-    t.observe_menu(True)
-    assert t.turns_completed == 0  # fresh battle, turn 1
+    feed_menu(t, [True] * 10)  # fresh battle, sitting at the menu
+    assert t.turns_completed == 0

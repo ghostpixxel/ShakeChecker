@@ -4,8 +4,17 @@ Pure/stateful (no I/O). Fed observations each frame; produces the numbers the
 conditional balls need: turns_completed (Quick/Timer) and turns_asleep (Dream).
 
 Turn numbers are 1-based as PokeMMO reports them ("Turn N started!"); a turn
-that has fully begun N means N-1 turns completed. Signals can come from chat
-OCR now and the menu/action fallback later — both funnel through observe().
+that has fully begun N means N-1 turns completed. Two signals funnel in:
+
+- observe(): the chat's exact "Turn N started!" — authoritative when visible.
+- observe_menu(): chat-independent. The command menu (FIGHT/BAG/POKEMON/RUN) is
+  shown only while waiting for the player's action, i.e. once per turn. A turn
+  is counted when the menu RETURNS after being gone long enough for a real
+  action animation to have played. The duration gate is what makes it robust:
+  it ignores the menu briefly misreading as absent (OCR flicker, a sprite
+  animation frame, the player toggling the chat) and a submenu opened and
+  cancelled — none of which keep the menu gone for seconds the way a committed
+  action does.
 """
 
 from __future__ import annotations
@@ -15,25 +24,25 @@ from dataclasses import dataclass
 
 @dataclass
 class TurnTracker:
+    # Consecutive "menu absent" observations required before its return counts
+    # as a turn. At ~0.3 s per observation this is ~1.2 s; a committed action
+    # (player move + enemy move + end effects) keeps the menu gone far longer,
+    # while flicker / chat-toggle / quick submenu glances are well under it.
+    menu_absent_samples_for_turn: int = 4
+
     turns_completed: int = 0
     turns_asleep: int = 0
     _turn_number: int = 1  # highest 1-based turn seen this battle
-    _bar_present: bool = False
-    _saw_bar_gap: bool = False
-    _menu_present: bool = False
     _menu_turns: int = 0  # turns counted from command-menu reappearances
-    _action_since_menu: bool = False  # an action animation ran since the menu
+    _menu_absent_run: int = 0  # consecutive observations with the menu absent
 
     def reset(self) -> None:
         """Call at the start of each battle."""
         self.turns_completed = 0
         self.turns_asleep = 0
         self._turn_number = 1
-        self._bar_present = False
-        self._saw_bar_gap = False
-        self._menu_present = False
         self._menu_turns = 0
-        self._action_since_menu = False
+        self._menu_absent_run = 0
 
     def observe(self, turn_number: int | None, enemy_asleep: bool) -> None:
         """Fold in one frame's chat observation.
@@ -53,38 +62,18 @@ class TurnTracker:
             self._turn_number = turn_number
             self.turns_completed = max(self.turns_completed, turn_number - 1)
 
-    def observe_bar(self, bar_present: bool) -> None:
-        """Chat-independent fallback: the enemy HP bar vanishes during an
-        action's zoom/attack animation and returns afterwards. One such
-        vanish->return cycle proves at least one action has resolved, so we are
-        past turn 1. This only raises a *floor* (turns_completed >= 1); it never
-        advances further on its own, to avoid over-counting (which would
-        overstate Timer/Dream catch chances). Chat OCR remains authoritative.
-
-        The vanish also marks that a real action ran (used by observe_menu to
-        tell a committed turn from a menu the player merely opened and cancelled).
-        """
-        if self._bar_present and not bar_present:
-            self._saw_bar_gap = True
-            self._action_since_menu = True
-        elif self._saw_bar_gap and bar_present:
-            self._saw_bar_gap = False
-            self.turns_completed = max(self.turns_completed, 1)
-        self._bar_present = bar_present
-
     def observe_menu(self, menu_present: bool) -> None:
-        """Chat-independent turn count from the command menu (FIGHT/BAG/POKEMON/
-        RUN), which reappears at the start of every turn while waiting for input.
+        """Chat-independent turn count from the command menu (see module docstring).
 
-        A turn is counted on each menu absent->present transition, but only if a
-        real action ran since the menu was last up (the HP bar vanished). That
-        gate filters the two non-turn ways the menu reappears: the player opening
-        a submenu (FIGHT/BAG) and cancelling, and a single missed OCR frame. The
-        first appearance (turn 1) has no prior action, so it counts as 0 completed.
-        Like observe_bar this only raises turns_completed; chat stays authoritative.
+        Count a turn only when the menu returns after having been absent for at
+        least `menu_absent_samples_for_turn` observations in a row — long enough
+        that a real action ran. This only raises turns_completed; the exact chat
+        value (observe) still overrides it upward.
         """
-        if menu_present and not self._menu_present and self._action_since_menu:
-            self._menu_turns += 1
-            self._action_since_menu = False
-            self.turns_completed = max(self.turns_completed, self._menu_turns)
-        self._menu_present = menu_present
+        if menu_present:
+            if self._menu_absent_run >= self.menu_absent_samples_for_turn:
+                self._menu_turns += 1
+                self.turns_completed = max(self.turns_completed, self._menu_turns)
+            self._menu_absent_run = 0
+        else:
+            self._menu_absent_run += 1

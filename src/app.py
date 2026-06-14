@@ -269,8 +269,6 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                 caught_handled = False
                 print("battle detected")
 
-            # chat-independent fallback: HP-bar vanish/return cycle -> past turn 1
-            turns.observe_bar(has_bar)
             asleep = reading.state is BattleState.SINGLE and reading.bars[0].status is Status.SLP
 
             # poll the chat (throttled) for the EXACT turn number when visible.
