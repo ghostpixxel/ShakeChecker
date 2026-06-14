@@ -126,7 +126,7 @@ class Overlay(QWidget):
         self._name.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         self._status = QLabel()
         status_font = QFont(mono)
-        status_font.setPixelSize(11)
+        status_font.setPixelSize(10)
         status_font.setBold(True)
         self._status.setFont(status_font)
         self._status.setVisible(False)
@@ -220,9 +220,9 @@ class Overlay(QWidget):
             self._status.setVisible(False)
             return
         label, bg = badge
-        self._status.setText(f" {label} ")
+        self._status.setText(label)
         self._status.setStyleSheet(
-            f"color: #ffffff; background: {bg}; border-radius: 4px; padding: 1px 4px;"
+            f"color: #ffffff; background: {bg}; border-radius: 3px; padding: 1px 3px;"
         )
         self._status.setVisible(True)
 
