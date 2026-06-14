@@ -233,11 +233,14 @@ class LiveLoop:
         status_override: str | None,
         cal: Calibration,
         overlay: Overlay,
+        debug: bool = False,
     ) -> None:
         self.species_override = species_override
         self.status_override = status_override
         self.cal = cal
         self.overlay = overlay
+        self.debug = debug
+        self._dbg_menu = False  # last logged command-menu state
         self.balls = load_balls()
         self.status_rates = load_status_rates()
         self.name_reader = None if species_override else NameReader(cal.name, SPECIES_PATH)
@@ -354,7 +357,11 @@ class LiveLoop:
         # catch is NOT read here: the chat log lags ~1s and at the catch moment
         # still shows the previous battle's catch line.
         if now - self.last_chat_ocr >= CHAT_OCR_INTERVAL_S:
-            self.turns.observe(read_turn_number(frame, self.cal.chat), asleep)
+            chat_turn = read_turn_number(frame, self.cal.chat)
+            before = self.turns.turns_completed
+            self.turns.observe(chat_turn, asleep)
+            if self.debug and self.turns.turns_completed > before:
+                print(f"[dbg] chat -> turn {self.turns.turns_completed + 1} (read {chat_turn})")
             self.last_chat_ocr = now
 
         # One OCR of the in-viewport text box (throttled) drives both the chat-
@@ -363,7 +370,14 @@ class LiveLoop:
         if now - self.last_battle_text_ocr >= BATTLE_TEXT_OCR_INTERVAL_S:
             self.last_battle_text_ocr = now
             bt = read_battle_text(frame, self.cal.battle_text)
+            before = self.turns.turns_completed
             self.turns.observe_menu(bt.menu_present)
+            if self.debug:
+                if bt.menu_present != self._dbg_menu:
+                    print(f"[dbg] command menu {'DETECTED' if bt.menu_present else 'gone'}")
+                    self._dbg_menu = bt.menu_present
+                if self.turns.turns_completed > before:
+                    print(f"[dbg] menu -> turn {self.turns.turns_completed + 1}")
             if bt.caught and not self.caught_handled and self.cached is not None:
                 print(f"caught {self.cached['name']}!")
                 self.caught_handled = True
@@ -440,10 +454,15 @@ class LiveLoop:
             self.last_line = line
 
 
-def run(species_override: dict | None, status_override: str | None, cal: Calibration) -> None:
+def run(
+    species_override: dict | None,
+    status_override: str | None,
+    cal: Calibration,
+    debug: bool = False,
+) -> None:
     app = QApplication(sys.argv[:1])
     overlay = Overlay([b["name"] for b in load_balls()])
-    loop = LiveLoop(species_override, status_override, cal, overlay)
+    loop = LiveLoop(species_override, status_override, cal, overlay, debug=debug)
     loop.start()
     sys.exit(app.exec())
 
@@ -472,6 +491,11 @@ def main() -> None:
         action="store_true",
         help="diagnostic: list visible windows and PokeMMO matches, then exit",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="log how each turn is counted (chat vs command menu) and menu detection",
+    )
     args = parser.parse_args()
 
     if args.list_windows:
@@ -493,7 +517,7 @@ def main() -> None:
 
     set_dpi_awareness()
     try:
-        run(species_override, args.status, cal)
+        run(species_override, args.status, cal, debug=args.debug)
     except KeyboardInterrupt:
         sys.exit(0)
 
