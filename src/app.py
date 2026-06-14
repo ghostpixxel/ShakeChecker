@@ -20,7 +20,7 @@ import sys
 import time
 from pathlib import Path
 
-from battle_log import read_turn_number
+from battle_log import read_chat, read_turn_number
 from battle_reader import (
     BattleState,
     Calibration,
@@ -215,6 +215,8 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
     cached: dict | None = None  # enemy for the current battle
     turns = TurnTracker()
     hp = HpSettler()
+    caught_seen = False  # latest chat catch reading
+    caught_handled = False  # printed the catch message this battle
 
     species_src = f"override {species_override['name']}" if species_override else "OCR from screen"
     status_src = f"override {status_override}" if status_override else "detected from screen"
@@ -260,12 +262,33 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                 turns.reset()
                 hp.reset()
                 last_chat_ocr = 0.0
+                caught_seen = False
+                caught_handled = False
                 print("battle detected")
 
             # chat-independent fallback: HP-bar vanish/return cycle -> past turn 1
             turns.observe_bar(has_bar)
+            asleep = reading.state is BattleState.SINGLE and reading.bars[0].status is Status.SLP
 
-            if reading.state is BattleState.SINGLE:
+            # poll the chat (throttled): turn number + catch event. Done outside
+            # the SINGLE branch so a catch is still seen once the enemy bar is gone.
+            if now - last_chat_ocr >= CHAT_OCR_INTERVAL_S:
+                chat = read_chat(frame, cal.chat)
+                turns.observe(chat.turn_number, asleep)
+                caught_seen = chat.caught
+                last_chat_ocr = now
+
+            # A catch ends the battle: chat says "caught" and the enemy bar is
+            # gone. Requiring the bar to be gone avoids a stale catch line ending
+            # the *next* battle (whose enemy bar is present).
+            if caught_seen and not has_bar and not caught_handled:
+                name = cached["name"] if cached else "the Pokemon"
+                print(f"caught {name}!")
+                caught_handled = True
+                state = AppState.IDLE
+                last_line = ""
+                cached = None
+            elif reading.state is BattleState.SINGLE:
                 bar = reading.bars[0]
                 hp_pct = hp.update(bar.hp_pct)  # wait for the bar to settle
                 status = status_override or bar.status.value
@@ -277,11 +300,6 @@ def run(species_override: dict | None, status_override: str | None, cal: Calibra
                     if sp is not None:
                         cached = sp
                         print(f"identified: {sp['name']} (catch rate {sp['catch_rate']})")
-
-                # poll the chat turn number (throttled) and update the counter
-                if now - last_chat_ocr >= CHAT_OCR_INTERVAL_S:
-                    turns.observe(read_turn_number(frame, cal.chat), bar.status is Status.SLP)
-                    last_chat_ocr = now
 
                 turn_note = f"turn {turns.turns_completed + 1}"
                 if turns.turns_asleep:

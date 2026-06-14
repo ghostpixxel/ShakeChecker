@@ -240,5 +240,18 @@
       "bar_visible": true,
       "enemy": "Krokorok"
     }
+  },
+  "_catch_fixtures_note": "Frames from a successful capture. The catch is detected from the chat log line 'Gotcha! X was caught!' (read_chat.caught), which also ends the battle once the enemy bar is gone.",
+  "catch_fixtures": {
+    "batle_action_pokemon_catched_dark_pokeballpng.png": {
+      "phase": "ball_on_field",
+      "caught_text": false,
+      "notes": "Pokeball resting on the field; enemy sprite replaced by the ball, enemy HP bar still shown, no catch text yet."
+    },
+    "batle_action_pokemon_catched_text_after pokeball_disapeared.png": {
+      "phase": "caught_confirmed",
+      "caught_text": true,
+      "notes": "In-viewport and chat show 'Gotcha! ... was caught!'."
+    }
   }
 }
