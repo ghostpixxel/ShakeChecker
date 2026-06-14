@@ -386,6 +386,7 @@ class LiveLoop:
                 self.cached["catch_rate"],
                 self.turns.turns_completed + 1,
                 dict(probs),
+                level=self.cached.get("level"),
             )
             self.overlay.dock_to(rect.left, rect.top, rect.width)
         if line != self.last_line:

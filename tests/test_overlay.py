@@ -49,6 +49,19 @@ def test_show_battle_sets_header_and_percentages(qt_app):
     assert "55dd66" in ov._pct_labels["Quick Ball"].styleSheet()  # green, 80%
 
 
+def test_level_rendered_next_to_name(qt_app):
+    ov = Overlay(BALLS)
+    ov.show_battle(66, "Machop", 180, 2, {}, level=6)
+    text = ov._name.text()
+    assert "Machop" in text and "Lv.6" in text
+
+
+def test_no_level_renders_plain_name(qt_app):
+    ov = Overlay(BALLS)
+    ov.show_battle(66, "Machop", 180, 2, {})  # no level
+    assert ov._name.text() == "Machop"
+
+
 def test_missing_ball_shows_dash(qt_app):
     ov = Overlay(BALLS)
     ov.show_battle(1, "Bulbasaur", 45, 1, {"Poké Ball": 0.1})  # no Great/Quick

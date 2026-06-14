@@ -37,10 +37,10 @@ def phys_to_logical(px: int, py: int) -> tuple[int, int]:
     return round(lx), round(ly)
 
 SPRITE_H = 28  # Pokemon sprite height (px) — kept compact so the panel stays small
-BALL_H = 24  # ball icon height (px)
+BALL_H = 20  # ball icon height (px)
 # Fixed panel width. Must exceed the content's natural width or Qt enforces a
 # larger, content-dependent minimum and the dock position jitters frame to frame.
-PANEL_W = 210
+PANEL_W = 168
 DOCK_MARGIN = 12  # gap from the game window's top-right corner
 
 # probability colour thresholds (fraction 0-1) -> hex
@@ -102,9 +102,10 @@ class Overlay(QWidget):
         self._sprite.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
         self._name = QLabel("—")
         name_font = QFont(mono)
-        name_font.setPixelSize(20)
+        name_font.setPixelSize(18)
         name_font.setBold(True)
         self._name.setFont(name_font)
+        self._name.setTextFormat(Qt.TextFormat.RichText)  # bold name + small "Lv.N"
         # Ignored width: a long name clips instead of widening the panel (which
         # would make the right-anchored dock position jump).
         self._name.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
@@ -128,7 +129,7 @@ class Overlay(QWidget):
 
         # one row per ball: icon + percent
         pct_font = QFont(mono)
-        pct_font.setPixelSize(16)
+        pct_font.setPixelSize(13)
         for name in ball_names:
             row = QHBoxLayout()
             row.setSpacing(8)
@@ -138,7 +139,7 @@ class Overlay(QWidget):
             pct = QLabel("—")
             pct.setFont(pct_font)
             pct.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            pct.setMinimumWidth(64)
+            pct.setMinimumWidth(52)
             row.addWidget(icon)
             row.addStretch(1)
             row.addWidget(pct)
@@ -148,11 +149,18 @@ class Overlay(QWidget):
     # --- public API ---
 
     def show_battle(
-        self, dex_id: int, name: str, catch_rate: int, turn: int, probs: dict[str, float]
+        self,
+        dex_id: int,
+        name: str,
+        catch_rate: int,
+        turn: int,
+        probs: dict[str, float],
+        level: int | None = None,
     ) -> None:
         """Update the overlay for the current enemy and show it."""
         self._set_sprite(dex_id)
-        self._name.setText(name)
+        lvl = f' <span style="font-size:11px; color:#9aa0aa;">Lv.{level}</span>' if level else ""
+        self._name.setText(f"{name}{lvl}")
         self._sub.setText(subheader_text(catch_rate, turn))
         for ball, label in self._pct_labels.items():
             prob = probs.get(ball)
