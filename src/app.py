@@ -26,9 +26,10 @@ from pathlib import Path
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 
-from battle_log import read_battle_text, read_turn_number
+from battle_log import read_turn_number
 from battle_reader import (
     BattleState,
+    BattleTextReader,
     Calibration,
     Status,
     is_battle_ui_present,
@@ -59,6 +60,7 @@ from window_capture import (
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "src" / "data"
 SPECIES_PATH = DATA / "species_core.json"
+TEMPLATES_DIR = DATA / "templates"
 
 WAITING_POLL_S = 2.0
 IDLE_FRAME_S = 0.5  # ~2 fps
@@ -74,9 +76,6 @@ CHAT_OCR_INTERVAL_S = 0.4
 # When the chat keeps reading nothing (minimized / wrong tab) back off to this so
 # the wasted OCR doesn't slow the loop; the menu fallback then drives the turns.
 CHAT_OCR_IDLE_S = 2.0
-# The in-viewport text box (command menu + catch banner) is OCR'd at most this
-# often. Drives the chat-independent turn counter, so keep it brisk.
-BATTLE_TEXT_OCR_INTERVAL_S = 0.25
 
 
 class AppState(enum.Enum):
@@ -247,13 +246,13 @@ class LiveLoop:
         self.balls = load_balls()
         self.status_rates = load_status_rates()
         self.name_reader = None if species_override else NameReader(cal.name, SPECIES_PATH)
+        self.battle_text = BattleTextReader(cal.battle_text, TEMPLATES_DIR)
         self.capture = WindowCapture()
 
         self.state = AppState.WAITING
         self.hwnd: int | None = None
         self.last_seen_battle = 0.0
         self.last_chat_ocr = 0.0
-        self.last_battle_text_ocr = 0.0
         self.last_line = ""
         self.cached: dict | None = None  # enemy for the current battle
         self.turns = TurnTracker()
@@ -339,7 +338,6 @@ class LiveLoop:
         self.hp.reset()
         self.status.reset()
         self.last_chat_ocr = 0.0
-        self.last_battle_text_ocr = 0.0
         self.caught_handled = False
         self.dusk_active = False
         self._loc_read = False
@@ -375,33 +373,31 @@ class LiveLoop:
                 print(f"[dbg] chat -> turn {self.turns.turns_completed + 1} (read {chat_turn})")
             self.last_chat_ocr = now
 
-        # One OCR of the in-viewport text box (throttled) drives both the chat-
-        # independent turn counter (command menu reappears each turn) and catch
-        # detection ("Gotcha! / X was caught!"). See [battle_text] in calibration.
-        if now - self.last_battle_text_ocr >= BATTLE_TEXT_OCR_INTERVAL_S:
-            self.last_battle_text_ocr = now
-            bt = read_battle_text(frame, self.cal.battle_text)
-            before = self.turns.turns_completed
-            self.turns.observe_menu(bt.menu_present)
-            # Decide trainer vs wild ONCE per battle, and only while the command
-            # menu is up: then the scene is static, so the party-icon strip below
-            # the bar is reliable. Checking during animations gave false positives.
-            stable = bt.menu_present and reading.state is BattleState.SINGLE
-            if stable and not self._trainer_decided:
-                self._is_trainer = is_trainer_battle(frame, reading.bars[0], self.cal.trainer)
-                self._trainer_decided = True
-                if self._is_trainer:
-                    print("trainer battle: overlay hidden")
-            if self.debug:
-                if bt.menu_present != self._dbg_menu:
-                    print(f"[dbg] command menu {'DETECTED' if bt.menu_present else 'gone'}")
-                    self._dbg_menu = bt.menu_present
-                if self.turns.turns_completed > before:
-                    print(f"[dbg] menu -> turn {self.turns.turns_completed + 1}")
-            if bt.caught and not self.caught_handled and self.cached is not None:
-                print(f"caught {self.cached['name']}!")
-                self.caught_handled = True
-                self.last_line = ""
+        # Template-match the in-viewport text box EVERY frame (~10 ms): drives the
+        # chat-independent turn counter (command menu reappears each turn) and catch
+        # detection ("Gotcha!"). See [battle_text] / BattleTextReader.
+        bt = self.battle_text.read(frame)
+        before = self.turns.turns_completed
+        self.turns.observe_menu(bt.menu_present)
+        # Decide trainer vs wild ONCE per battle, and only while the command menu is
+        # up: then the scene is static, so the party-icon strip below the bar is
+        # reliable. Checking during animations gave false positives.
+        stable = bt.menu_present and reading.state is BattleState.SINGLE
+        if stable and not self._trainer_decided:
+            self._is_trainer = is_trainer_battle(frame, reading.bars[0], self.cal.trainer)
+            self._trainer_decided = True
+            if self._is_trainer:
+                print("trainer battle: overlay hidden")
+        if self.debug:
+            if bt.menu_present != self._dbg_menu:
+                print(f"[dbg] command menu {'DETECTED' if bt.menu_present else 'gone'}")
+                self._dbg_menu = bt.menu_present
+            if self.turns.turns_completed > before:
+                print(f"[dbg] menu -> turn {self.turns.turns_completed + 1}")
+        if bt.caught and not self.caught_handled and self.cached is not None:
+            print(f"caught {self.cached['name']}!")
+            self.caught_handled = True
+            self.last_line = ""
 
         if self.caught_handled:
             return  # enemy caught: stop updating; battle ends when the UI clears

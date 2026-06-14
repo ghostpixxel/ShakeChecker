@@ -158,31 +158,23 @@ right = 0.40
 upscale = 2
 
 [battle_text]
-# The in-viewport text area at the bottom of the centered battle viewport. The
-# SAME region shows, at different times: the command menu (FIGHT/BAG/POKEMON/RUN),
-# the move submenu, and the narration box ("Gotcha! / X was caught!", "X used Y!",
-# "X fainted!"). One OCR of this band drives BOTH the chat-independent turn counter
-# (command-menu presence) and catch detection.
+# The in-viewport text area at the bottom of the centered battle viewport, which
+# shows the command menu (FIGHT/BAG/POKEMON/RUN) and the catch banner ("Gotcha!").
+# Detected by TEMPLATE MATCHING (data/templates/menu_fight.png, catch_gotcha.png),
+# not OCR: the UI is fixed pixel size so the words are the same size in every
+# native capture, and matching is ~10 ms vs >1 s for OCR -- so it runs every frame
+# and the turn/catch react instantly.
 #
-# Why here and not the chat log (bottom-left): this box belongs to the CURRENT
-# frame, whereas the chat log lags ~1s -- at the moment a Pokemon is caught the
-# chat still shows the PREVIOUS battle's catch line. This band also sits ABOVE the
-# chat (y < 0.82 < chat's 0.90), so the chat's stale catch line cannot leak in.
-#
-# Band must cover the viewport bottom across window aspect ratios: the menu reads
-# at y 0.65-0.75 in ~1.39 windows (full_health_no_status) but 0.52-0.61 in 16:9
-# (1920x1080_resolution.png) because the viewport is letterboxed higher. Verified:
-# all 4 menu keywords detected in both, the catch banner detected
-# (batle_action_pokemon_catched_*), and NO false menu on the move submenu
-# (two_third_green_health_cave), action textbox, catch, or overworld.
+# Band must cover the viewport bottom across window aspect ratios (menu at y
+# 0.65-0.75 in ~1.39 windows, 0.52-0.61 in 16:9); it also sits ABOVE the chat
+# (y < 0.82 < 0.90). Verified scores: menu present 0.98-1.0 vs 0.29-0.36 absent;
+# catch 1.0 vs <=0.63 absent -- so 0.72 separates both with margin.
 top = 0.48
 bottom = 0.82
 left = 0.04
 right = 0.60
-upscale = 2
-# Command menu confirmed when at least this many of FIGHT/BAG/POKEMON/RUN are read
-# (>=2 avoids a stray single-word false positive; the move list shows none).
-menu_keywords_min = 2
+menu_match_min = 0.72
+catch_match_min = 0.72
 
 [name]
 # Enemy name region: right of the status badge, above the bar. Relative to the

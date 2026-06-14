@@ -59,6 +59,14 @@ class BattleReading:
     bars: tuple[BarReading, ...]
 
 
+@dataclass(frozen=True)
+class BattleText:
+    """What the in-viewport bottom text area shows this frame."""
+
+    menu_present: bool  # command menu up == waiting for input (turn start)
+    caught: bool  # capture banner ("Gotcha!")
+
+
 class HsvCalibration(BaseModel):
     sat_min: int
     val_min: int
@@ -154,8 +162,8 @@ class BattleTextCalibration(BaseModel):
     bottom: float
     left: float
     right: float
-    upscale: int
-    menu_keywords_min: int
+    menu_match_min: float  # template-match score to call the command menu present
+    catch_match_min: float  # template-match score to call the catch banner present
 
 
 class TrainerCalibration(BaseModel):
@@ -407,6 +415,42 @@ def is_trainer_battle(frame_bgr: np.ndarray, bar: BarReading, cal: TrainerCalibr
     gray = cv2.cvtColor(strip, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 50, 150)
     return float(np.mean(edges)) / 255.0 >= cal.edge_frac_min
+
+
+class BattleTextReader:
+    """Detect the command menu and the catch banner by TEMPLATE MATCHING, not OCR.
+
+    The battle UI renders at a fixed pixel size, so the words "FIGHT" (always
+    present while the command menu is up) and "Gotcha!" (the catch banner) are
+    the same size in every native capture. Matching small grayscale templates of
+    them in the in-viewport text band is ~10 ms vs >1 s for OCR, so it can run
+    every frame and the turn/catch update immediately. See [battle_text]."""
+
+    def __init__(self, cal: BattleTextCalibration, templates_dir: Path | str) -> None:
+        self._cal = cal
+        d = Path(templates_dir)
+        self._menu_tpl = cv2.imread(str(d / "menu_fight.png"), cv2.IMREAD_GRAYSCALE)
+        self._catch_tpl = cv2.imread(str(d / "catch_gotcha.png"), cv2.IMREAD_GRAYSCALE)
+        if self._menu_tpl is None or self._catch_tpl is None:
+            raise FileNotFoundError(f"missing battle-text templates in {d}")
+
+    def read(self, frame_bgr: np.ndarray) -> BattleText:
+        c = self._cal
+        h, w = frame_bgr.shape[:2]
+        band = frame_bgr[int(h * c.top) : int(h * c.bottom), int(w * c.left) : int(w * c.right)]
+        if band.size == 0:
+            return BattleText(menu_present=False, caught=False)
+        gray = cv2.cvtColor(band, cv2.COLOR_BGR2GRAY)
+        return BattleText(
+            menu_present=self._match(gray, self._menu_tpl) >= c.menu_match_min,
+            caught=self._match(gray, self._catch_tpl) >= c.catch_match_min,
+        )
+
+    @staticmethod
+    def _match(gray: np.ndarray, tpl: np.ndarray) -> float:
+        if gray.shape[0] < tpl.shape[0] or gray.shape[1] < tpl.shape[1]:
+            return 0.0
+        return float(cv2.matchTemplate(gray, tpl, cv2.TM_CCOEFF_NORMED).max())
 
 
 def read_battle(frame_bgr: np.ndarray, cal: Calibration) -> BattleReading:

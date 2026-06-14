@@ -4,18 +4,13 @@ from pathlib import Path
 
 import cv2
 
-from battle_log import (
-    has_command_menu,
-    is_catch_banner,
-    parse_turn_number,
-    read_battle_text,
-    read_turn_number,
-)
-from battle_reader import load_calibration
+from battle_log import parse_turn_number, read_turn_number
+from battle_reader import BattleTextReader, load_calibration
 from turn_tracker import TurnTracker
 
 ROOT = Path(__file__).parent.parent
 CAL = load_calibration(ROOT / "calibration.toml")
+BTEXT = BattleTextReader(CAL.battle_text, ROOT / "src" / "data" / "templates")
 
 
 def test_read_turn_number_from_chat_fixture():
@@ -46,67 +41,38 @@ def test_chat_corrects_an_undercounting_fallback():
     assert t.turns_completed == 8
 
 
-def test_is_catch_banner_keywords():
-    # OCR mangles "Gotcha"->"Gotoha" and splits/drops "was"; detection keys on
-    # the surviving "caught"/"gotcha" tokens, not the exact phrase.
-    assert is_catch_banner(["Gotoha!", "Rhyhorn", "sEm", "Caught!"]) is True
-    assert is_catch_banner(["Gotcha!", "Shellos was caught!"]) is True
-    # a faint (the other reason the bar vanishes) must NOT read as a catch
-    assert is_catch_banner(["Cascoon", "fainted!"]) is False
-    assert is_catch_banner(["It's super effective!"]) is False
-    assert is_catch_banner([]) is False
+def _bt(name):
+    return BTEXT.read(cv2.imread(str(ROOT / "fixtures" / name)))
 
 
-def test_has_command_menu_keywords():
-    assert has_command_menu(["FIGHT", "BAG", "POKEMON", "RUN"], 2) is True
-    assert has_command_menu(["fight", "bag"], 2) is True
-    assert has_command_menu(["RUN"], 2) is False  # one stray word is not the menu
-    # move submenu / narration / chat-style lines are not the command menu
-    assert has_command_menu(["False Swipe", "Spore", "Soak"], 2) is False
-    assert has_command_menu(["Monferno used Ember!"], 2) is False
-    assert has_command_menu([], 2) is False
-
-
-def test_read_battle_text_detects_command_menu():
-    # command menu visible at two aspect ratios and with the chat minimized
+def test_template_detects_command_menu():
+    # menu visible at two aspect ratios and with the chat minimized
     for name in (
         "full_health_no_status.png",
         "1920x1080_resolution.png",
-        "batle_minimized_chat.png",  # chat hidden -> menu is the turn signal
+        "batle_minimized_chat.png",
     ):
-        img = cv2.imread(str(ROOT / "fixtures" / name))
-        assert read_battle_text(img, CAL.battle_text).menu_present is True, name
+        assert _bt(name).menu_present is True, name
 
 
-def test_read_battle_text_no_menu_during_action_or_submenu():
+def test_template_no_menu_during_action_or_submenu():
     for name in (
         "batle_action_attack_selected.png",  # action textbox
         "two_third_green_health_cave.png",  # move submenu
         "overworld_city_running.png",  # not in battle
     ):
-        img = cv2.imread(str(ROOT / "fixtures" / name))
-        assert read_battle_text(img, CAL.battle_text).menu_present is False, name
+        assert _bt(name).menu_present is False, name
 
 
-def test_read_battle_text_detects_catch_fixture():
-    img = cv2.imread(
-        str(ROOT / "fixtures" / "batle_action_pokemon_catched_text_after pokeball_disapeared.png")
-    )
-    bt = read_battle_text(img, CAL.battle_text)
+def test_template_detects_catch_fixture():
+    bt = _bt("batle_action_pokemon_catched_text_after pokeball_disapeared.png")
     assert bt.caught is True
-    # crucially, the catch is read from the in-viewport box, NOT the chat log's
-    # stale "Geodude was caught!" line, which sits below this band.
     assert bt.menu_present is False
 
 
-def test_read_battle_text_false_before_catch_text_appears():
-    img = cv2.imread(str(ROOT / "fixtures" / "batle_action_pokemon_catched_dark_pokeballpng.png"))
-    assert read_battle_text(img, CAL.battle_text).caught is False
-
-
-def test_read_battle_text_no_catch_in_normal_battle():
-    img = cv2.imread(str(ROOT / "fixtures" / "full_health_no_status.png"))
-    assert read_battle_text(img, CAL.battle_text).caught is False
+def test_template_no_catch_before_text_or_in_normal_battle():
+    assert _bt("batle_action_pokemon_catched_dark_pokeballpng.png").caught is False
+    assert _bt("full_health_no_status.png").caught is False
 
 
 def test_parse_turn_number():
