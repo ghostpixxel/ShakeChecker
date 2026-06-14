@@ -36,7 +36,7 @@ def phys_to_logical(px: int, py: int) -> tuple[int, int]:
         lx, ly = px / dpr, py / dpr
     return round(lx), round(ly)
 
-SPRITE_H = 28  # Pokemon sprite height (px) — kept compact so the panel stays small
+SPRITE_H = 24  # Pokemon sprite height (px) — kept compact so the panel stays small
 BALL_H = 20  # ball icon height (px)
 # Fixed panel width. Must exceed the content's natural width or Qt enforces a
 # larger, content-dependent minimum and the dock position jitters frame to frame.
@@ -117,7 +117,7 @@ class Overlay(QWidget):
         self._sprite.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
         self._name = QLabel("—")
         name_font = QFont(mono)
-        name_font.setPixelSize(18)
+        name_font.setPixelSize(16)
         name_font.setBold(True)
         self._name.setFont(name_font)
         self._name.setTextFormat(Qt.TextFormat.RichText)  # bold name + small "Lv.N"
@@ -143,6 +143,13 @@ class Overlay(QWidget):
         self._sub.setStyleSheet("color: #aaaaaa;")
         self._sub.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         col.addWidget(self._sub)
+
+        # HP line (its own row, above the balls)
+        self._hp = QLabel("")
+        self._hp.setFont(sub_font)
+        self._hp.setStyleSheet("color: #cfd2d6;")
+        self._hp.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        col.addWidget(self._hp)
 
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
@@ -179,12 +186,14 @@ class Overlay(QWidget):
         probs: dict[str, float],
         level: int | None = None,
         status: str | None = None,
+        hp_pct: float | None = None,
     ) -> None:
         """Update the overlay for the current enemy and show it."""
         self._set_sprite(dex_id)
         lvl = f' <span style="font-size:11px; color:#9aa0aa;">Lv.{level}</span>' if level else ""
         self._name.setText(f"{name}{lvl}")
         self._sub.setText(subheader_text(catch_rate, turn))
+        self._hp.setText(f"HP: {hp_pct:.0f}%" if hp_pct is not None else "")
         self._set_status(status)
         for ball, label in self._pct_labels.items():
             prob = probs.get(ball)
@@ -265,7 +274,7 @@ def _demo() -> None:
         "Quick Ball": 0.49,
         "Dusk Ball": 0.245,
     }
-    ov.show_battle(419, "Floatzel", 75, 2, sample, level=24, status="psn")
+    ov.show_battle(419, "Floatzel", 75, 2, sample, level=24, status="psn", hp_pct=58)
     ov.move(200, 200)  # standalone: no game window to dock to
     ov.show()
     sys.exit(app.exec())

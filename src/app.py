@@ -39,6 +39,7 @@ from catch_calc import BattleContext, ball_multiplier, catch_probability
 from hp_settler import HpSettler
 from name_reader import NameReader
 from overlay import Overlay
+from status_settler import StatusSettler
 from turn_tracker import TurnTracker
 from window_capture import (
     WINDOW_TITLE,
@@ -246,6 +247,7 @@ class LiveLoop:
         self.cached: dict | None = None  # enemy for the current battle
         self.turns = TurnTracker()
         self.hp = HpSettler()
+        self.status = StatusSettler()
         self.caught_handled = False
 
     def start(self) -> None:
@@ -316,6 +318,7 @@ class LiveLoop:
         self.last_line = ""
         self.turns.reset()
         self.hp.reset()
+        self.status.reset()
         self.last_chat_ocr = 0.0
         self.last_battle_text_ocr = 0.0
         self.caught_handled = False
@@ -355,7 +358,9 @@ class LiveLoop:
 
     def _update_single(self, frame, bar, rect) -> None:
         hp_pct = self.hp.update(bar.hp_pct)  # wait for the bar to settle
-        status = self.status_override or bar.status.value
+        # debounce the status so the catch animation's blue ball flash can't
+        # briefly flip it (e.g. PSN -> FRZ); a real change still gets through.
+        status = self.status_override or self.status.update(bar.status.value)
         if self.species_override is not None:
             self.cached = self.species_override
         elif self.cached is None:
@@ -394,6 +399,7 @@ class LiveLoop:
                 dict(probs),
                 level=self.cached.get("level"),
                 status=status,
+                hp_pct=hp_pct,
             )
             self.overlay.dock_to(rect.left, rect.top, rect.width)
         if line != self.last_line:

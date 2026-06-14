@@ -70,6 +70,14 @@ def test_status_badge_mapping():
     assert status_badge("") is None
 
 
+def test_hp_line_rendered(qt_app):
+    ov = Overlay(BALLS)
+    ov.show_battle(66, "Machop", 180, 2, {}, hp_pct=58.4)
+    assert ov._hp.text() == "HP: 58%"
+    ov.show_battle(66, "Machop", 180, 2, {})  # no hp -> blank
+    assert ov._hp.text() == ""
+
+
 def test_status_badge_shown_and_hidden(qt_app):
     ov = Overlay(BALLS)
     ov.show_battle(66, "Machop", 180, 2, {}, status="psn")
