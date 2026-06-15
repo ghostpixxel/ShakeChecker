@@ -183,6 +183,18 @@ class LocationCalibration(BaseModel):
     upscale: int
 
 
+class CaughtIconCalibration(BaseModel):
+    dx0: int
+    dx1: int
+    dy0: int
+    dy1: int
+    red_h_low: int
+    red_h_high: int
+    sat_min: int
+    val_min: int
+    min_red_px: int
+
+
 class Calibration(BaseModel):
     hp_bar: HpBarCalibration
     status: StatusCalibration
@@ -192,6 +204,7 @@ class Calibration(BaseModel):
     battle_text: BattleTextCalibration
     trainer: TrainerCalibration
     location: LocationCalibration
+    caught_icon: CaughtIconCalibration
 
 
 def load_calibration(path: Path | str) -> Calibration:
@@ -462,6 +475,29 @@ def is_trainer_battle(frame_bgr: np.ndarray, bar: BarReading, cal: TrainerCalibr
     gray = cv2.cvtColor(strip, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 50, 150)
     return float(np.mean(edges)) / 255.0 >= cal.edge_frac_min
+
+
+def read_caught_icon(frame_bgr: np.ndarray, bar: BarReading, cal: CaughtIconCalibration) -> bool:
+    """True if the enemy species is OT-caught: a red/white Poke Ball icon sits
+    right of its name.
+
+    PokeMMO marks a wild species you have caught with a Poke Ball next to the
+    name; only the standard red/white ball means *you* caught it (OT). A species
+    obtained by trade/evolution shows a (mostly white) Premier Ball, and an
+    un-owned one shows no ball -- both have too few saturated-red pixels to pass.
+    The icon's red top half is the signal: measured 61 red px when present vs 0
+    absent, with the pink female symbol (hue ~156) outside the red range. The
+    search band is relative to the bar (fixed-size UI). See [caught_icon]."""
+    h, w = frame_bgr.shape[:2]
+    x0, x1 = max(0, bar.x + cal.dx0), min(w, bar.x + cal.dx1)
+    y0, y1 = max(0, bar.y + cal.dy0), min(h, bar.y + cal.dy1)
+    if x1 <= x0 or y1 <= y0:
+        return False
+    hsv = cv2.cvtColor(frame_bgr[y0:y1, x0:x1], cv2.COLOR_BGR2HSV)
+    hue, sat, val = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
+    is_red = (hue <= cal.red_h_low) | (hue >= cal.red_h_high)
+    red = is_red & (sat >= cal.sat_min) & (val >= cal.val_min)
+    return int(np.count_nonzero(red)) >= cal.min_red_px
 
 
 class BattleTextReader:

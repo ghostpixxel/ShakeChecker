@@ -198,3 +198,25 @@ dy1 = -6
 upscale = 3
 # rapidfuzz WRatio 0-100; below this the OCR result is treated as unrecognized.
 min_match_score = 70.0
+
+[caught_icon]
+# An OT-caught wild species shows a red/white Poke Ball icon right of the name.
+# Only the standard red ball means you (OT) caught it; a traded/evolved species
+# shows a (mostly white) Premier Ball and an un-owned one shows no ball -- both
+# fall below min_red_px. Detected by the ball's saturated-red top half in a band
+# relative to the bar (fixed-size UI). Measured: 61 red px present (full_health_
+# water Mantine, full_health_no_status Cascoon, red_health_no_status_cave Onix,
+# full_health_paralyzed, full_health_sleeping) vs 0 absent (full_health_trainer_
+# battle_poisoned Pachirisu, whose pink female symbol is hue ~156, outside red).
+dx0 = 0
+dx1 = 250
+dy0 = -38
+dy1 = -4
+# Red hue wraps 0/179: a pixel is red if hue <= red_h_low OR hue >= red_h_high.
+red_h_low = 8
+red_h_high = 172
+sat_min = 120
+val_min = 110
+# Threshold well below 61 (present) and above 0 (absent); tolerates a smaller
+# ball at lower window resolutions.
+min_red_px = 15
