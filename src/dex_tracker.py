@@ -84,12 +84,11 @@ _WALK = {"Grass", "Cave", "Inside"}
 def encounter_tag(method: str, rarity: str) -> str:
     """A short label for HOW to find a species via one encounter, or "" for the
     default (walking in plain grass/cave). Phenomena (Special rarity) read as
-    "<Pheno>", Lure spawns as "Lure", and everything non-walking (surf Water,
-    fishing rods, Headbutt, Rocks, Honey Tree, Dark Grass, Shadow) as the method."""
+    "<Pheno>"; everything non-walking (surf Water, fishing rods, Headbutt, Rocks,
+    Honey Tree, Dark Grass, Shadow) reads as the method. Lure is NOT a way -- it
+    is a rarity (shown by colour), so a Lure spawn's way is just its method."""
     if rarity == "Special":
         return _PHENO.get(method, f"{method} Pheno")
-    if rarity == "Lure":
-        return "Lure"
     if method in _WALK:
         return ""
     return method

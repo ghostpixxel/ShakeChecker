@@ -82,9 +82,10 @@ def test_headline_rarity_is_the_rarest_among_encounters():
     assert location_entries(encs, "DAY", 0, set(), set())[0].rarity == "Rare"
 
 
-def test_ways_label_lure_special_pheno_and_rods():
+def test_ways_label_special_pheno_rods_and_lure_is_not_a_way():
     encs = [
-        enc(1, "Bulbasaur", method="Grass", rarity="Lure"),
+        enc(1, "Bulbasaur", method="Grass", rarity="Lure"),  # lure in grass -> no way tag
+        enc(6, "Chinchou", method="Water", rarity="Lure"),  # lure via surf -> way is the method
         enc(2, "Surskit", method="Grass"),  # plain grass -> no tag
         enc(2, "Surskit", method="Water"),  # surf
         enc(3, "Magikarp", method="Old Rod", rarity="Very Common"),
@@ -92,7 +93,8 @@ def test_ways_label_lure_special_pheno_and_rods():
         enc(5, "Drilbur", method="Dust Cloud", rarity="Special"),
     ]
     by = {e.id: e.ways for e in location_entries(encs, "DAY", 0, set(), set())}
-    assert by[1] == ("Lure",)
+    assert by[1] == ()  # Lure shown via rarity, grass is the default way
+    assert by[6] == ("Water",)  # Lure via surf -> the method is the way
     assert by[2] == ("Water",)  # grass dropped, surf kept
     assert by[3] == ("Old Rod",)
     assert by[4] == ("Grass Pheno",)
