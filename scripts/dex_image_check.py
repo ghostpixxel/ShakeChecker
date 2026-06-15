@@ -87,11 +87,13 @@ def main() -> None:
                 print()
                 continue
             print(f"  {view.route}  ({view.region})  [{view.period.value}, season {view.season}]")
-            print(f"  {len(view.missing)} still needed")
-            shown = view.missing if args.all else view.missing[:SHOWN_MAX]
+            missing = [e for e in view.entries if not e.caught]
+            print(f"  {len(missing)} still needed")
+            shown = missing if args.all else missing[:SHOWN_MAX]
             for m in shown:
-                print(f"    #{m.id:<4} {m.name:<13} {'/'.join(m.ways)}")
-            extra = len(view.missing) - len(shown)
+                ways = f" ({'/'.join(m.ways)})" if m.ways else ""
+                print(f"    #{m.id:<4} {m.name:<13} [{m.rarity}]{ways}")
+            extra = len(missing) - len(shown)
             if extra > 0:
                 print(f"    +{extra}")
             if enemy_line:

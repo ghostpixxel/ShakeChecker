@@ -30,10 +30,29 @@ MATCH_THRESHOLD = 82.0
 
 
 @dataclass(frozen=True)
-class MissingEntry:
+class DexEntry:
     id: int  # National Dex id (sort key / display order)
     name: str
     ways: tuple[str, ...]  # how to encounter it here; empty = plain grass/cave walking
+    rarity: str  # the rarest rarity among this species' active encounters here
+    caught: bool  # already OT-caught on the active account
+
+
+# Rarity ordering (higher = rarer) for picking a species' headline rarity and for
+# ranking the "rarest already-caught" entries the hybrid list pads with.
+_RARITY_RANK = {
+    "Very Rare": 6,
+    "Rare": 5,
+    "Special": 4,
+    "Lure": 3,
+    "Uncommon": 2,
+    "Horde": 1,
+    "Common": 1,
+    "Very Common": 0,
+}
+# Once everything common is caught, the list pads its tail with caught species of
+# these "notable" rarities (user choice) so the rares stay visible.
+PAD_RARITIES = frozenset({"Lure", "Rare", "Very Rare"})
 
 
 def _normalize(name: str) -> str:
@@ -83,28 +102,51 @@ def available_here(encounters: list[dict], period: str, season: int) -> list[dic
     ]
 
 
-def compute_missing(
+def location_entries(
     encounters: list[dict],
     period: str,
     season: int,
     caught: set[int],
     legendaries: set[int],
-) -> list[MissingEntry]:
-    """Species available now that are neither legendary nor already caught,
-    deduped by id (collecting the non-default encounter ways) and sorted by dex id."""
+) -> list[DexEntry]:
+    """All non-legendary species available now (caught AND uncaught), deduped by
+    id with their encounter ways and headline (rarest) rarity, sorted by dex id.
+    The caught flag lets the display show a to-do list and pad it with rares."""
     by_id: dict[int, dict] = {}
     for e in available_here(encounters, period, season):
         pid = e["id"]
-        if pid in caught or pid in legendaries:
+        if pid in legendaries:
             continue
-        slot = by_id.setdefault(pid, {"name": e["name"], "ways": set()})
+        slot = by_id.setdefault(pid, {"name": e["name"], "ways": set(), "rarities": set()})
         tag = encounter_tag(e["method"], e["rarity"])
         if tag:
             slot["ways"].add(tag)
-    return [
-        MissingEntry(pid, slot["name"], tuple(sorted(slot["ways"])))
-        for pid, slot in sorted(by_id.items())
-    ]
+        slot["rarities"].add(e["rarity"])
+    entries = []
+    for pid, slot in sorted(by_id.items()):
+        rarity = max(slot["rarities"], key=lambda r: _RARITY_RANK.get(r, 0))
+        entries.append(
+            DexEntry(pid, slot["name"], tuple(sorted(slot["ways"])), rarity, pid in caught)
+        )
+    return entries
+
+
+def select_display(entries: list[DexEntry], limit: int) -> tuple[list[DexEntry], int]:
+    """Pick the rows to show and how many uncaught are hidden ("+X").
+
+    Uncaught first, in dex order (the to-do list). If they all fit and leave room,
+    pad the tail with the rarest already-caught species of PAD_RARITIES so the
+    notable rares stay visible even once caught. Returns (rows, hidden_uncaught)."""
+    uncaught = [e for e in entries if not e.caught]
+    rows = uncaught[:limit]
+    hidden = len(uncaught) - len(rows)
+    if hidden == 0 and len(rows) < limit:
+        rares = sorted(
+            (e for e in entries if e.caught and e.rarity in PAD_RARITIES),
+            key=lambda e: (-_RARITY_RANK[e.rarity], e.id),
+        )
+        rows = rows + rares[: limit - len(rows)]
+    return rows, hidden
 
 
 class EncounterData:
@@ -178,13 +220,20 @@ class EncounterData:
             return set()
         return {self._locations[k]["region"] for k in self._candidate_keys(norm, None)}
 
-    def missing_here(
+    def entries_here(
         self, key: str, period: str, season: int, caught: set[int]
-    ) -> list[MissingEntry]:
+    ) -> list[DexEntry]:
+        """All non-legendary species available now at a location (caught + uncaught)."""
         loc = self._locations.get(key)
         if loc is None:
             return []
-        return compute_missing(loc["encounters"], period, season, caught, self._legendaries)
+        return location_entries(loc["encounters"], period, season, caught, self._legendaries)
+
+    def missing_here(
+        self, key: str, period: str, season: int, caught: set[int]
+    ) -> list[DexEntry]:
+        """Just the uncaught entries (convenience for the dev scripts)."""
+        return [e for e in self.entries_here(key, period, season, caught) if not e.caught]
 
 
 class RegionResolver:

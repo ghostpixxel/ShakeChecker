@@ -17,7 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from account_store import CaughtStore
-from dex_tracker import EncounterData, MissingEntry, RegionResolver
+from dex_tracker import DexEntry, EncounterData, RegionResolver
 from game_time import Period, current_period, current_season
 
 
@@ -29,7 +29,7 @@ class LocationView:
     region: str
     period: Period
     season: int
-    missing: list[MissingEntry]  # dex-sorted; caller caps at N + "+X"
+    entries: list[DexEntry]  # all available species (caught + uncaught), dex-sorted
 
 
 class DexSession:
@@ -64,9 +64,9 @@ class DexSession:
             return None
         period = self._period_fn()
         season = self._season_fn()
-        missing = self._data.missing_here(key, period.value, season, self._caught.caught)
+        entries = self._data.entries_here(key, period.value, season, self._caught.caught)
         loc = self._data.location_for_key(key)
-        return LocationView(loc["name"], loc["region"], period, season, missing)
+        return LocationView(loc["name"], loc["region"], period, season, entries)
 
     def record_caught(self, species_id: int) -> bool:
         """Mark a species OT-caught (call when the OT ball icon is seen). Returns

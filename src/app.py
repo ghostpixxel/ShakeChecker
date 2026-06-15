@@ -40,7 +40,7 @@ from battle_reader import (
 )
 from catch_calc import BattleContext, ball_multiplier, catch_probability
 from dex_session import DexSession, LocationView
-from dex_tracker import EncounterData
+from dex_tracker import EncounterData, select_display
 from hp_settler import HpSettler
 from location_reader import is_cave_location, read_location
 from name_reader import NameReader
@@ -121,21 +121,26 @@ def battle_context(
 
 
 def dex_panel_text(view: LocationView | None) -> str:
-    """The console form of the dex 'missing here' panel: a header line plus up to
-    DEX_SHOWN_MAX species by dex id, then '+X' for the rest. '' if no location."""
+    """The console form of the dex panel: a header with the still-needed count,
+    then up to DEX_SHOWN_MAX rows. Uncaught species come first by dex id ('+X' for
+    the rest); once those fit, the tail is padded with the rarest already-caught
+    species (marked ✓) so the notable rares stay visible. '' if no location."""
     if view is None:
         return ""
+    needed = sum(1 for e in view.entries if not e.caught)
     header = (
         f"[dex] {view.route} ({view.region}) {view.period.value} S{view.season}"
-        f" — {len(view.missing)} needed"
+        f" — {needed} needed"
     )
-    if not view.missing:
+    rows, hidden = select_display(view.entries, DEX_SHOWN_MAX)
+    if not rows:
         return header + "\n  (all caught here!)"
-    shown = view.missing[:DEX_SHOWN_MAX]
-    lines = [header, *[f"  #{m.id:<4} {m.name}{_ways_note(m.ways)}" for m in shown]]
-    extra = len(view.missing) - len(shown)
-    if extra > 0:
-        lines.append(f"  +{extra}")
+    lines = [header]
+    for e in rows:
+        check = " ✓" if e.caught else ""
+        lines.append(f"  #{e.id:<4} {e.name} [{e.rarity}]{_ways_note(e.ways)}{check}")
+    if hidden > 0:
+        lines.append(f"  +{hidden}")
     return "\n".join(lines)
 
 

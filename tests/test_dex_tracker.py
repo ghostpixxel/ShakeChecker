@@ -4,7 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from dex_tracker import EncounterData, MissingEntry, RegionResolver, compute_missing
+from dex_tracker import (
+    DexEntry,
+    EncounterData,
+    RegionResolver,
+    location_entries,
+    select_display,
+)
 
 ROOT = Path(__file__).parent.parent
 ENCOUNTERS = ROOT / "src" / "data" / "encounters.json"
@@ -31,7 +37,11 @@ def enc(
     }
 
 
-# --- compute_missing (pure) ---
+# --- location_entries (pure) ---
+
+
+def uncaught(entries):
+    return [e for e in entries if not e.caught]
 
 
 def test_filters_by_period_and_season():
@@ -40,14 +50,16 @@ def test_filters_by_period_and_season():
         enc(2, "Ivysaur", seasons=(1,)),
         enc(3, "Venusaur"),  # all times/seasons
     ]
-    missing = compute_missing(encs, "DAY", 0, caught=set(), legendaries=set())
-    assert [m.id for m in missing] == [3]  # only the all-times one is active now
+    entries = location_entries(encs, "DAY", 0, caught=set(), legendaries=set())
+    assert [e.id for e in entries] == [3]  # only the all-times one is active now
 
 
-def test_excludes_caught_and_legendaries():
+def test_excludes_legendaries_and_flags_caught():
     encs = [enc(1, "Bulbasaur"), enc(150, "Mewtwo"), enc(16, "Pidgey")]
-    missing = compute_missing(encs, "DAY", 0, caught={1}, legendaries={150})
-    assert [m.id for m in missing] == [16]
+    entries = location_entries(encs, "DAY", 0, caught={1}, legendaries={150})
+    assert [e.id for e in entries] == [1, 16]  # legendary dropped, caught kept (flagged)
+    assert next(e for e in entries if e.id == 1).caught is True
+    assert next(e for e in entries if e.id == 16).caught is False
 
 
 def test_dedupes_by_species_and_collects_ways_sorted_by_id():
@@ -56,10 +68,18 @@ def test_dedupes_by_species_and_collects_ways_sorted_by_id():
         enc(16, "Pidgey", method="Dark Grass"),
         enc(1, "Bulbasaur", method="Grass"),
     ]
-    missing = compute_missing(encs, "DAY", 0, caught=set(), legendaries=set())
-    assert [m.id for m in missing] == [1, 16]  # dex order
-    assert next(m for m in missing if m.id == 1).ways == ()  # plain grass
-    assert next(m for m in missing if m.id == 16).ways == ("Dark Grass",)
+    entries = location_entries(encs, "DAY", 0, caught=set(), legendaries=set())
+    assert [e.id for e in entries] == [1, 16]  # dex order
+    assert next(e for e in entries if e.id == 1).ways == ()  # plain grass
+    assert next(e for e in entries if e.id == 16).ways == ("Dark Grass",)
+
+
+def test_headline_rarity_is_the_rarest_among_encounters():
+    encs = [
+        enc(1, "Bulbasaur", rarity="Very Common"),
+        enc(1, "Bulbasaur", rarity="Rare"),  # rarest wins
+    ]
+    assert location_entries(encs, "DAY", 0, set(), set())[0].rarity == "Rare"
 
 
 def test_ways_label_lure_special_pheno_and_rods():
@@ -71,7 +91,7 @@ def test_ways_label_lure_special_pheno_and_rods():
         enc(4, "Audino", method="Grass", rarity="Special"),  # rustling-grass pheno
         enc(5, "Drilbur", method="Dust Cloud", rarity="Special"),
     ]
-    by = {m.id: m.ways for m in compute_missing(encs, "DAY", 0, set(), set())}
+    by = {e.id: e.ways for e in location_entries(encs, "DAY", 0, set(), set())}
     assert by[1] == ("Lure",)
     assert by[2] == ("Water",)  # grass dropped, surf kept
     assert by[3] == ("Old Rod",)
@@ -79,9 +99,49 @@ def test_ways_label_lure_special_pheno_and_rods():
     assert by[5] == ("Dust Pheno",)
 
 
-def test_empty_when_all_caught():
+def test_all_caught_yields_no_uncaught():
     encs = [enc(1, "Bulbasaur"), enc(16, "Pidgey")]
-    assert compute_missing(encs, "DAY", 0, caught={1, 16}, legendaries=set()) == []
+    entries = location_entries(encs, "DAY", 0, caught={1, 16}, legendaries=set())
+    assert uncaught(entries) == []
+    assert all(e.caught for e in entries)
+
+
+# --- select_display (hybrid: uncaught first, pad tail with rarest caught) ---
+
+
+def de(id, rarity="Common", caught=False, ways=()):
+    return DexEntry(id, f"Mon{id}", ways, rarity, caught)
+
+
+def test_select_shows_uncaught_first_with_plus_overflow():
+    entries = [de(i) for i in range(1, 9)]  # 8 uncaught
+    rows, hidden = select_display(entries, 5)
+    assert [e.id for e in rows] == [1, 2, 3, 4, 5]
+    assert hidden == 3
+
+
+def test_select_pads_with_rarest_caught_when_room():
+    entries = [
+        de(1),  # uncaught
+        de(2),  # uncaught
+        de(10, "Common", caught=True),  # caught but too common to pad
+        de(11, "Rare", caught=True),
+        de(12, "Very Rare", caught=True),
+        de(13, "Lure", caught=True),
+    ]
+    rows, hidden = select_display(entries, 5)
+    assert hidden == 0
+    assert [e.id for e in rows[:2]] == [1, 2]  # uncaught first
+    # padded with the rarest caught of Lure/Rare/Very Rare: VeryRare, Rare, Lure
+    assert [e.id for e in rows[2:]] == [12, 11, 13]
+    assert all(e.caught for e in rows[2:])
+
+
+def test_select_no_padding_when_uncaught_overflow():
+    entries = [de(i) for i in range(1, 7)] + [de(99, "Very Rare", caught=True)]
+    rows, hidden = select_display(entries, 5)
+    assert all(not e.caught for e in rows)  # no room to pad
+    assert hidden == 1
 
 
 # --- EncounterData against the real vendored file ---
@@ -160,10 +220,17 @@ def test_resolver_takes_over_region_on_switch(data):
 def test_missing_here_excludes_legendaries_and_caught(data):
     key = "KANTO_VIRIDIAN_FOREST"
     full = data.missing_here(key, "DAY", 0, caught=set())
-    assert all(isinstance(m, MissingEntry) for m in full)
+    assert all(isinstance(m, DexEntry) and not m.caught for m in full)
     assert [m.id for m in full] == sorted(m.id for m in full)  # dex-sorted
-    # catching the first removes exactly it
+    # catching the first removes exactly it from the missing list
     first = full[0].id
     after = data.missing_here(key, "DAY", 0, caught={first})
     assert first not in {m.id for m in after}
     assert len(after) == len(full) - 1
+
+
+def test_entries_here_includes_caught_flagged(data):
+    key = "KANTO_VIRIDIAN_FOREST"
+    first = data.missing_here(key, "DAY", 0, caught=set())[0].id
+    entries = data.entries_here(key, "DAY", 0, caught={first})
+    assert next(e for e in entries if e.id == first).caught is True

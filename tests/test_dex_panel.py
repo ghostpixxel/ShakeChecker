@@ -2,17 +2,21 @@ from __future__ import annotations
 
 from app import dex_panel_text
 from dex_session import LocationView
-from dex_tracker import MissingEntry
+from dex_tracker import DexEntry
 from game_time import Period
 
 
-def view(missing, ways=()):
+def entry(id, name, rarity="Common", ways=(), caught=False):
+    return DexEntry(id, name, ways, rarity, caught)
+
+
+def view(entries):
     return LocationView(
         route="VIRIDIAN FOREST",
         region="KANTO",
         period=Period.DAY,
         season=0,
-        missing=[MissingEntry(i, n, ways) for i, n in missing],
+        entries=entries,
     )
 
 
@@ -21,37 +25,46 @@ def test_none_view_is_empty():
 
 
 def test_all_caught_message():
-    text = dex_panel_text(view([]))
+    # everything caught and nothing rare enough to pad -> "all caught here"
+    text = dex_panel_text(view([entry(1, "Caterpie", caught=True)]))
     assert "VIRIDIAN FOREST (KANTO) DAY S0 — 0 needed" in text
     assert "all caught here" in text
 
 
-def test_lists_few_without_plus():
-    text = dex_panel_text(view([(1, "Bulbasaur"), (16, "Pidgey")]))
+def test_header_counts_only_uncaught():
+    text = dex_panel_text(view([entry(1, "A"), entry(2, "B"), entry(3, "C", caught=True)]))
     assert "— 2 needed" in text
-    assert "#1    Bulbasaur" in text
-    assert "#16   Pidgey" in text
-    assert "+" not in text
 
 
-def test_plain_grass_entries_show_no_note():
-    # plain grass -> empty ways -> no parens on the entry line
-    text = dex_panel_text(view([(1, "Bulbasaur")], ways=()))
+def test_rarity_label_and_ways_shown():
+    text = dex_panel_text(view([entry(131, "Lapras", rarity="Very Rare", ways=("Water",))]))
+    assert "#131  Lapras [Very Rare] (Water)" in text
+
+
+def test_plain_grass_has_no_parens():
+    text = dex_panel_text(view([entry(10, "Caterpie", rarity="Common")]))
+    assert "Caterpie [Common]" in text
     assert "(" not in text.split("needed")[1]
 
 
-def test_ways_are_shown_in_parens():
-    assert "Tentacool (Water)" in dex_panel_text(view([(72, "Tentacool")], ways=("Water",)))
-    rods = dex_panel_text(view([(129, "Magikarp")], ways=("Good Rod", "Old Rod")))
-    assert "Magikarp (Good Rod/Old Rod)" in rods
-    assert "Bulbasaur (Lure)" in dex_panel_text(view([(1, "Bulbasaur")], ways=("Lure",)))
-    assert "Audino (Grass Pheno)" in dex_panel_text(view([(531, "Audino")], ways=("Grass Pheno",)))
-
-
-def test_caps_at_five_and_collapses_rest():
-    missing = [(i, f"Mon{i}") for i in range(1, 9)]  # 8 entries
-    text = dex_panel_text(view(missing))
-    lines = text.splitlines()
+def test_caps_uncaught_at_five_with_overflow():
+    entries = [entry(i, f"Mon{i}") for i in range(1, 9)]  # 8 uncaught
+    lines = dex_panel_text(view(entries)).splitlines()
     assert lines[0].endswith("8 needed")
-    assert len(lines) == 1 + 5 + 1  # header + 5 shown + "+3"
+    assert len(lines) == 1 + 5 + 1  # header + 5 + "+3"
     assert lines[-1] == "  +3"
+
+
+def test_pads_tail_with_rarest_caught_marked():
+    entries = [
+        entry(1, "A"),  # uncaught
+        entry(2, "B"),  # uncaught
+        entry(10, "Caught Common", rarity="Common", caught=True),  # too common to pad
+        entry(11, "Caught Rare", rarity="Rare", caught=True),
+        entry(12, "Caught VeryRare", rarity="Very Rare", caught=True),
+    ]
+    text = dex_panel_text(view(entries))
+    assert "Caught VeryRare [Very Rare] ✓" in text
+    assert "Caught Rare [Rare] ✓" in text
+    assert "Caught Common" not in text  # common caught is not padded in
+    assert "+" not in text  # no uncaught overflow
