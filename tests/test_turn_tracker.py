@@ -221,6 +221,23 @@ def test_browse_cancel_without_action_does_not_count():
     assert t.turns_completed == 1
 
 
+def test_double_two_selection_menus_count_one_turn():
+    # In a wild double you pick a move for BOTH your Pokemon: two menus appear,
+    # but they are NOT separated by a committed-action text, so the action-gating
+    # counts the turn exactly once (this is why menu counting is safe in multi).
+    t = TurnTracker()
+    start_battle(t)
+    menu(t, True)  # select Pokemon 1 (first appearance already consumed by intro)
+    menu(t, False)
+    menu(t, True)  # select Pokemon 2 -- no action since -> no extra count
+    assert t.turns_completed == 0
+    menu(t, False, action=True)  # resolution: an action ran
+    menu(t, True)  # next turn, Pokemon 1 -> counts once
+    menu(t, False)
+    menu(t, True)  # next turn, Pokemon 2 -> no action since -> no extra count
+    assert t.turns_completed == 1
+
+
 def test_chat_overrides_menu_count_upward():
     t = TurnTracker()
     start_battle(t)

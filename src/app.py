@@ -82,6 +82,10 @@ BATTLE_END_GRACE_S = 1.0
 # "sent out") that have no battle signal; a longer grace keeps those gaps from
 # ending the battle (which would flash the overlays and re-run trainer detection).
 TRAINER_END_GRACE_S = 6.0
+# The command menu must hold present/absent this many battle frames before the
+# turn counter accepts the change — filters brief template-match flicker during
+# multi-target (horde) animations that would otherwise over-count turns.
+MENU_STABLE_FRAMES = 2
 # Location OCR for the dex panel is comparatively expensive and the location
 # changes slowly, so refresh it at most this often while walking around (IDLE).
 DEX_LOC_INTERVAL_S = 2.5
@@ -435,8 +439,9 @@ class LiveLoop:
         self._is_trainer = False
         self._trainer_decided = False
         self._ot_checked = False
-        self._was_multi = False  # battle has been a horde/double at some point
-        self._multi_turn_synced = False  # synced the real turn on the MULTI->SINGLE switch
+        self._menu_raw = False  # last raw menu_present
+        self._menu_streak = 0  # frames the raw menu_present has held
+        self._menu_stable = False  # debounced menu_present fed to the turn counter
         if self.dex_panel is not None:  # overworld panel out of the way during battle
             self.dex_panel.hide_panel()
         print("battle detected")
@@ -471,25 +476,24 @@ class LiveLoop:
         # `bt` (menu/action/catch templates, ~10 ms) was read in the loop and is
         # passed in: it drives the chat-independent turn counter (command menu
         # reappears each turn) and catch detection ("Gotcha!").
-        # Count menu turns only in a SINGLE battle. In a horde/double (MULTI) the
-        # command menu is unreliable (it shows once PER your-Pokemon in a double,
-        # and flickers during multi-target animations), so it would over-count;
-        # the real turn is taken from the chat instead (below).
-        if reading.state is BattleState.MULTI:
-            self._was_multi = True
-        if reading.state is BattleState.SINGLE:
-            # When a horde/double has just narrowed to one Pokemon, sync the real
-            # turn ONCE from the chat (a single blocking read) so we continue at the
-            # correct number instead of restarting the menu counter at turn 1.
-            if self._was_multi and not self._multi_turn_synced:
-                self._multi_turn_synced = True
-                # Only block on a sync read if the async chat hasn't already
-                # established the turn during the MULTI phase (avoids a freeze).
-                if self.turns.turns_completed == 0:
-                    synced = read_turn_number(frame, self.cal.chat)
-                    if synced is not None:
-                        self.turns.observe(synced, asleep)
-            self.turns.observe_menu(bt.menu_present, bt.action)
+        # Count turns from the command menu + committed-action text in BOTH single
+        # and multi. A horde has one of YOUR Pokemon (one menu per turn); a double
+        # shows two selection menus, but they aren't separated by an action text,
+        # so the action-gating still counts exactly once per turn. This is
+        # chat-independent (works with the chat hidden); the chat only corrects up.
+        #
+        # The only hazard in multi is the menu template flickering during the busy
+        # multi-target animation, which would look like the menu reappearing. So
+        # debounce the menu signal: only accept a present/absent change after it
+        # has held for MENU_STABLE_FRAMES frames.
+        if bt.menu_present == self._menu_raw:
+            self._menu_streak += 1
+        else:
+            self._menu_raw = bt.menu_present
+            self._menu_streak = 1
+        if self._menu_streak >= MENU_STABLE_FRAMES:
+            self._menu_stable = self._menu_raw
+        self.turns.observe_menu(self._menu_stable, bt.action)
         # Decide trainer vs wild ONCE per battle, and only while the command menu is
         # up: then the scene is static, so the party-icon strip below the bar is
         # reliable. Checking during animations gave false positives.
