@@ -509,8 +509,12 @@ class LiveLoop:
             cur = self.turns.turns_completed
             if completed > cur:
                 self.turns.observe(chat_turn, asleep)  # up: a missed turn (e.g. 2-turn move)
+                if self.debug:
+                    print(f"[dbg] chat corrected UP -> Turn {self.turns.turns_completed + 1}")
             elif completed < cur and now - self._last_advance > TURN_DOWN_GUARD_S:
                 self.turns.set_turn(chat_turn)  # down: a menu over-count, menu now quiet
+                if self.debug:
+                    print(f"[dbg] chat corrected DOWN -> Turn {self.turns.turns_completed + 1}")
 
         # `bt` (menu/action/catch templates, ~10 ms) was read in the loop and is
         # passed in: it drives the chat-independent turn counter (command menu
