@@ -564,7 +564,13 @@ class LiveLoop:
         # reliable. Checking during animations gave false positives.
         stable = bt.menu_present and reading.state is BattleState.SINGLE
         if stable and not self._trainer_decided:
-            self._is_trainer = is_trainer_battle(frame, reading.bars[0], self.cal.trainer)
+            if self._was_horde:
+                # A horde is always a wild battle. When it narrows to one bar the
+                # party-icon strip below it catches the other (fainted) horde mons
+                # and the scene, which falsely reads as a trainer party. Skip it.
+                self._is_trainer = False
+            else:
+                self._is_trainer = is_trainer_battle(frame, reading.bars[0], self.cal.trainer)
             self._trainer_decided = True
             if self._is_trainer:
                 print("trainer battle: overlay hidden")
