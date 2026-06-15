@@ -63,6 +63,16 @@ class TurnTracker:
             # corrected value (e.g. after a horde, where menu counting is paused)
             self._menu_turns = max(self._menu_turns, self.turns_completed)
 
+    def set_turn(self, turn_number: int) -> None:
+        """Authoritatively set the current turn from the chat (ground truth),
+        correcting in EITHER direction. Unlike observe(), this also lowers the
+        count when the menu over-counted; the menu counter is re-synced so it
+        continues from the corrected value instead of snapping back up."""
+        self._turn_number = turn_number
+        self.turns_completed = max(0, turn_number - 1)
+        self._menu_turns = self.turns_completed
+        self._menu_seen = True  # mid-battle: the next menu return is a real turn
+
     def observe_menu(self, menu_present: bool, action_seen: bool) -> None:
         """Chat-independent turn count from the command menu (see module docstring).
 

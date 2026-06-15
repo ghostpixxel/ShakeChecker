@@ -221,6 +221,19 @@ def test_browse_cancel_without_action_does_not_count():
     assert t.turns_completed == 1
 
 
+def test_set_turn_corrects_both_directions_and_menu_continues():
+    t = TurnTracker()
+    start_battle(t)
+    t.observe(5, enemy_asleep=False)  # menu/chat say turn 5
+    assert t.turns_completed == 4
+    t.set_turn(2)  # chat over-count fix -> correct DOWN to turn 2
+    assert t.turns_completed == 1
+    commit_turn(t)  # menu continues from the corrected value, not back to 5
+    assert t.turns_completed == 2
+    t.set_turn(8)  # also corrects up
+    assert t.turns_completed == 7
+
+
 def test_double_two_selection_menus_count_one_turn():
     # In a wild double you pick a move for BOTH your Pokemon: two menus appear,
     # but they are NOT separated by a committed-action text, so the action-gating

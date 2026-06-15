@@ -68,6 +68,26 @@ def season_name(index: int) -> str:
     return SEASON_NAMES[index % 4]
 
 
+# Dusk Ball boost window (game-clock minutes). The overworld stays visibly dark
+# from night into the early "morning" -- confirmed in-game dark until ~08:00 with
+# the sunrise marker -- so the Dusk Ball window is WIDER than the Night spawn
+# period (21:00-03:59): it runs 21:00 -> 07:59. Adjust these two if in-game
+# testing shows the boost cuts off elsewhere.
+DUSK_NIGHT_START = 21 * 60  # 21:00
+DUSK_NIGHT_END = 8 * 60  # 08:00 (exclusive)
+
+
+def is_dusk_ball_night(game_minute: int) -> bool:
+    """Whether the Dusk Ball gets its night boost at this game-clock minute."""
+    return game_minute >= DUSK_NIGHT_START or game_minute < DUSK_NIGHT_END
+
+
+def current_game_minute(now_utc: _dt.datetime | None = None) -> int:
+    """The current in-game minute-of-day computed from UTC (deterministic)."""
+    now = now_utc or _dt.datetime.now(_dt.UTC)
+    return game_minute_of_day(now)
+
+
 def current_period(now_utc: _dt.datetime | None = None) -> Period:
     now = now_utc or _dt.datetime.now(_dt.UTC)
     return period_for_game_minute(game_minute_of_day(now))

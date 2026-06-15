@@ -42,7 +42,7 @@ from catch_calc import BattleContext, ball_multiplier, catch_probability
 from dex_panel import DexPanel
 from dex_session import DexSession, LocationView
 from dex_tracker import EncounterData, select_display
-from game_time import Period, current_period, period_for_game_minute, season_name
+from game_time import current_game_minute, is_dusk_ball_night, season_name
 from hp_settler import HpSettler
 from location_reader import is_cave_location, read_game_clock, read_location
 from name_reader import NameReader
@@ -86,6 +86,11 @@ TRAINER_END_GRACE_S = 6.0
 # turn counter accepts the change — filters brief template-match flicker during
 # multi-target (horde) animations that would otherwise over-count turns.
 MENU_STABLE_FRAMES = 2
+# The chat ("Turn N started!") is ground truth and corrects the menu count in BOTH
+# directions. A LOWER chat reading is only trusted (to fix an over-count) once the
+# menu hasn't advanced for this long, so a stale async read right after a real
+# turn advance can't briefly drag the count down.
+TURN_DOWN_GUARD_S = 3.0
 # Location OCR for the dex panel is comparatively expensive and the location
 # changes slowly, so refresh it at most this often while walking around (IDLE).
 DEX_LOC_INTERVAL_S = 2.5
@@ -383,7 +388,7 @@ class LiveLoop:
             self.last_seen_battle = now
             if self.state is not AppState.BATTLE:
                 self._enter_battle()
-            self._battle_step(frame, reading, bt, client_rect)
+            self._battle_step(frame, reading, bt, client_rect, now)
         elif self.state is AppState.BATTLE and now - self.last_seen_battle > grace:
             self.state = AppState.IDLE
             self.last_line = ""
@@ -442,11 +447,12 @@ class LiveLoop:
         self._menu_raw = False  # last raw menu_present
         self._menu_streak = 0  # frames the raw menu_present has held
         self._menu_stable = False  # debounced menu_present fed to the turn counter
+        self._last_advance = 0.0  # monotonic time the turn count last went up
         if self.dex_panel is not None:  # overworld panel out of the way during battle
             self.dex_panel.hide_panel()
         print("battle detected")
 
-    def _battle_step(self, frame, reading, bt, rect) -> None:
+    def _battle_step(self, frame, reading, bt, rect, now) -> None:
         # Read the location once per battle (it never changes mid-battle) to set
         # the Dusk Ball cave boost. Retry until a non-empty name is read (the first
         # battle frame can be mid-transition).
@@ -465,13 +471,22 @@ class LiveLoop:
 
         asleep = reading.state is BattleState.SINGLE and reading.bars[0].status is Status.SLP
 
-        # Chat turn is a CORRECTION only: the slow OCR runs on a background thread
-        # (submit when free, pick up the result when ready) so it never blocks. It
-        # only raises the count (a missed turn); the fast menu drives the live value.
+        # Chat ("Turn N started!") is ground truth; the slow OCR runs on a
+        # background thread (submit when free, pick up the result when ready) so it
+        # never blocks. It corrects the menu count in BOTH directions:
+        #  - UP immediately for a missed turn;
+        #  - DOWN for a menu over-count, but only once the menu has been quiet for
+        #    TURN_DOWN_GUARD_S, so a stale async read just after a real advance
+        #    can't briefly drag the live count below the truth.
         self.chat.submit(frame)
         chat_turn = self.chat.poll()
         if chat_turn is not None:
-            self.turns.observe(chat_turn, asleep)
+            completed = chat_turn - 1
+            cur = self.turns.turns_completed
+            if completed > cur:
+                self.turns.observe(chat_turn, asleep)
+            elif completed < cur and now - self._last_advance > TURN_DOWN_GUARD_S:
+                self.turns.set_turn(chat_turn)
 
         # `bt` (menu/action/catch templates, ~10 ms) was read in the loop and is
         # passed in: it drives the chat-independent turn counter (command menu
@@ -493,7 +508,10 @@ class LiveLoop:
             self._menu_streak = 1
         if self._menu_streak >= MENU_STABLE_FRAMES:
             self._menu_stable = self._menu_raw
+        before = self.turns.turns_completed
         self.turns.observe_menu(self._menu_stable, bt.action)
+        if self.turns.turns_completed > before:
+            self._last_advance = now  # for the chat down-correction guard
         # Decide trainer vs wild ONCE per battle, and only while the command menu is
         # up: then the scene is static, so the party-icon strip below the bar is
         # reliable. Checking during animations gave false positives.
@@ -598,12 +616,13 @@ class LiveLoop:
             self.last_line = line
 
     def _is_night(self, frame) -> bool:
-        """Is it night (Dusk Ball boost window, 21:00-03:59 game time)? Reads the
-        HUD clock the player sees; falls back to the deterministic UTC game time if
-        the clock can't be read."""
+        """Is it within the Dusk Ball night window (21:00-07:59 game time)? Reads
+        the HUD clock the player sees; falls back to the deterministic UTC game
+        time if the clock can't be read."""
         minute = read_game_clock(frame, self.cal.hud_time)
-        period = period_for_game_minute(minute) if minute is not None else current_period()
-        return period is Period.NIGHT
+        if minute is None:
+            minute = current_game_minute()
+        return is_dusk_ball_night(minute)
 
     def _update_dex(self, hud_name: str) -> LocationView | None:
         """Resolve the HUD location to a view and log the panel when it changes.
