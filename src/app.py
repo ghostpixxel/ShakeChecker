@@ -26,6 +26,7 @@ from pathlib import Path
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 
+from account_store import AccountConfig, CaughtStore
 from battle_log import AsyncChatReader, read_turn_number
 from battle_reader import (
     BattleState,
@@ -35,8 +36,11 @@ from battle_reader import (
     is_trainer_battle,
     load_calibration,
     read_battle,
+    read_caught_icon,
 )
 from catch_calc import BattleContext, ball_multiplier, catch_probability
+from dex_session import DexSession, LocationView
+from dex_tracker import EncounterData
 from hp_settler import HpSettler
 from location_reader import is_cave_location, read_location
 from name_reader import NameReader
@@ -60,6 +64,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "src" / "data"
 SPECIES_PATH = DATA / "species_core.json"
 TEMPLATES_DIR = DATA / "templates"
+ENCOUNTERS_PATH = DATA / "encounters.json"
+LEGENDARIES_PATH = DATA / "legendaries.json"
+USERDATA = ROOT / "userdata"  # per-account caught lists + active-account config
 
 WAITING_POLL_S = 2.0
 IDLE_FRAME_S = 0.5  # ~2 fps
@@ -68,6 +75,10 @@ BATTLE_FRAME_S = 0.2  # ~5 fps
 # templates) have all been gone this long — covers brief animation gaps without
 # lingering too long after a faint/flee.
 BATTLE_END_GRACE_S = 2.0
+# Location OCR for the dex panel is comparatively expensive and the location
+# changes slowly, so refresh it at most this often while walking around (IDLE).
+DEX_LOC_INTERVAL_S = 2.5
+DEX_SHOWN_MAX = 5  # entries shown before collapsing the rest into "+X"
 
 
 class AppState(enum.Enum):
@@ -107,6 +118,25 @@ def battle_context(
         enemy_level=enemy.get("level") or 1,
         dusk_active=dusk_active,
     )
+
+
+def dex_panel_text(view: LocationView | None) -> str:
+    """The console form of the dex 'missing here' panel: a header line plus up to
+    DEX_SHOWN_MAX species by dex id, then '+X' for the rest. '' if no location."""
+    if view is None:
+        return ""
+    header = (
+        f"[dex] {view.route} ({view.region}) {view.period.value} S{view.season}"
+        f" — {len(view.missing)} needed"
+    )
+    if not view.missing:
+        return header + "\n  (all caught here!)"
+    shown = view.missing[:DEX_SHOWN_MAX]
+    lines = [header, *[f"  #{m.id:<4} {m.name}" for m in shown]]
+    extra = len(view.missing) - len(shown)
+    if extra > 0:
+        lines.append(f"  +{extra}")
+    return "\n".join(lines)
 
 
 def format_line(name: str, hp_pct: float, status: str, probs: list[tuple[str, float]]) -> str:
@@ -227,11 +257,13 @@ class LiveLoop:
         status_override: str | None,
         cal: Calibration,
         overlay: Overlay,
+        dex: DexSession | None = None,
     ) -> None:
         self.species_override = species_override
         self.status_override = status_override
         self.cal = cal
         self.overlay = overlay
+        self.dex = dex  # None if the dex data couldn't be loaded
         self.balls = load_balls()
         self.status_rates = load_status_rates()
         self.name_reader = None if species_override else NameReader(cal.name, SPECIES_PATH)
@@ -253,6 +285,9 @@ class LiveLoop:
         self._loc_read = False  # location OCR'd this battle yet
         self._is_trainer = False  # trainer battle -> overlay hidden
         self._trainer_decided = False  # trainer vs wild settled this battle
+        self._ot_checked = False  # enemy's OT-caught icon checked this battle
+        self._last_loc_check = 0.0  # last IDLE location OCR (throttle)
+        self._dex_panel = ""  # last printed dex panel (dedup)
 
     def start(self) -> None:
         species_src = (
@@ -319,6 +354,14 @@ class LiveLoop:
             self._caught_printed = False
             self.overlay.hide_battle()
 
+        # Walking around (not in battle): refresh the "missing here" dex panel from
+        # the HUD location on a throttle (location OCR is slow, location changes
+        # slowly). Skipped during battles, where the location is read once instead.
+        dex_due = now - self._last_loc_check >= DEX_LOC_INTERVAL_S
+        if not in_battle and self.dex is not None and dex_due:
+            self._last_loc_check = now
+            self._update_dex(read_location(frame, self.cal.location))
+
         return self._frame_interval()
 
     def _enter_battle(self) -> None:
@@ -335,6 +378,7 @@ class LiveLoop:
         self._loc_read = False
         self._is_trainer = False
         self._trainer_decided = False
+        self._ot_checked = False
         print("battle detected")
 
     def _battle_step(self, frame, reading, bt, rect) -> None:
@@ -348,6 +392,8 @@ class LiveLoop:
                 self._loc_read = True
                 note = " (cave -> Dusk Ball boosted)" if self.dusk_active else ""
                 print(f"location: {loc}{note}")
+                if self.dex is not None:  # same read drives the dex panel
+                    self._update_dex(loc)
 
         asleep = reading.state is BattleState.SINGLE and reading.bars[0].status is Status.SLP
 
@@ -418,6 +464,20 @@ class LiveLoop:
             if sp is not None and sp.get("level") is not None and sp["name"] == self.cached["name"]:
                 self.cached["level"] = sp["level"]
 
+        # Record the enemy as OT-caught once per battle, the moment its species is
+        # known and the red/white Poke Ball icon shows next to the name. This grows
+        # the caught list as you play and removes the species from "missing here".
+        if (
+            self.dex is not None
+            and not self._ot_checked
+            and self.cached is not None
+            and self.cached.get("id")
+            and read_caught_icon(frame, bar, self.cal.caught_icon)
+        ):
+            self._ot_checked = True
+            if self.dex.record_caught(self.cached["id"]):
+                print(f"dex: recorded OT-caught {self.cached['name']}")
+
         turn_note = f"turn {self.turns.turns_completed + 1}"
         if self.turns.turns_asleep:
             turn_note += f", asleep {self.turns.turns_asleep}"
@@ -450,15 +510,44 @@ class LiveLoop:
             print(line)
             self.last_line = line
 
+    def _update_dex(self, hud_name: str) -> None:
+        """Refresh the 'missing here' panel from a HUD location name, printing it
+        only when it actually changes (location, region or list)."""
+        if self.dex is None or not hud_name:
+            return
+        panel = dex_panel_text(self.dex.on_location(hud_name))
+        if panel and panel != self._dex_panel:
+            print(panel)
+            self._dex_panel = panel
+
+
+def build_dex(account_override: str | None) -> DexSession | None:
+    """Build the dex session for the active account, or None if the encounter
+    data is missing. The active account is chosen manually and remembered: an
+    explicit --account wins, else the last used one, else a 'default' profile."""
+    if not ENCOUNTERS_PATH.exists():
+        print("dex: encounters.json not found (run scripts/update_data.py) — dex disabled")
+        return None
+    data = EncounterData.load(ENCOUNTERS_PATH, LEGENDARIES_PATH)
+    cfg = AccountConfig.load(USERDATA)
+    account = cfg.resolve_active(account_override)
+    if account is None:
+        account = cfg.use("default")
+        print("dex: no account set — using 'default' (pass --account NAME per character)")
+    caught = CaughtStore.for_account(USERDATA, account)
+    print(f"dex: account '{account}' — {len(caught.caught)} species marked caught")
+    return DexSession(data, caught)
+
 
 def run(
     species_override: dict | None,
     status_override: str | None,
     cal: Calibration,
+    account: str | None = None,
 ) -> None:
     app = QApplication(sys.argv[:1])
     overlay = Overlay([b["name"] for b in load_balls()])
-    loop = LiveLoop(species_override, status_override, cal, overlay)
+    loop = LiveLoop(species_override, status_override, cal, overlay, dex=build_dex(account))
     loop.start()
     try:
         code = app.exec()
@@ -491,6 +580,11 @@ def main() -> None:
         action="store_true",
         help="diagnostic: list visible windows and PokeMMO matches, then exit",
     )
+    parser.add_argument(
+        "--account",
+        help="PokeMMO account/character for the dex caught-list (remembered; "
+        "defaults to the last used)",
+    )
     args = parser.parse_args()
 
     if args.list_windows:
@@ -512,7 +606,7 @@ def main() -> None:
 
     set_dpi_awareness()
     try:
-        run(species_override, args.status, cal)
+        run(species_override, args.status, cal, account=args.account)
     except KeyboardInterrupt:
         sys.exit(0)
 
