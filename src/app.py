@@ -124,7 +124,11 @@ def lookup_species(name: str) -> dict:
 
 
 def battle_context(
-    enemy: dict, turns_completed: int = 0, turns_asleep: int = 0, dusk_active: bool = False
+    enemy: dict,
+    turns_completed: int = 0,
+    turns_asleep: int = 0,
+    enemy_asleep: bool = False,
+    dusk_active: bool = False,
 ) -> BattleContext:
     """Build the conditional-ball context from a resolved enemy dict.
 
@@ -134,6 +138,7 @@ def battle_context(
     return BattleContext(
         turns_completed=turns_completed,
         turns_asleep=turns_asleep,
+        enemy_asleep=enemy_asleep,
         enemy_types=tuple(enemy.get("types") or ()),
         enemy_level=enemy.get("level") or 1,
         dusk_active=dusk_active,
@@ -508,14 +513,19 @@ class LiveLoop:
                 print(f"[dbg] chat: Turn {chat_turn}  (counter at Turn {shown})")
             completed = chat_turn - 1
             cur = self.turns.turns_completed
-            if completed > cur:
-                self.turns.observe(chat_turn, asleep)  # up: a missed turn (e.g. 2-turn move)
-                if self.debug:
-                    print(f"[dbg] chat corrected UP -> Turn {self.turns.turns_completed + 1}")
-            elif completed < cur and now - self._last_advance > TURN_DOWN_GUARD_S:
+            if completed < cur and now - self._last_advance > TURN_DOWN_GUARD_S:
                 self.turns.set_turn(chat_turn)  # down: a menu over-count, menu now quiet
                 if self.debug:
                     print(f"[dbg] chat corrected DOWN -> Turn {self.turns.turns_completed + 1}")
+            else:
+                # up OR equal: observe() raises the count for a missed turn (e.g. a
+                # 2-turn move; no-op when already equal) AND keeps the consecutive
+                # sleep-turn counter in sync, which the Dream Ball needs. Turn
+                # counting is unchanged -- observe() only ever raises turns_completed.
+                before = self.turns.turns_completed
+                self.turns.observe(chat_turn, asleep)
+                if self.debug and self.turns.turns_completed > before:
+                    print(f"[dbg] chat corrected UP -> Turn {self.turns.turns_completed + 1}")
 
         # `bt` (menu/action/catch templates, ~10 ms) was read in the loop and is
         # passed in: it drives the chat-independent turn counter (command menu
@@ -624,6 +634,7 @@ class LiveLoop:
                 self.cached,
                 turns_completed=self.turns.turns_completed,
                 turns_asleep=self.turns.turns_asleep,
+                enemy_asleep=status == "slp",
                 dusk_active=self.dusk_active,
             )
             probs = ball_probs(

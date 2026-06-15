@@ -93,11 +93,22 @@ def test_flat_balls_ignore_context():
 
 
 def test_dream_ball_scales_with_sleep_turns():
-    # pokemmo.help: 0-3 turns asleep -> 1x..4x. NOT a flat 4x.
-    assert mult("dream", BattleContext(turns_asleep=0)) == 1.0
-    assert mult("dream", BattleContext(turns_asleep=1)) == 2.0
-    assert mult("dream", BattleContext(turns_asleep=3)) == 4.0
-    assert mult("dream", BattleContext(turns_asleep=9)) == 4.0  # capped
+    # PokeMMO capture calculator: 0/1/2/3 sleep turns -> 1x / 1.5x / 2.5x / 4x,
+    # but ONLY while the enemy is asleep.
+    def dream(n):
+        return mult("dream", BattleContext(turns_asleep=n, enemy_asleep=True))
+
+    assert dream(0) == 1.0
+    assert dream(1) == 1.5
+    assert dream(2) == 2.5
+    assert dream(3) == 4.0
+    assert dream(9) == 4.0  # capped at the 3-turn value
+
+
+def test_dream_ball_requires_sleep_status():
+    # awake -> no boost regardless of any leftover sleep-turn count
+    assert mult("dream", BattleContext(turns_asleep=3, enemy_asleep=False)) == 1.0
+    assert mult("dream", BattleContext(turns_asleep=0, enemy_asleep=False)) == 1.0
 
 
 def test_luxury_is_one_not_two():
