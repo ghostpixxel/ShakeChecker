@@ -62,30 +62,43 @@ class SpriteLoader:
             self._pix[key] = self._placeholder(height) if pm.isNull() else _scaled(pm, height)
         return self._pix[key]
 
-    def species_movie(self, dex_id: int, height: int) -> QMovie | None:
+    def species_movie(self, dex_id: int, height: int, max_width: int = 0) -> QMovie | None:
         """Animated sprite for a Dex id, scaled to `height`; None if the id has
-        only a static sprite (or none) — call species_pixmap then."""
+        only a static sprite (or none) — call species_pixmap then. With max_width,
+        scale to fit a height x max_width box (keeps aspect) so list sprites share
+        a fixed column width and the names line up."""
         p = species_sprite_path(dex_id, self._base)
         if p is None or p.suffix != ".gif":
             return None
-        key = (dex_id, height)
+        key = (dex_id, height, max_width)
         if key not in self._movies:
             m = QMovie(str(p))
             m.jumpToFrame(0)
             fs = m.currentImage().size()
             if fs.height() > 0:
                 w = max(1, round(fs.width() * height / fs.height()))
-                m.setScaledSize(QSize(w, height))
+                h = height
+                if max_width and w > max_width:  # too wide -> fit the box by width
+                    h = max(1, round(fs.height() * max_width / fs.width()))
+                    w = max_width
+                m.setScaledSize(QSize(w, h))
             self._movies[key] = m
         return self._movies[key]
 
-    def species_pixmap(self, dex_id: int, height: int) -> QPixmap:
-        """Static sprite for a Dex id (or the placeholder if none exists)."""
+    def species_pixmap(self, dex_id: int, height: int, max_width: int = 0) -> QPixmap:
+        """Static sprite for a Dex id (or the placeholder if none exists). With
+        max_width, scale to fit a height x max_width box (keeps aspect)."""
         p = species_sprite_path(dex_id, self._base)
-        key = ("species", dex_id, height)
+        key = ("species", dex_id, height, max_width)
         if key not in self._pix:
             pm = QPixmap(str(p)) if p else QPixmap()
-            self._pix[key] = self._placeholder(height) if pm.isNull() else _scaled(pm, height)
+            if pm.isNull():
+                pm = self._placeholder(height)
+            else:
+                pm = _scaled(pm, height)
+                if max_width and pm.width() > max_width:
+                    pm = pm.scaledToWidth(max_width, Qt.TransformationMode.FastTransformation)
+            self._pix[key] = pm
         return self._pix[key]
 
     def _placeholder(self, height: int) -> QPixmap:

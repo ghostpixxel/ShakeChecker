@@ -61,11 +61,12 @@ _RARITY_COLORS = [
 _RARITY_COLOR = dict(_RARITY_COLORS) | {"Very Common": "#9d9d9d", "Horde": "#9d9d9d"}
 _DEFAULT_COLOR = "#9d9d9d"
 
-# Base (scale 1.0) sizes in logical px (mirrors overlay.py's approach). Wider than
-# the catch overlay (they never show together) so a long name + way like
-# "Magikarp  Good Rod/Old Rod" and the region/time/season subtitle don't clip.
-BASE_PANEL_W = 258
+# Base (scale 1.0) sizes in logical px (mirrors overlay.py's approach). Wide enough
+# that long names incl. forms ("Gastrodon-East") + a way ("Good Rod/Old Rod") and
+# the region/time/season subtitle all fit; they never show with the catch overlay.
+BASE_PANEL_W = 292
 BASE_SPRITE_H = 22
+BASE_SPRITE_COL_W = 30  # fixed sprite-column width so names start flush
 BASE_TITLE_PX = 15
 BASE_SUB_PX = 11
 BASE_ROW_PX = 13
@@ -362,16 +363,16 @@ class DexPanel(QWidget):
         row = QHBoxLayout(container)
         row.setContentsMargins(0, 0, 0, 0)
         sprite = QLabel()
-        sprite.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
+        sprite.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter)
         name = QLabel("")
         name.setTextFormat(Qt.TextFormat.RichText)
         name.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         way = QLabel("")
         way.setStyleSheet("color: #9aa0aa;")
         way.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        # name fills the gap up to the (right-aligned) way, so it clips much later
         row.addWidget(sprite)
         row.addWidget(name, 1)
-        row.addStretch(1)
         row.addWidget(way)
         # insert above the trailing stretch so rows stay top-aligned
         self._list_layout.insertWidget(self._list_layout.count() - 1, container)
@@ -384,7 +385,7 @@ class DexPanel(QWidget):
         r["box"].setSpacing(self._px(BASE_ROW_SPACING))
         r["name"].setFont(self._font(self._px(BASE_ROW_PX)))
         r["way"].setFont(self._font(self._px(BASE_SUB_PX)))
-        r["sprite"].setFixedHeight(self._sprite_h)
+        r["sprite"].setFixedSize(self._px(BASE_SPRITE_COL_W), self._sprite_h)
 
     def _fit_list_height(self) -> None:
         """Size the scroll viewport to the content, capped at DEX_MAX_VISIBLE_ROWS
@@ -411,16 +412,19 @@ class DexPanel(QWidget):
         if dex_id == r["dex"]:
             return
         r["dex"] = dex_id
+        col_w = self._px(BASE_SPRITE_COL_W)
         if r["movie"] is not None:
             r["movie"].stop()
             r["movie"] = None
-        movie = self._loader.species_movie(dex_id, self._sprite_h)
+        movie = self._loader.species_movie(dex_id, self._sprite_h, max_width=col_w)
         if movie is not None:
             r["movie"] = movie
             r["sprite"].setMovie(movie)
             movie.start()
         else:
-            r["sprite"].setPixmap(self._loader.species_pixmap(dex_id, self._sprite_h))
+            r["sprite"].setPixmap(
+                self._loader.species_pixmap(dex_id, self._sprite_h, max_width=col_w)
+            )
 
     def _clear_row_sprite(self, r: dict) -> None:
         if r["movie"] is not None:
