@@ -124,7 +124,15 @@ class DexPanel(QWidget):
             row.addWidget(way)
             self._col.addWidget(container)
             self._rows.append(
-                {"box": row, "w": container, "sprite": sprite, "name": name, "way": way}
+                {
+                    "box": row,
+                    "w": container,
+                    "sprite": sprite,
+                    "name": name,
+                    "way": way,
+                    "dex": None,  # species currently shown in this row (avoid GIF restart)
+                    "movie": None,  # the row's running QMovie, if any
+                }
             )
 
         self._overflow = QLabel("")
@@ -161,6 +169,7 @@ class DexPanel(QWidget):
         self._col.setSpacing(px(BASE_COL_SPACING))
         for r in self._rows:
             r["box"].setSpacing(px(BASE_ROW_SPACING))
+            self._clear_row_sprite(r)  # force reload at the new sprite size
         self.adjustSize()
         self._last_pos = None
 
@@ -178,18 +187,22 @@ class DexPanel(QWidget):
                 self._fill_row(r, rows[i])
                 r["w"].setVisible(True)
             else:
+                self._clear_row_sprite(r)  # stop off-screen GIFs
                 r["w"].setVisible(False)
         if not rows:
-            self._rows[0]["w"].setVisible(True)
-            self._rows[0]["sprite"].clear()
-            self._rows[0]["name"].setText('<span style="color:#9aa0aa;">all caught here!</span>')
-            self._rows[0]["way"].setText("")
+            r0 = self._rows[0]
+            self._clear_row_sprite(r0)
+            r0["w"].setVisible(True)
+            r0["name"].setText('<span style="color:#9aa0aa;">all caught here!</span>')
+            r0["way"].setText("")
         self._overflow.setText(f"+{hidden}" if hidden > 0 else "")
         self._overflow.setVisible(hidden > 0)
         self.adjustSize()
         self.show()
 
     def hide_panel(self) -> None:
+        for r in self._rows:  # stop GIFs while hidden; they reload on re-show
+            self._clear_row_sprite(r)
         self.hide()
 
     def dock_to(self, left: int, top: int, width: int) -> None:
@@ -210,13 +223,37 @@ class DexPanel(QWidget):
     # --- internals ---
 
     def _fill_row(self, r: dict, entry) -> None:
-        r["sprite"].setPixmap(self._loader.species_pixmap(entry.id, self._sprite_h))
+        self._set_row_sprite(r, entry.id)
         color = rarity_color_hex(entry.rarity)
         r["name"].setText(f'<span style="color:{color};">{entry.name}</span>')
         way = "/".join(entry.ways)
         if entry.caught:
             way = (way + " ✓").strip()
         r["way"].setText(way)
+
+    def _set_row_sprite(self, r: dict, dex_id: int) -> None:
+        # Reload only on a species change so an animated GIF isn't restarted to
+        # frame 0 each refresh (the panel re-renders every couple of seconds).
+        if dex_id == r["dex"]:
+            return
+        r["dex"] = dex_id
+        if r["movie"] is not None:
+            r["movie"].stop()
+            r["movie"] = None
+        movie = self._loader.species_movie(dex_id, self._sprite_h)
+        if movie is not None:
+            r["movie"] = movie
+            r["sprite"].setMovie(movie)
+            movie.start()
+        else:
+            r["sprite"].setPixmap(self._loader.species_pixmap(dex_id, self._sprite_h))
+
+    def _clear_row_sprite(self, r: dict) -> None:
+        if r["movie"] is not None:
+            r["movie"].stop()
+            r["movie"] = None
+        r["sprite"].clear()
+        r["dex"] = None
 
     def _font(self, size_px: int, bold: bool = False) -> QFont:
         f = QFont(self._mono)
