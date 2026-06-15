@@ -99,6 +99,13 @@ TURN_DOWN_GUARD_S = 3.0
 # changes slowly, so refresh it at most this often while walking around (IDLE).
 DEX_LOC_INTERVAL_S = 2.5
 DEX_SHOWN_MAX = 5  # entries shown before collapsing the rest into "+X"
+# A real single-enemy or trainer HP bar sits in the canonical top-left slot at this
+# fraction of the frame width -- measured EXACTLY 0.170-0.173 across every single/
+# trainer/double fixture from 1912 to 2356 px wide (resolution-independent). Horde
+# bars spread across the centre (0.318-0.580). A lone bar found right of this cutoff
+# is a horde mon that outlasted its pack -> wild, never a trainer. 0.30 separates the
+# two with margin and tolerates the slot drifting right under wide-aspect letterbox.
+HORDE_REMNANT_X_FRAC = 0.30
 
 
 class AppState(enum.Enum):
@@ -564,13 +571,19 @@ class LiveLoop:
         # reliable. Checking during animations gave false positives.
         stable = bt.menu_present and reading.state is BattleState.SINGLE
         if stable and not self._trainer_decided:
-            if self._was_horde:
-                # A horde is always a wild battle. When it narrows to one bar the
-                # party-icon strip below it catches the other (fainted) horde mons
-                # and the scene, which falsely reads as a trainer party. Skip it.
+            bar = reading.bars[0]
+            # A horde is always wild. When it narrows to one bar, the party-icon
+            # strip below that bar catches the other (fainted) horde mons + scene
+            # and falsely reads as a trainer party. Two resolution-independent
+            # signals mark it as a horde remnant (-> skip the trainer check):
+            #  1. _was_horde: we saw the spread pack earlier this battle (primary).
+            #  2. position: a lone bar right of the canonical single-enemy slot is a
+            #     remnant (backup, in case the pack was never cleanly counted).
+            x_frac = bar.x / frame.shape[1]
+            if self._was_horde or x_frac > HORDE_REMNANT_X_FRAC:
                 self._is_trainer = False
             else:
-                self._is_trainer = is_trainer_battle(frame, reading.bars[0], self.cal.trainer)
+                self._is_trainer = is_trainer_battle(frame, bar, self.cal.trainer)
             self._trainer_decided = True
             if self._is_trainer:
                 print("trainer battle: overlay hidden")
