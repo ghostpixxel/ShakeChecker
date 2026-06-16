@@ -389,13 +389,13 @@ def classify_status_box(hsv_box: np.ndarray, cal: StatusCalibration) -> Status:
     return Status.NONE
 
 
-def read_status(hsv_full: np.ndarray, x: int, y: int, cal: StatusCalibration) -> Status:
+def read_status(hsv_band: np.ndarray, x: int, y: int, cal: StatusCalibration) -> Status:
     """Status for a bar whose fill starts at (x, y) in frame coords."""
     y0, y1 = y + cal.dy0, y + cal.dy1
     x0, x1 = x + cal.dx0, x + cal.dx1
-    if y0 < 0 or x0 < 0 or y1 > hsv_full.shape[0] or x1 > hsv_full.shape[1]:
+    if y0 < 0 or x0 < 0 or y1 > hsv_band.shape[0] or x1 > hsv_band.shape[1]:
         return Status.NONE
-    return classify_status_box(hsv_full[y0:y1, x0:x1], cal)
+    return classify_status_box(hsv_band[y0:y1, x0:x1], cal)
 
 
 # A horde (3x/5x) spreads its bars horizontally; a single/double keeps them at the
@@ -448,7 +448,14 @@ def read_enemy_bars(
     x0, x1 = int(w * c.search_left), int(w * c.search_right)
     roi = frame_bgr[y0:y1, x0:x1]
     hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-    hsv_full = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
+    # Convert only the top search band to HSV, not the whole frame: every consumer
+    # below (fill run, frame outline, inner width, status badge) works at absolute
+    # rows that live inside this band, and search_top is 0 so the band starts at
+    # row 0 -- coordinates are unchanged. The pad covers the frame-outline scan that
+    # reaches search_px rows below the lowest fill. Saves ~70% of the per-frame
+    # cvtColor cost (the bottom of the frame is just the scene/menu, never a bar).
+    band_h = min(y1 + c.frame.search_px + 2, h)
+    hsv_band = cv2.cvtColor(frame_bgr[:band_h], cv2.COLOR_BGR2HSV)
 
     mask = _fill_mask(hsv_roi, c)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 9), np.uint8))
@@ -464,23 +471,23 @@ def read_enemy_bars(
         # back to frame coordinates, measure on the blob's middle row
         fy = y0 + by + bh // 2
         fx = x0 + bx
-        run = _fill_run(hsv_full, fy, fx, c)
+        run = _fill_run(hsv_band, fy, fx, c)
         if run is None:
             continue
         rx0, rx1 = run
         fill_w = rx1 - rx0 + 1
         if fill_w > c.inner_width_px + c.width_tolerance_px:
             continue  # wider than a bar can be: scenery / UI panel
-        if fill_w < c.full_fill_min_px and not _empty_part_is_crosshatch(hsv_full, fy, rx0, rx1, c):
+        if fill_w < c.full_fill_min_px and not _empty_part_is_crosshatch(hsv_band, fy, rx0, rx1, c):
             continue
-        if not _has_bar_frame(hsv_full, y0 + by, y0 + by + bh - 1, rx0, c):
+        if not _has_bar_frame(hsv_band, y0 + by, y0 + by + bh - 1, rx0, c):
             continue
-        hues = hsv_full[fy, rx0 : rx1 + 1, 0].astype(float)
+        hues = hsv_band[fy, rx0 : rx1 + 1, 0].astype(float)
         color = _classify_color(float(np.median(hues)), c.hsv)
         # Size the bar by its OWN inner width (measured from the gray frame outline),
         # not a fixed count: a full but narrower horde bar (212 px) then reads 100%,
         # not 97%. Single bars measure 218 and are unchanged.
-        inner = _inner_width(hsv_full, y0 + by, y0 + by + bh - 1, rx0, c)
+        inner = _inner_width(hsv_band, y0 + by, y0 + by + bh - 1, rx0, c)
         hp_pct = min(100.0, 100.0 * fill_w / inner)
         # status read AFTER the layout is known (its badge offset differs in hordes)
         bars.append(BarReading(round(hp_pct, 1), color, Status.NONE, rx0, fy))
@@ -509,7 +516,7 @@ def read_enemy_bars(
     if _is_horde_layout(merged, w, horde):
         s = s.model_copy(update={"dx0": s.horde_dx0, "dx1": s.horde_dx1})
     return [
-        BarReading(b.hp_pct, b.color, read_status(hsv_full, b.x, b.y, s), b.x, b.y) for b in merged
+        BarReading(b.hp_pct, b.color, read_status(hsv_band, b.x, b.y, s), b.x, b.y) for b in merged
     ]
 
 
