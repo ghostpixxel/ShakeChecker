@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import QApplication
 
 from account_store import AccountConfig, CaughtStore, delete_account_data
 from battle_log import AsyncChatReader, read_turn_number
+from battle_logic import apply_chat_turn, battle_end_grace, is_in_battle
 from battle_reader import (
     BattleState,
     BattleTextReader,
@@ -401,31 +402,22 @@ class LiveLoop:
         reading = read_battle(frame, self.cal, horde=self._was_horde)
         if reading.is_horde:
             self._was_horde = True
-        has_bar = reading.state in (BattleState.SINGLE, BattleState.MULTI)
         # Membership uses battle-SPECIFIC signals only: the enemy HP bar plus the
         # menu/action/catch templates. (The old dark-panel signal false-positives
         # in a dark CAVE overworld, so the battle never ended there.) During an
         # attack animation the bar vanishes but the "X used Y!" text shows; brief
-        # gaps are covered by the end grace.
+        # gaps are covered by the end grace. The panel (ui_present) only tunes the
+        # grace; it never extends in_battle, so a dark cave still ends the battle.
         bt = self.battle_text.read(frame)
-        in_battle = has_bar or bt.menu_present or bt.action or bt.caught
-
-        # Pick the battle-end grace:
-        #  - trainer battle: long (Pokemon swaps between faints leave a gap);
-        #  - else if the dark command panel is still up: long -- we're mid-battle in
-        #    an animation (2-turn move hides the bar with no menu), DON'T end;
-        #  - else (panel gone -> truly back in the overworld): short, so the catch
-        #    overlay clears quickly.
-        # The panel only sets the grace; it never extends in_battle/last_seen, so a
-        # dark cave (where the panel reads present in the overworld too) still ends
-        # the battle after the long grace rather than never.
+        in_battle = is_in_battle(reading.state, bt)
         ui_present = is_battle_ui_present(frame, self.cal.battle_ui)
-        if self._is_trainer:
-            grace = TRAINER_END_GRACE_S
-        elif ui_present:
-            grace = BATTLE_ANIM_GRACE_S
-        else:
-            grace = BATTLE_END_GRACE_S
+        grace = battle_end_grace(
+            self._is_trainer,
+            ui_present,
+            trainer_s=TRAINER_END_GRACE_S,
+            anim_s=BATTLE_ANIM_GRACE_S,
+            normal_s=BATTLE_END_GRACE_S,
+        )
         if in_battle:
             self.last_seen_battle = now
             if self.state is not AppState.BATTLE:
@@ -527,35 +519,21 @@ class LiveLoop:
         # result, so the turn never arrived -- the long-standing chat bug.)
         chat_turn = self.chat.poll()
         self.chat.submit(frame)
-        if chat_turn is not None:
-            if self.debug and chat_turn != self._last_chat_turn:  # shows the chat IS read
-                self._last_chat_turn = chat_turn
-                shown = self.turns.turns_completed + 1
-                print(f"[dbg] chat: Turn {chat_turn}  (counter at Turn {shown})")
-            # Don't chat-correct during turn 1. At battle start the PREVIOUS battle's
-            # higher "Turn N" still lingers in the chat (and the async OCR lags a
-            # frame or two, so a read can land that was captured before the new
-            # battle's "Turn 1 started!" was even printed). Turn 1 is the battle-start
-            # default and needs no correction; from turn 2 on the menu has advanced
-            # the count, the intro is long over, and the chat is the new battle's own.
-            if self.turns.turns_completed == 0:
-                chat_turn = None
-        if chat_turn is not None:
-            completed = chat_turn - 1
-            cur = self.turns.turns_completed
-            if completed < cur and now - self._last_advance > TURN_DOWN_GUARD_S:
-                self.turns.set_turn(chat_turn)  # down: a menu over-count, menu now quiet
-                if self.debug:
-                    print(f"[dbg] chat corrected DOWN -> Turn {self.turns.turns_completed + 1}")
-            else:
-                # up OR equal: observe() raises the count for a missed turn (e.g. a
-                # 2-turn move; no-op when already equal) AND keeps the consecutive
-                # sleep-turn counter in sync, which the Dream Ball needs. Turn
-                # counting is unchanged -- observe() only ever raises turns_completed.
-                before = self.turns.turns_completed
-                self.turns.observe(chat_turn, asleep)
-                if self.debug and self.turns.turns_completed > before:
-                    print(f"[dbg] chat corrected UP -> Turn {self.turns.turns_completed + 1}")
+        if chat_turn is not None and self.debug and chat_turn != self._last_chat_turn:
+            self._last_chat_turn = chat_turn  # shows the chat IS read (dedup the log)
+            shown = self.turns.turns_completed + 1
+            print(f"[dbg] chat: Turn {chat_turn}  (counter at Turn {shown})")
+        outcome = apply_chat_turn(
+            self.turns,
+            chat_turn,
+            asleep=asleep,
+            now=now,
+            last_advance=self._last_advance,
+            down_guard_s=TURN_DOWN_GUARD_S,
+        )
+        if self.debug and outcome in ("down", "up"):
+            shown = self.turns.turns_completed + 1
+            print(f"[dbg] chat corrected {outcome.upper()} -> Turn {shown}")
 
         # `bt` (menu/action/catch templates, ~10 ms) was read in the loop and is
         # passed in: it drives the chat-independent turn counter (command menu
