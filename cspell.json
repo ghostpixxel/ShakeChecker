@@ -69,6 +69,7 @@
     "PyQt",
     "ascontiguousarray",
     "argparse",
+    "mypy",
     "pathlib",
     "pyproject",
     "venv",
