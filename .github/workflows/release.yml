@@ -1,0 +1,50 @@
+name: Release
+
+# Push a version tag (e.g. `git tag v1.2.0 && git push origin v1.2.0`) and this
+# builds the Windows .exe, zips it, and publishes a GitHub Release with the zip
+# attached. No manual build/upload needed.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # needed to create the release
+
+jobs:
+  build:
+    runs-on: windows-latest # pywin32 + the build must run on Windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install (runtime + build tools)
+        run: pip install -e ".[build]"
+
+      - name: Build exe
+        run: pyinstaller ShakeChecker.spec --noconfirm
+
+      - name: Zip
+        shell: pwsh
+        run: Compress-Archive -Path dist/ShakeChecker -DestinationPath ShakeChecker-${{ github.ref_name }}-win64.zip -CompressionLevel Optimal
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ShakeChecker ${{ github.ref_name }}
+          files: ShakeChecker-${{ github.ref_name }}-win64.zip
+          body: |
+            Read-only catch-rate overlay for PokeMMO (OCR + overlay, no game inputs).
+            Shows live catch % per Poké Ball during wild battles, plus a "missing
+            here" dex panel. Resolution-independent.
+
+            **How to run**
+            1. Download `ShakeChecker-${{ github.ref_name }}-win64.zip` and extract it.
+            2. Run `ShakeChecker.exe`.
+            3. On first launch Windows SmartScreen may show "Windows protected your PC"
+               → More info → Run anyway (the app is unsigned).
+
+            Windows 10/11. PokeMMO in windowed/borderless mode, English client.

@@ -44,7 +44,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="ShakeChecker",
-    console=True,  # keeps the live log/--debug visible; set False for a windowless build
+    console=False,  # windowless: overlay only, no console (set True to see the live log)
     icon="assets/shakechecker.ico",
 )
 coll = COLLECT(

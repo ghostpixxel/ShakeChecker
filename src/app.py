@@ -118,13 +118,26 @@ class _LevelFormatter(logging.Formatter):
 
 
 def setup_logging(debug: bool) -> None:
-    """Route the loop's events through one stdout handler; --debug shows DEBUG."""
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(_LevelFormatter())
+    """Route the loop's events to the console, or to a log file when there is no
+    console. A windowless (console=False) PyInstaller build has sys.stdout == None,
+    so a StreamHandler(sys.stdout) would crash on the first log call; fall back to
+    %APPDATA%/ShakeChecker/shakechecker.log so issues stay diagnosable. --debug
+    raises the level to DEBUG in either case."""
     log.handlers.clear()
-    log.addHandler(handler)
     log.setLevel(logging.DEBUG if debug else logging.INFO)
     log.propagate = False  # don't double-print via the root logger
+    handler: logging.Handler
+    if sys.stdout is not None:
+        handler = logging.StreamHandler(sys.stdout)
+    else:
+        try:
+            logfile = paths.userdata_dir() / "shakechecker.log"
+            logfile.parent.mkdir(parents=True, exist_ok=True)
+            handler = logging.FileHandler(logfile, mode="w", encoding="utf-8")
+        except OSError:
+            handler = logging.NullHandler()
+    handler.setFormatter(_LevelFormatter())
+    log.addHandler(handler)
 
 
 class AppState(enum.Enum):
