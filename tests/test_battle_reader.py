@@ -120,6 +120,30 @@ def test_horde_remnant_uses_horde_offset_via_hint():
     assert read_battle(one, CAL, horde=True).bars[0].status.value == "slp"
 
 
+def test_horde_remnant_detected_by_position_without_hint():
+    # The real live case: a horde narrowed to one remnant, no horde hint carried
+    # over. The lone bar sits at the horde slot (centre), well right of the single-
+    # enemy slot (~0.17), so it's still recognised as a horde -> right-side status
+    # badge. This is what makes SLP read on the last Kingler of a farmed horde.
+    img = cv2.imread(str(FIXTURES / "horde_triple_wild_encounter.png"))
+    one = img.copy()
+    one[:, : int(img.shape[1] * 0.52)] = 0  # keep only the rightmost (third) bar
+    reading = read_battle(one, CAL, horde=False)  # NO hint -- position alone
+    assert len(reading.bars) == 1
+    assert reading.bars[0].x > one.shape[1] * 0.30  # a centre/right remnant
+    assert reading.is_horde is True
+    assert reading.bars[0].status.value == "slp"
+
+
+def test_single_enemy_not_flagged_as_remnant():
+    # A genuine single sits in the left slot (~0.17) -> NOT a horde, left-side badge
+    # so SLP still reads via the normal single offset (no false horde-layout).
+    reading = read("full_health_sleeping.png")
+    assert reading.state == BattleState.SINGLE
+    assert reading.is_horde is False
+    assert reading.bars[0].status.value == "slp"
+
+
 def test_double_status_not_broken_by_horde_logic():
     # a 2x double stacks bars at the left -> single offset; status still read
     reading = read("double_battle_red_health_burn.png")

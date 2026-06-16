@@ -176,6 +176,14 @@ bottom = 0.985
 left = 0.0
 right = 0.40
 upscale = 2
+# The chat box is fixed pixel size, so `right` (a fraction of WIDTH) over-captures
+# on wide windows: at 3438 px wide, 0.40 is a 1375 px crop that is mostly empty and
+# OCR shrinks it until the chat text is illegible (the turn stopped updating live on
+# an ultrawide window). The actual chat text never reaches past ~330 px from the
+# left (measured: full_health_no_status 330 px @ w=1996, live_turn9_gible 213 px @
+# w=1382), so cap the crop width well above that. Kills the wide-window bloat
+# (1375 -> 600) while leaving normal/narrow windows unchanged.
+max_width_px = 600
 
 [battle_text]
 # The in-viewport text area at the bottom of the centered battle viewport, which

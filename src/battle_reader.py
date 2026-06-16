@@ -159,6 +159,20 @@ class ChatCalibration(BaseModel):
     left: float
     right: float
     upscale: int
+    # The chat box is fixed pixel size at the window's bottom-left, so `right` (a
+    # fraction of WIDTH) over-captures badly on wide windows: at 3438 px, 0.40 is a
+    # 1375 px crop that is mostly empty, and OCR downscales it until the small chat
+    # text is illegible. Cap the crop width here so it stays a tight, legible strip
+    # regardless of window width. 0 disables the cap.
+    max_width_px: int = 0
+
+    def crop_x(self, width: int) -> tuple[int, int]:
+        """(x0, x1) of the chat crop for a frame this wide, width-capped."""
+        x0 = int(width * self.left)
+        x1 = int(width * self.right)
+        if self.max_width_px:
+            x1 = min(x1, x0 + self.max_width_px)
+        return x0, x1
 
 
 class BattleTextCalibration(BaseModel):
@@ -389,12 +403,30 @@ def read_status(hsv_full: np.ndarray, x: int, y: int, cal: StatusCalibration) ->
 # exceeds this, it's a spread horde -> the status badge is read at the horde offset.
 HORDE_SPREAD_PX = 80
 
+# A single enemy / trainer / wild-double bar sits in the canonical top-left slot
+# (x <= ~0.19 of the frame width across every such fixture, all resolutions); a
+# horde spreads its bars across the centre (>= 0.32). So a LONE bar found right of
+# this fraction is a horde mon that outlasted its pack -- its status badge is on
+# the RIGHT of the fill (horde layout), even though only one bar is left and the
+# horizontal-spread test can no longer see it. Resolution-independent (a fraction,
+# not pixels). Mirrors HORDE_REMNANT_X_FRAC in app.py (trainer-skip).
+REMNANT_X_FRAC = 0.30
+
 
 def _bars_spread(bars: list[BarReading]) -> bool:
     """True if 2+ bars are spread horizontally (a horde), vs stacked (a double)."""
     if len(bars) < 2:
         return False
     return bool(max(b.x for b in bars) - min(b.x for b in bars) > HORDE_SPREAD_PX)
+
+
+def _is_horde_layout(bars: list[BarReading], frame_width: int, horde_hint: bool) -> bool:
+    """Whether these bars use the spread-horde layout (status badge RIGHT of the
+    fill): the caller's hint, OR 2+ bars spread horizontally, OR a lone bar sitting
+    right of the single-enemy slot (a horde narrowed to its last remnant)."""
+    if horde_hint or _bars_spread(bars):
+        return True
+    return bool(len(bars) == 1 and bars[0].x > frame_width * REMNANT_X_FRAC)
 
 
 def read_enemy_bars(
@@ -465,10 +497,11 @@ def read_enemy_bars(
             continue
         merged.append(bar)
 
-    # Spread bars (or the caller's horde hint) -> the status badge is on the right
-    # of the fill, not the left. Read each bar's status with the matching offset.
+    # Spread horde, the caller's hint, OR a lone remnant sitting at the horde slot
+    # -> the status badge is on the RIGHT of the fill, not the left. Read each bar's
+    # status with the matching offset.
     s = cal.status
-    if horde or _bars_spread(merged):
+    if _is_horde_layout(merged, w, horde):
         s = s.model_copy(update={"dx0": s.horde_dx0, "dx1": s.horde_dx1})
     return [
         BarReading(b.hp_pct, b.color, read_status(hsv_full, b.x, b.y, s), b.x, b.y) for b in merged
@@ -584,4 +617,5 @@ def read_battle(frame_bgr: np.ndarray, cal: Calibration, horde: bool = False) ->
         state = BattleState.SINGLE
     else:
         state = BattleState.MULTI
-    return BattleReading(state=state, bars=tuple(bars), is_horde=bool(horde or _bars_spread(bars)))
+    is_horde = _is_horde_layout(bars, frame_bgr.shape[1], horde)
+    return BattleReading(state=state, bars=tuple(bars), is_horde=is_horde)
