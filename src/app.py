@@ -19,6 +19,7 @@ import argparse
 import enum
 import io
 import json
+import logging
 import sys
 import time
 from pathlib import Path
@@ -109,6 +110,28 @@ DEX_SHOWN_MAX = 5  # entries shown before collapsing the rest into "+X"
 # the gap, keeping ~0.06 margin on both sides at any window size. Mirrors
 # battle_reader.REMNANT_X_FRAC (status-offset selection).
 HORDE_REMNANT_X_FRAC = 0.25
+
+log = logging.getLogger("shakechecker")
+
+
+class _LevelFormatter(logging.Formatter):
+    """Plain message for INFO (the console output the user reads), '[dbg]'-prefixed
+    for DEBUG -- preserving the exact look of the old print()s while letting the log
+    level (set by --debug) decide what is shown."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        msg = record.getMessage()
+        return f"[dbg] {msg}" if record.levelno <= logging.DEBUG else msg
+
+
+def setup_logging(debug: bool) -> None:
+    """Route the loop's events through one stdout handler; --debug shows DEBUG."""
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(_LevelFormatter())
+    log.handlers.clear()
+    log.addHandler(handler)
+    log.setLevel(logging.DEBUG if debug else logging.INFO)
+    log.propagate = False  # don't double-print via the root logger
 
 
 class AppState(enum.Enum):
@@ -309,9 +332,7 @@ class LiveLoop:
         overlay: Overlay,
         dex: DexSession | None = None,
         dex_panel: DexPanel | None = None,
-        debug: bool = False,
     ) -> None:
-        self.debug = debug
         self.species_override = species_override
         self.status_override = status_override
         self.cal = cal
@@ -361,8 +382,8 @@ class LiveLoop:
             else "OCR from screen"
         )
         status_src = f"override {self.status_override}" if self.status_override else "from screen"
-        print(f"species: {species_src}, status: {status_src}")
-        print("waiting for PokeMMO window...")
+        log.info(f"species: {species_src}, status: {status_src}")
+        log.info("waiting for PokeMMO window...")
         QTimer.singleShot(0, self.step)
 
     def step(self) -> None:
@@ -377,7 +398,7 @@ class LiveLoop:
             self.hwnd = find_pokemmo_hwnd()
             if self.hwnd is None:
                 return WAITING_POLL_S
-            print("PokeMMO window found")
+            log.info("PokeMMO window found")
             self.state = AppState.IDLE
 
         assert self.hwnd is not None
@@ -387,7 +408,7 @@ class LiveLoop:
         client_rect = get_client_rect(self.hwnd)
         if win_rect is None or client_rect is None:
             if not is_window_alive(self.hwnd):
-                print("window lost, waiting...")
+                log.info("window lost, waiting...")
                 self.state = AppState.WAITING
                 self.hwnd = None
                 self.overlay.hide_battle()
@@ -428,7 +449,7 @@ class LiveLoop:
             self.last_line = ""
             self.cached = None
             if not self._caught_printed:  # after a catch we already said "caught X!"
-                print("battle ended")
+                log.info("battle ended")
             self._caught_printed = False
             self.overlay.hide_battle()
             # Show the dex panel at once, from the pre-battle location (you can't
@@ -486,7 +507,7 @@ class LiveLoop:
         self._last_chat_turn = 0  # last turn read from chat (for the diagnostic log)
         if self.dex_panel is not None:  # overworld panel out of the way during battle
             self.dex_panel.hide_panel()
-        print("battle detected")
+        log.info("battle detected")
 
     def _battle_step(self, frame, reading, bt, rect, now) -> None:
         # Read the location once per battle (it never changes mid-battle) to set
@@ -501,7 +522,7 @@ class LiveLoop:
                 self._loc_read = True
                 bits = [b for b, on in (("cave", cave), ("night", night)) if on]
                 note = f" ({'+'.join(bits)} -> Dusk Ball boosted)" if bits else ""
-                print(f"location: {loc}{note}")
+                log.info(f"location: {loc}{note}")
                 if self.dex is not None:  # same read drives the dex panel
                     self._update_dex(loc)
 
@@ -519,10 +540,9 @@ class LiveLoop:
         # result, so the turn never arrived -- the long-standing chat bug.)
         chat_turn = self.chat.poll()
         self.chat.submit(frame)
-        if chat_turn is not None and self.debug and chat_turn != self._last_chat_turn:
+        if chat_turn is not None and chat_turn != self._last_chat_turn:
             self._last_chat_turn = chat_turn  # shows the chat IS read (dedup the log)
-            shown = self.turns.turns_completed + 1
-            print(f"[dbg] chat: Turn {chat_turn}  (counter at Turn {shown})")
+            log.debug("chat: Turn %d  (counter Turn %d)", chat_turn, self.turns.turns_completed + 1)
         outcome = apply_chat_turn(
             self.turns,
             chat_turn,
@@ -531,9 +551,9 @@ class LiveLoop:
             last_advance=self._last_advance,
             down_guard_s=TURN_DOWN_GUARD_S,
         )
-        if self.debug and outcome in ("down", "up"):
+        if outcome in ("down", "up"):  # the formatter prefixes '[dbg]' only when --debug
             shown = self.turns.turns_completed + 1
-            print(f"[dbg] chat corrected {outcome.upper()} -> Turn {shown}")
+            log.debug("chat corrected %s -> Turn %d", outcome.upper(), shown)
 
         # `bt` (menu/action/catch templates, ~10 ms) was read in the loop and is
         # passed in: it drives the chat-independent turn counter (command menu
@@ -559,8 +579,7 @@ class LiveLoop:
         self.turns.observe_menu(self._menu_stable, bt.action)
         if self.turns.turns_completed > before:
             self._last_advance = now  # for the chat down-correction guard
-            if self.debug:
-                print(f"[dbg] menu -> Turn {self.turns.turns_completed + 1}")
+            log.debug("menu -> Turn %d", self.turns.turns_completed + 1)
         # Decide trainer vs wild ONCE per battle, and only while the command menu is
         # up: then the scene is static, so the party-icon strip below the bar is
         # reliable. Checking during animations gave false positives.
@@ -581,14 +600,14 @@ class LiveLoop:
                 self._is_trainer = is_trainer_battle(frame, bar, self.cal.trainer)
             self._trainer_decided = True
             if self._is_trainer:
-                print("trainer battle: overlay hidden")
+                log.info("trainer battle: overlay hidden")
         # Catch: announce once when the "Gotcha!" banner holds for 2+ frames (a
         # single stray match never triggers it). This does NOT freeze the overlay
         # -- the loop keeps updating so the turn still self-corrects from the chat;
         # the battle ends on its own when the UI clears (grace).
         self._catch_streak = self._catch_streak + 1 if bt.caught else 0
         if self._catch_streak >= 2 and not self._caught_printed and self.cached is not None:
-            print(f"caught {self.cached['name']}!")
+            log.info(f"caught {self.cached['name']}!")
             self._caught_printed = True
             self._on_catch(self.cached)
             # A fresh catch has no OT ball yet (that only shows on already-owned
@@ -606,7 +625,7 @@ class LiveLoop:
                 self.overlay.hide_battle()
         elif reading.state is BattleState.MULTI and self.last_line != "multi":
             # horde / double: wait until a single wild Pokemon remains
-            print("multiple enemy bars (horde): waiting for one to remain")
+            log.info("multiple enemy bars (horde): waiting for one to remain")
             self.last_line = "multi"
             self.overlay.hide_battle()
         # NO_BATTLE while in battle = intro/animation: keep the overlay as is
@@ -618,8 +637,7 @@ class LiveLoop:
         if sid is None:
             return
         length = self._chain.record_catch(sid)
-        if self.debug:
-            print(f"[dbg] repeat chain: {enemy.get('name')} x{length}")
+        log.debug("repeat chain: %s x%d", enemy.get("name"), length)
 
     def _chain_for(self, enemy: dict | None) -> int:
         """The current catch chain length that applies to THIS enemy: the running
@@ -639,7 +657,7 @@ class LiveLoop:
             sp = self.name_reader.read(frame, bar)
             if sp is not None:
                 self.cached = sp
-                print(f"identified: {sp['name']} (catch rate {sp['catch_rate']})")
+                log.info(f"identified: {sp['name']} (catch rate {sp['catch_rate']})")
         elif self.cached.get("level") is None and self.name_reader is not None:
             # species known but the level OCR missed it that frame; keep trying
             # (a clearer later frame usually yields it). Drives the Nest Ball.
@@ -659,7 +677,7 @@ class LiveLoop:
         ):
             self._ot_checked = True
             if self.dex.record_caught(self.cached["id"]):
-                print(f"dex: recorded OT-caught {self.cached['name']}")
+                log.info(f"dex: recorded OT-caught {self.cached['name']}")
 
         turn_note = f"turn {self.turns.turns_completed + 1}"
         if self.turns.turns_asleep:
@@ -692,7 +710,7 @@ class LiveLoop:
             )
             self.overlay.dock_to(rect.left, rect.top, rect.width)
         if line != self.last_line:
-            print(line)
+            log.info(line)
             self.last_line = line
 
     def _is_night(self, frame) -> bool:
@@ -713,7 +731,7 @@ class LiveLoop:
         view = self.dex.on_location(hud_name)
         panel = dex_panel_text(view)
         if panel and panel != self._dex_log:
-            print(panel)
+            log.info(panel)
             self._dex_log = panel
         return view
 
@@ -730,7 +748,7 @@ class LiveLoop:
         if self.dex is None:
             return
         now = self.dex.toggle_caught(dex_id)
-        print(f"dex: {'marked' if now else 'un-marked'} #{dex_id} as caught")
+        log.info(f"dex: {'marked' if now else 'un-marked'} #{dex_id} as caught")
         self._refresh_dex_panel()
 
     def _dex_use_profile(self, name: str) -> None:
@@ -739,7 +757,7 @@ class LiveLoop:
         account = cfg.use(name)
         if self.dex is not None:
             self.dex.set_caught(CaughtStore.for_account(USERDATA, account))
-        print(f"dex: active account '{account}'")
+        log.info(f"dex: active account '{account}'")
         self._refresh_dex_panel()
 
     def _dex_delete_profile(self, name: str) -> None:
@@ -751,7 +769,7 @@ class LiveLoop:
         account = cfg.active or cfg.use("default")
         if self.dex is not None:
             self.dex.set_caught(CaughtStore.for_account(USERDATA, account))
-        print(f"dex: deleted profile '{name}', active now '{account}'")
+        log.info(f"dex: deleted profile '{name}', active now '{account}'")
         self._refresh_dex_panel()
 
     def _dex_profiles(self) -> tuple[str | None, list[str]]:
@@ -764,16 +782,16 @@ def build_dex(account_override: str | None) -> DexSession | None:
     data is missing. The active account is chosen manually and remembered: an
     explicit --account wins, else the last used one, else a 'default' profile."""
     if not ENCOUNTERS_PATH.exists():
-        print("dex: encounters.json not found (run scripts/update_data.py) — dex disabled")
+        log.info("dex: encounters.json not found (run scripts/update_data.py) — dex disabled")
         return None
     data = EncounterData.load(ENCOUNTERS_PATH, LEGENDARIES_PATH)
     cfg = AccountConfig.load(USERDATA)
     account = cfg.resolve_active(account_override)
     if account is None:
         account = cfg.use("default")
-        print("dex: no account set — using 'default' (pass --account NAME per character)")
+        log.info("dex: no account set — using 'default' (pass --account NAME per character)")
     caught = CaughtStore.for_account(USERDATA, account)
-    print(f"dex: account '{account}' — {len(caught.caught)} species marked caught")
+    log.info(f"dex: account '{account}' — {len(caught.caught)} species marked caught")
     return DexSession(data, caught)
 
 
@@ -784,13 +802,12 @@ def run(
     account: str | None = None,
     debug: bool = False,
 ) -> None:
+    setup_logging(debug)
     app = QApplication(sys.argv[:1])
     overlay = Overlay([b["name"] for b in load_balls()])
     dex = build_dex(account)
     dex_panel = DexPanel() if dex is not None else None
-    loop = LiveLoop(
-        species_override, status_override, cal, overlay, dex=dex, dex_panel=dex_panel, debug=debug
-    )
+    loop = LiveLoop(species_override, status_override, cal, overlay, dex=dex, dex_panel=dex_panel)
     loop.start()
     try:
         code = app.exec()
