@@ -102,14 +102,6 @@ TURN_DOWN_GUARD_S = 3.0
 # changes slowly, so refresh it at most this often while walking around (IDLE).
 DEX_LOC_INTERVAL_S = 2.5
 DEX_SHOWN_MAX = 5  # entries shown before collapsing the rest into "+X"
-# A real single-enemy or trainer HP bar sits in the canonical top-left slot at this
-# fraction of the frame width -- measured 0.171-0.188 across every single/trainer/
-# double fixture from 1182 to 3437 px wide (resolution-independent). Horde bars
-# spread across the centre (0.318-0.691). A lone bar found right of this cutoff is a
-# horde mon that outlasted its pack -> wild, never a trainer. 0.25 is the midpoint of
-# the gap, keeping ~0.06 margin on both sides at any window size. Mirrors
-# battle_reader.REMNANT_X_FRAC (status-offset selection).
-HORDE_REMNANT_X_FRAC = 0.25
 
 log = logging.getLogger("shakechecker")
 
@@ -603,7 +595,7 @@ class LiveLoop:
             #  2. position: a lone bar right of the canonical single-enemy slot is a
             #     remnant (backup, in case the pack was never cleanly counted).
             x_frac = bar.x / frame.shape[1]
-            if self._was_horde or x_frac > HORDE_REMNANT_X_FRAC:
+            if self._was_horde or x_frac > self.cal.hp_bar.remnant_x_frac:
                 self._is_trainer = False
             else:
                 self._is_trainer = is_trainer_battle(frame, bar, self.cal.trainer)

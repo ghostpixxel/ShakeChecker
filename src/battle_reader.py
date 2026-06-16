@@ -105,6 +105,8 @@ class HpBarCalibration(BaseModel):
     min_fill_width_px: int
     merge_y_px: int
     merge_x_px: int
+    horde_spread_px: int  # min x-range over 2+ bars to call them a spread horde
+    remnant_x_frac: float  # a lone bar right of this width-fraction is a horde remnant
     hsv: HsvCalibration
     frame: FrameCalibration
     empty: EmptyBarCalibration
@@ -399,40 +401,31 @@ def read_status(hsv_band: np.ndarray, x: int, y: int, cal: StatusCalibration) ->
     return classify_status_box(hsv_band[y0:y1, x0:x1], cal)
 
 
-# A horde (3x/5x) spreads its bars horizontally; a single/double keeps them at the
-# left (a double stacks them vertically at the SAME x). If the bars' x-range
-# exceeds this, it's a spread horde -> the status badge is read at the horde offset.
-HORDE_SPREAD_PX = 80
-
-# A single enemy / trainer / wild-double bar sits in the canonical top-left slot; a
-# horde spreads its bars across the centre. A lone (or stacked) bar found right of
-# this fraction is therefore a horde mon that outlasted its pack -- its status badge
-# is on the RIGHT of the fill (horde layout), even though the horizontal-spread test
-# can no longer see it. Measured x-fractions across every fixture (ratio 1.31-2.39,
-# width 1182-3437 px): singles 0.171-0.188, horde bars 0.318-0.691. The threshold
-# sits at the midpoint of that gap so BOTH sides keep ~0.06 of margin at any window
-# size -- resolution-independent (a fraction, not pixels). This is only the backup;
-# the primary signal is the 560 px+ spread of a fresh horde, which latches reliably
-# at every resolution. Mirrors HORDE_REMNANT_X_FRAC in app.py (trainer-skip).
-REMNANT_X_FRAC = 0.25
-
-
-def _bars_spread(bars: list[BarReading]) -> bool:
-    """True if 2+ bars are spread horizontally (a horde), vs stacked (a double)."""
+def _bars_spread(bars: list[BarReading], spread_px: int) -> bool:
+    """True if 2+ bars are spread horizontally (a horde), vs stacked (a double).
+    `spread_px` is the min x-range that counts as spread (cal.hp_bar.horde_spread_px)."""
     if len(bars) < 2:
         return False
-    return bool(max(b.x for b in bars) - min(b.x for b in bars) > HORDE_SPREAD_PX)
+    return bool(max(b.x for b in bars) - min(b.x for b in bars) > spread_px)
 
 
-def _is_horde_layout(bars: list[BarReading], frame_width: int, horde_hint: bool) -> bool:
+def _is_horde_layout(
+    bars: list[BarReading],
+    frame_width: int,
+    horde_hint: bool,
+    *,
+    spread_px: int,
+    remnant_frac: float,
+) -> bool:
     """Whether these bars use the spread-horde layout (status badge RIGHT of the
     fill): the caller's hint, OR 2+ bars spread horizontally, OR ANY bar sitting
-    right of the single-enemy slot. The last case catches a horde narrowed to its
-    remnant(s) -- one lone bar, or two left-column mons stacked at the centre x --
-    which a single/trainer/wild-double (always in the left slot) never is."""
-    if horde_hint or _bars_spread(bars):
+    right of the single-enemy slot (`remnant_frac` of the width). The last case
+    catches a horde narrowed to its remnant(s) -- one lone bar, or two left-column
+    mons stacked at the centre x -- which a single/trainer/wild-double (always in
+    the left slot) never is. Both thresholds come from calibration.toml [hp_bar]."""
+    if horde_hint or _bars_spread(bars, spread_px):
         return True
-    return any(b.x > frame_width * REMNANT_X_FRAC for b in bars)
+    return any(b.x > frame_width * remnant_frac for b in bars)
 
 
 def read_enemy_bars(
@@ -515,7 +508,9 @@ def read_enemy_bars(
     # -> the status badge is on the RIGHT of the fill, not the left. Read each bar's
     # status with the matching offset.
     s = cal.status
-    if _is_horde_layout(merged, w, horde):
+    if _is_horde_layout(
+        merged, w, horde, spread_px=c.horde_spread_px, remnant_frac=c.remnant_x_frac
+    ):
         s = s.model_copy(update={"dx0": s.horde_dx0, "dx1": s.horde_dx1})
     return [
         BarReading(b.hp_pct, b.color, read_status(hsv_band, b.x, b.y, s), b.x, b.y) for b in merged
@@ -638,5 +633,8 @@ def read_battle(frame_bgr: np.ndarray, cal: Calibration, horde: bool = False) ->
         state = BattleState.SINGLE
     else:
         state = BattleState.MULTI
-    is_horde = _is_horde_layout(bars, frame_bgr.shape[1], horde)
+    c = cal.hp_bar
+    is_horde = _is_horde_layout(
+        bars, frame_bgr.shape[1], horde, spread_px=c.horde_spread_px, remnant_frac=c.remnant_x_frac
+    )
     return BattleReading(state=state, bars=tuple(bars), is_horde=is_horde)

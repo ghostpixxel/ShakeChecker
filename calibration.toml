@@ -39,6 +39,21 @@ min_fill_width_px = 2
 merge_y_px = 10
 merge_x_px = 30
 
+# Horde-vs-single LAYOUT (decides which side of the fill the status badge sits on,
+# and whether a lone bar is a wild horde remnant). A horde (3x/5x) spreads its bars
+# horizontally; a single/double keeps them in the canonical top-left slot (a double
+# stacks at the SAME x). Two signals, both resolution-independent:
+#  - horde_spread_px: min x-range over 2+ bars to call them a spread horde. Fresh
+#    hordes spread 560 px+ at every window size, so 80 is a wide margin over a
+#    stacked double (range 0).
+#  - remnant_x_frac: once a horde is down to its last bar(s) the spread test can't
+#    see it, so a lone/stacked bar right of this fraction of the frame width is read
+#    as a horde remnant. Measured x-fractions across every fixture (ratio 1.31-2.39,
+#    width 1182-3437 px): singles 0.171-0.188, horde bars 0.318-0.691; 0.25 is the
+#    gap midpoint, ~0.06 margin both sides. app.py reuses it for trainer-skip.
+horde_spread_px = 80
+remnant_x_frac = 0.25
+
 [hp_bar.hsv]
 # OpenCV HSV (H 0-179). Saturation/value floors separate the bar fill from
 # the white crosshatch and the dark frame in all *_health_* fixtures.
