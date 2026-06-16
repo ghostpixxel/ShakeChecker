@@ -22,11 +22,11 @@ import json
 import logging
 import sys
 import time
-from pathlib import Path
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 
+import paths
 from account_store import AccountConfig, CaughtStore, delete_account_data
 from battle_log import AsyncChatReader, read_turn_number
 from battle_logic import apply_chat_turn, battle_end_grace, is_in_battle
@@ -66,13 +66,12 @@ from window_capture import (
     title_matches,
 )
 
-ROOT = Path(__file__).resolve().parent.parent
-DATA = ROOT / "src" / "data"
+DATA = paths.DATA_DIR  # bundled, read-only (frozen-aware via paths.py)
 SPECIES_PATH = DATA / "species_core.json"
 TEMPLATES_DIR = DATA / "templates"
 ENCOUNTERS_PATH = DATA / "encounters.json"
 LEGENDARIES_PATH = DATA / "legendaries.json"
-USERDATA = ROOT / "userdata"  # per-account caught lists + active-account config
+USERDATA = paths.userdata_dir()  # per-account caught lists (%APPDATA% when frozen)
 
 WAITING_POLL_S = 2.0
 IDLE_FRAME_S = 0.5  # ~2 fps
@@ -867,7 +866,7 @@ def main() -> None:
     elif args.rate is not None:
         species_override = {"name": f"rate {args.rate}", "catch_rate": args.rate, "types": []}
 
-    cal = load_calibration(ROOT / "calibration.toml")
+    cal = load_calibration(paths.CALIBRATION_PATH)
 
     if args.image:
         analyze_image(args.image, species_override, args.status, cal)

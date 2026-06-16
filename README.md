@@ -106,3 +106,21 @@ Development is **fixture-driven**: CV/OCR logic is built and tested against the
 PNGs in `fixtures/` (with ground truth in `fixtures/expected.json`), never against
 the live game. `rapidocr-onnxruntime` is pinned so OCR results are reproducible.
 Refresh the vendored game data with `python scripts/update_data.py`.
+
+## Building a release (.exe)
+
+Package into a standalone Windows app (no Python needed by the user):
+
+```powershell
+pip install -e ".[build]"
+pyinstaller ShakeChecker.spec
+```
+
+This produces `dist/ShakeChecker/` containing `ShakeChecker.exe` plus everything
+bundled. Zip that folder and attach it to a **GitHub Release** — users download the
+zip, extract, and run `ShakeChecker.exe`. Per-account data is written to
+`%APPDATA%/ShakeChecker`.
+
+Note: the exe is unsigned, so on first launch Windows SmartScreen shows
+"Windows protected your PC" → **More info → Run anyway**. This is normal for
+unsigned indie tools.

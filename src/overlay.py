@@ -345,11 +345,12 @@ class Overlay(QWidget):
 def _demo() -> None:
     import json
     import sys
-    from pathlib import Path
 
     from PyQt6.QtWidgets import QApplication
 
-    data = Path(__file__).resolve().parent / "data"
+    import paths
+
+    data = paths.DATA_DIR
     balls = [b["name"] for b in json.loads((data / "balls.json").read_text("utf-8"))["balls"]]
 
     app = QApplication(sys.argv)

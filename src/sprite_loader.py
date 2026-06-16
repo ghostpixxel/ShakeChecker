@@ -18,7 +18,9 @@ from pathlib import Path
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QColor, QFont, QMovie, QPainter, QPixmap
 
-SPRITES_DIR = Path(__file__).resolve().parent / "data" / "sprites"
+import paths
+
+SPRITES_DIR = paths.DATA_DIR / "sprites"
 
 
 def ball_slug(name: str) -> str:
