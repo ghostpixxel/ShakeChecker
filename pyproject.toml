@@ -10,7 +10,11 @@ dependencies = [
     "pydantic",
     "PyQt6",
     "pywin32; sys_platform == 'win32'",
-    "rapidocr-onnxruntime",
+    # Pinned: the bundled OCR model (PP-OCRv3) is what all OCR calibration,
+    # thresholds and fixture expectations are tuned against. A newer rapidocr ships
+    # a different model that reads borderline frames differently (CI read the
+    # live_turn9 chat as nothing), so an unpinned upgrade would silently shift OCR.
+    "rapidocr-onnxruntime==1.2.3",
     "rapidfuzz",
 ]
 
