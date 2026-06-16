@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 APP_NAME = "ShakeChecker"
+APP_VERSION = "1.0.0"  # keep in sync with pyproject [project].version
 
 
 def _frozen() -> bool:

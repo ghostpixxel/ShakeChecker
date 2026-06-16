@@ -369,6 +369,7 @@ class LiveLoop:
             self.dex_panel.get_profiles = self._dex_profiles
 
     def start(self) -> None:
+        log.info(f"ShakeChecker v{paths.APP_VERSION}")
         species_src = (
             f"override {self.species_override['name']}"
             if self.species_override
