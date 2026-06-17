@@ -105,6 +105,22 @@ def test_overlay_height_shrinks_when_balls_hidden(qt_app):
     assert ov.height() < full  # window got shorter, not just the rows spread apart
 
 
+def test_overlay_fits_content_when_filtering_down(qt_app):
+    # Regression: built with many balls (like the live app), then filtered down.
+    # The window must end up EXACTLY content height, not keep a stale taller layout
+    # that spreads the few remaining rows apart.
+    balls = [f"Ball{i}" for i in range(12)]
+    ov = Overlay(balls)
+    probs = {b: 0.1 + 0.01 * i for i, b in enumerate(balls)}
+    ov.show_battle(1, "X", 45, 1, probs)  # all twelve rows -> tall window
+    ov.set_hidden_names(set(balls[4:]))  # keep only 4
+    ov.show_battle(1, "X", 45, 1, probs)
+    assert ov.height() == ov.sizeHint().height()  # window pinned to content, no slack
+    visible = sorted(ov._ball_rows[b].y() for b in balls[:4])
+    gaps = [visible[i + 1] - visible[i] for i in range(len(visible) - 1)]
+    assert max(gaps) - min(gaps) <= 1  # rows evenly spaced, not stretched
+
+
 def test_level_rendered_next_to_name(qt_app):
     ov = Overlay(BALLS)
     ov.show_battle(66, "Machop", 180, 2, {}, level=6)

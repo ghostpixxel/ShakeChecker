@@ -323,6 +323,14 @@ class Overlay(QWidget):
         # shrink this frameless translucent window, leaving a tall empty panel below
         # the rows when balls are filtered. Forcing the height also means the layout
         # has no spare space to spread between rows, so spacing stays tight.
+        #
+        # The rows live in the INNER panel layout (self._col); removing them
+        # invalidates it, but activating only the root layout reads a STALE sizeHint
+        # (the window kept its old, taller height -> rows spread out). Recompute
+        # self._col first so the new content height propagates up before we pin it.
+        self._col.invalidate()
+        self._col.activate()
+        self._root.invalidate()
         self._root.activate()
         self.setFixedHeight(self.sizeHint().height())
 
