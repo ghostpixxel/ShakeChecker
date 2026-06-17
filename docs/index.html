@@ -248,11 +248,41 @@
           order: -1;
         }
       }
+      .ball-wrap {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+      }
+      /* a fixed ground shadow that does NOT rotate with the ball */
+      .ball-wrap::after {
+        content: "";
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 58%;
+        height: 22px;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 50%;
+        z-index: -1;
+        animation: ballshadow 2s ease-in-out infinite;
+      }
+      @keyframes ballshadow {
+        0%,
+        55%,
+        100% {
+          transform: translateX(-50%) scaleX(1);
+        }
+        66%,
+        78% {
+          transform: translateX(-50%) scaleX(0.86);
+        }
+      }
       .ball {
         width: 300px;
         height: 300px;
         transform-origin: 50% 50%;
-        filter: drop-shadow(8px 16px 0 rgba(0, 0, 0, 0.45));
         animation: shake 2s ease-in-out infinite;
       }
       /* a real Poké Ball wobbling before a catch: a burst of shakes, then a beat */
@@ -297,7 +327,8 @@
       }
       @media (prefers-reduced-motion: reduce) {
         .ball,
-        .ball .light {
+        .ball .light,
+        .ball-wrap::after {
           animation: none;
         }
       }
@@ -592,6 +623,7 @@
       </div>
 
       <div class="hero-art">
+        <div class="ball-wrap">
         <svg class="ball" viewBox="0 0 64 64" aria-hidden="true">
           <defs>
             <clipPath id="c"><circle cx="32" cy="32" r="27" /></clipPath>
@@ -607,6 +639,7 @@
           <circle cx="32" cy="32" r="6" fill="#f4efe6" stroke="#0e0e12" stroke-width="2" />
           <circle class="light" cx="32" cy="32" r="3" fill="#ff4d4d" />
         </svg>
+        </div>
       </div>
     </header>
 
