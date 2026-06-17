@@ -209,6 +209,9 @@ class Overlay(QWidget):
             self._ball_icons[name] = icon
             self._ball_name_labels[name] = label
             self._pct_labels[name] = pct
+        # excess vertical space collapses into this stretch, so with fewer balls the
+        # rows stay tightly spaced (the window shrinks) instead of spreading apart.
+        self._col.addStretch(1)
 
         self.apply_scale(1.0)  # set fonts, sprites, widths at full size
 
@@ -315,8 +318,11 @@ class Overlay(QWidget):
             roww.setVisible(False)
         for name in order:
             roww = self._ball_rows[name]
-            self._col.addWidget(roww)
+            # insert before the trailing stretch (the layout's last item) so rows
+            # stay top-aligned and tightly spaced
+            self._col.insertWidget(self._col.count() - 1, roww)
             roww.setVisible(True)
+        self._col.invalidate()  # drop the stale size hint so the window shrinks to fit
         self.adjustSize()
 
     def hide_battle(self) -> None:

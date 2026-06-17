@@ -85,6 +85,16 @@ def test_show_battle_sets_header_and_percentages(qt_app):
     assert "55dd66" in ov._pct_labels["Quick Ball"].styleSheet()  # green, 80%
 
 
+def test_show_battle_hides_and_sorts_rows(qt_app):
+    ov = Overlay(["Poké Ball", "Great Ball", "Ultra Ball"])
+    ov.set_hidden_names({"Great Ball"})
+    ov.show_battle(1, "X", 45, 1, {"Poké Ball": 0.2, "Great Ball": 0.5, "Ultra Ball": 0.4})
+    assert ov._ball_rows["Great Ball"].isHidden()  # filtered out
+    assert not ov._ball_rows["Ultra Ball"].isHidden()
+    assert not ov._ball_rows["Poké Ball"].isHidden()
+    assert ov._last_order == ["Ultra Ball", "Poké Ball"]  # best % first, hidden dropped
+
+
 def test_level_rendered_next_to_name(qt_app):
     ov = Overlay(BALLS)
     ov.show_battle(66, "Machop", 180, 2, {}, level=6)
