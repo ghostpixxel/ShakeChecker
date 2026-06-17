@@ -24,7 +24,8 @@ import sys
 import time
 
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 import paths
 from account_store import AccountConfig, CaughtStore, delete_account_data
@@ -821,10 +822,34 @@ def run(
 ) -> None:
     setup_logging(debug)
     app = QApplication(sys.argv[:1])
+    # The overlay and dex panels hide themselves between battles, so don't quit when
+    # no window is visible -- the app lives in the tray and is quit from there.
+    app.setQuitOnLastWindowClosed(False)
+    icon = QIcon(str(paths.DATA_DIR / "shakechecker.ico"))
+    app.setWindowIcon(icon)
+
     overlay = Overlay([b["name"] for b in load_balls()])
     dex = build_dex(account)
     dex_panel = DexPanel() if dex is not None else None
     loop = LiveLoop(species_override, status_override, cal, overlay, dex=dex, dex_panel=dex_panel)
+
+    # Tray presence: a windowless build has no taskbar entry, so the tray icon is how
+    # the user sees it's running and how they quit it (right-click -> Quit).
+    tray = QSystemTrayIcon(icon)
+    tray.setToolTip(f"ShakeChecker v{paths.APP_VERSION}")
+    menu = QMenu()
+    quit_action = QAction("Quit ShakeChecker", menu)
+    quit_action.triggered.connect(app.quit)
+    menu.addAction(quit_action)
+    tray.setContextMenu(menu)
+    tray.show()
+    tray.showMessage(
+        "ShakeChecker",
+        f"v{paths.APP_VERSION} is running. Right-click the tray icon to quit.",
+        QSystemTrayIcon.MessageIcon.Information,
+        4000,
+    )
+
     loop.start()
     try:
         code = app.exec()
