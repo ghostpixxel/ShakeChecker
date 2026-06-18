@@ -29,13 +29,19 @@ jobs:
 
       - name: Zip
         shell: pwsh
-        run: Compress-Archive -Path dist/ShakeChecker -DestinationPath ShakeChecker-${{ github.ref_name }}-win64.zip -CompressionLevel Optimal
+        run: |
+          Compress-Archive -Path dist/ShakeChecker -DestinationPath ShakeChecker-${{ github.ref_name }}-win64.zip -CompressionLevel Optimal
+          # Also publish a version-less copy so this stays a permanent direct link:
+          # https://github.com/ghostpixxel/ShakeChecker/releases/latest/download/ShakeChecker-win64.zip
+          Copy-Item ShakeChecker-${{ github.ref_name }}-win64.zip ShakeChecker-win64.zip
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           name: ShakeChecker ${{ github.ref_name }}
-          files: ShakeChecker-${{ github.ref_name }}-win64.zip
+          files: |
+            ShakeChecker-${{ github.ref_name }}-win64.zip
+            ShakeChecker-win64.zip
           # Append the auto-generated "What's Changed" list (commits since the
           # previous tag) below the fixed intro body.
           generate_release_notes: true
