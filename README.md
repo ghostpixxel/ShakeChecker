@@ -127,3 +127,10 @@ zip, extract, and run `ShakeChecker.exe`. Per-account data is written to
 Note: the exe is unsigned, so on first launch Windows SmartScreen shows
 "Windows protected your PC" → **More info → Run anyway**. This is normal for
 unsigned indie tools.
+
+## Disclaimer
+
+ShakeChecker is a fan-made, read-only tool and is not affiliated with, endorsed,
+or sponsored by PokeMMO. Pokémon and all related names, sprites and trademarks
+belong to Nintendo, Game Freak and The Pokémon Company. This is an unofficial
+project; all rights to their respective owners.

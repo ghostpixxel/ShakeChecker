@@ -508,6 +508,24 @@
         border: 3px solid #000;
         border-radius: 4px;
       }
+      .note {
+        margin-top: 22px;
+        padding: 14px 18px;
+        border: 3px solid var(--yellow);
+        border-radius: 4px;
+        background: rgba(242, 193, 78, 0.1);
+        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+      }
+      .note .tag {
+        font-family: var(--pixel);
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: var(--yellow);
+        text-transform: uppercase;
+      }
+      .note p {
+        margin: 8px 0 0;
+      }
       code {
         font-size: 18px;
         background: #000;
@@ -584,6 +602,14 @@
         margin-top: 10px;
         font-family: var(--pixel);
         font-size: 9px;
+      }
+      footer .disclaimer {
+        max-width: 70ch;
+        margin: 18px auto 0;
+        font-size: 15px;
+        line-height: 1.4;
+        color: var(--phos-dim);
+        opacity: 0.85;
       }
     </style>
   </head>
@@ -714,7 +740,8 @@
       <div class="shots">
         <figure class="screen" onerror="this.style.display='none'">
           <a href="img/shot-overlay.png" target="_blank" rel="noopener">
-            <img src="img/shot-overlay.png" alt="Catch-rate overlay during a wild battle"
+            <img src="img/shot-overlay.png"
+              alt="Catch-rate overlay, color-coded per ball, during a double wild encounter"
               onerror="this.closest('figure').style.display='none'" />
           </a>
           <figcaption>Catch-rate overlay</figcaption>
@@ -734,11 +761,12 @@
           <figcaption>Status &amp; ball rules</figcaption>
         </figure>
         <figure class="screen">
-          <a href="img/shot-horde.png" target="_blank" rel="noopener">
-            <img src="img/shot-horde.png" alt="Overlay during a horde battle"
+          <a href="img/shot-ballpicker.png" target="_blank" rel="noopener">
+            <img src="img/shot-ballpicker.png"
+              alt="Ball picker: choose which balls the overlay shows"
               onerror="this.closest('figure').style.display='none'" />
           </a>
-          <figcaption>Hordes</figcaption>
+          <figcaption>Choose your Pokéballs</figcaption>
         </figure>
       </div>
     </section>
@@ -761,6 +789,14 @@
         </li>
         <li>Play PokeMMO in windowed or borderless mode (English client). The overlay shows in battles.</li>
       </ol>
+      <div class="note">
+        <span class="tag">⚠ Turns not counting right?</span>
+        <p>
+          Turns are counted from your actions, and cross-checked against the battle chat for
+          accuracy. Keep the in-game <b>chat visible with the Battle tab active</b> so ShakeChecker
+          can read "Turn N started!" and self-correct if the count ever drifts.
+        </p>
+      </div>
     </section>
 
     <section class="wrap">
@@ -801,8 +837,10 @@
         <details>
           <summary>The turn counter is wrong or not updating.</summary>
           <div class="ans">
-            Keep the in-game chat visible with the <b>Battle tab active</b>. ShakeChecker reads
-            "Turn N started!" from the battle chat, and corrections kick in from turn 2 onward.
+            Turns are counted from your <b>actions</b> (each committed move advances the counter).
+            For extra resilience it also cross-checks the battle chat, so keep the chat visible with
+            the <b>Battle tab active</b>: ShakeChecker then reads "Turn N started!" and corrects the
+            count if it ever drifts (corrections kick in from turn 2 onward).
           </div>
         </details>
         <details>
@@ -898,12 +936,17 @@
     </section>
 
     <footer class="wrap">
-      <div>A fan-made, read-only tool. Not affiliated with PokeMMO or Nintendo / The Pokémon Company.</div>
       <div class="links">
         <a href="https://github.com/ghostpixxel/ShakeChecker">GitHub</a> ·
         <a href="https://github.com/ghostpixxel/ShakeChecker/releases/latest">Download</a> ·
         <a href="https://github.com/ghostpixxel/ShakeChecker/issues">Report an issue</a>
       </div>
+      <p class="disclaimer">
+        Disclaimer: ShakeChecker is a fan-made, read-only tool and is not affiliated with, endorsed,
+        or sponsored by PokeMMO. Pokémon and all related names, sprites and trademarks belong to
+        Nintendo, Game Freak and The Pokémon Company. This is an unofficial project; all rights to
+        their respective owners.
+      </p>
     </footer>
 
     <script>
@@ -927,8 +970,11 @@
         VIDEOS.forEach((src, i) => {
           const slide = document.createElement("div");
           slide.className = "slide screen";
+          const poster = src.replace(/\.mp4$/, ".jpg");
           slide.innerHTML =
-            '<video controls preload="metadata" playsinline poster="img/poster.png">' +
+            '<video controls muted loop playsinline preload="metadata" poster="' +
+            poster +
+            '">' +
             '<source src="' +
             src +
             '" type="video/mp4">Your browser cannot play this video.</video>';
@@ -944,7 +990,16 @@
       function go(n) {
         index = (n + slides.length) % slides.length;
         track.style.transform = "translateX(" + -index * 100 + "%)";
-        [...track.querySelectorAll("video")].forEach((v) => v.pause());
+        // Only the visible clip plays (muted, looping); the rest pause and fall
+        // back to their poster frame so a slide is never a black screen.
+        [...track.querySelectorAll("video")].forEach((v, i) => {
+          if (i === index) {
+            v.currentTime = 0;
+            v.play().catch(() => {}); // blocked autoplay just shows the poster
+          } else {
+            v.pause();
+          }
+        });
         [...dots.children].forEach((d, i) =>
           d.setAttribute("aria-current", i === index ? "true" : "false")
         );
@@ -952,11 +1007,11 @@
       if (slides.length > 1) {
         prev.addEventListener("click", () => go(index - 1));
         next.addEventListener("click", () => go(index + 1));
-        go(0);
       } else {
         prev.style.display = next.style.display = "none";
         dots.style.display = "none";
       }
+      if (slides.length) go(0); // autoplay the first clip on load
     </script>
   </body>
 </html>
