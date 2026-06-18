@@ -36,6 +36,9 @@ jobs:
         with:
           name: ShakeChecker ${{ github.ref_name }}
           files: ShakeChecker-${{ github.ref_name }}-win64.zip
+          # Append the auto-generated "What's Changed" list (commits since the
+          # previous tag) below the fixed intro body.
+          generate_release_notes: true
           body: |
             Read-only catch-rate overlay for PokeMMO (OCR + overlay, no game inputs).
             Shows live catch % per Poké Ball during wild battles, plus a "missing
