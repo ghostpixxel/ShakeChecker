@@ -144,6 +144,15 @@ class NameCalibration(BaseModel):
     dy1: int
     upscale: int
     min_match_score: float
+    # Gender disambiguation for the Nidoran line (only species split by ♂/♀).
+    # The banner shows a colored gender icon after the level: pink ♀ / blue ♂.
+    # We classify by the pink fraction of the name crop (fraction = resolution
+    # independent). Defaults so older calibration.toml files still load.
+    gender_pink_h_lo: int = 140
+    gender_pink_h_hi: int = 170
+    gender_pink_sat_min: int = 80
+    gender_pink_val_min: int = 80
+    gender_pink_frac: float = 0.001
 
 
 class BattleUiCalibration(BaseModel):

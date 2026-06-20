@@ -25,9 +25,37 @@ _LEVEL_MARKER = re.compile(r"\b[li][vu]\b", re.IGNORECASE)
 # The level number directly follows the marker: "Lv. 43".
 _LEVEL_NUMBER = re.compile(r"\b[li][vu]\b\.?\s*(\d{1,3})", re.IGNORECASE)
 
+FEMALE = "♀"  # ♀
+MALE = "♂"  # ♂
+
 
 def clean_ocr_text(raw: str) -> str:
     return _LEVEL_MARKER.split(raw, maxsplit=1)[0].strip()
+
+
+def _strip_gender(name: str) -> str:
+    return name[:-1] if name and name[-1] in (FEMALE, MALE) else name
+
+
+def detect_gender(crop_bgr: np.ndarray, cal: NameCalibration) -> str:
+    """Classify the banner's colored gender icon as ♀ or ♂ from the name crop.
+
+    OCR cannot read the ♂/♀ glyph, so this is the only way to tell the two
+    Nidoran entries apart. The banner draws a pink ♀ / blue ♂ icon after the
+    level; we measure the pink fraction of the crop (a fraction, so resolution
+    independent) and call it ♀ above the threshold, otherwise ♂. Only invoked
+    for gender-split species, so a non-pink crop unambiguously means ♂.
+    """
+    hsv = cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2HSV)
+    h, s, v = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
+    pink = (
+        (h >= cal.gender_pink_h_lo)
+        & (h <= cal.gender_pink_h_hi)
+        & (s >= cal.gender_pink_sat_min)
+        & (v >= cal.gender_pink_val_min)
+    )
+    frac = float(pink.sum()) / pink.size if pink.size else 0.0
+    return FEMALE if frac >= cal.gender_pink_frac else MALE
 
 
 def parse_level(raw: str) -> int | None:
@@ -74,4 +102,11 @@ class NameReader:
         name = match_species_name(raw, self._names, c.min_match_score)
         if not name:
             return None
+        # OCR loses the ♂/♀ glyph, so a gender-split species (Nidoran) always
+        # ties to one variant. Re-decide it from the banner's colored gender icon.
+        base = _strip_gender(name)
+        if base != name:
+            variant = base + detect_gender(crop, c)
+            if variant in self._by_name:
+                name = variant
         return {**self._by_name[name], "level": parse_level(raw)}
