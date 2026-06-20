@@ -254,6 +254,19 @@ dy1 = -6
 upscale = 3
 # rapidfuzz WRatio 0-100; below this the OCR result is treated as unrecognized.
 min_match_score = 70.0
+# Gender disambiguation for the Nidoran line (the only species the game splits
+# by ♂/♀). OCR cannot read the gender glyph, so "Nidoran" alone ties between the
+# two entries and always resolved to ♀. Instead we read the colored gender icon
+# the banner draws after the level: pink ♀ vs blue ♂. We count pink (magenta)
+# pixels as a fraction of the name crop -- a fraction, so it is resolution
+# independent. Calibrated from full_health_nidoran_female.png (~0.5% pink) vs
+# full_health_nidoran_male.png (0% pink); threshold sits an order of magnitude
+# below the female reading and well above male.
+gender_pink_h_lo = 140      # OpenCV HSV hue 0-180; magenta band lower bound
+gender_pink_h_hi = 170      # magenta band upper bound
+gender_pink_sat_min = 80    # ignore washed-out/background pixels
+gender_pink_val_min = 80    # ignore dark pixels
+gender_pink_frac = 0.001    # pink-pixel fraction above which the icon is ♀
 
 [caught_icon]
 # An OT-caught wild species shows a red/white Poke Ball icon right of the name.

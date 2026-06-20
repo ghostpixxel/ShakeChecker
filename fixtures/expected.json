@@ -19,6 +19,22 @@
         { "name": "Cascoon", "level": 11, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
       ]
     },
+    "full_health_nidoran_male.png": {
+      "scene": "wild_single",
+      "overlay_visible": true,
+      "enemies": [
+        { "name": "Nidoran♂", "level": 5, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
+      ],
+      "notes": "Gender-split pair: OCR drops the ♂/♀ glyph, so the name ties to ♀ unless the banner's colored gender icon (blue ♂ / pink ♀) is read. Male = no pink. id 32."
+    },
+    "full_health_nidoran_female.png": {
+      "scene": "wild_single",
+      "overlay_visible": true,
+      "enemies": [
+        { "name": "Nidoran♀", "level": 3, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
+      ],
+      "notes": "Counterpart to full_health_nidoran_male.png. Female = pink gender icon present. id 29."
+    },
     "full_health_sleeping.png": {
       "scene": "wild_single",
       "location": "Eterna Forest",

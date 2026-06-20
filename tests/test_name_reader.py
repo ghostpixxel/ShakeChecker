@@ -13,7 +13,13 @@ import cv2
 import pytest
 
 from battle_reader import load_calibration, read_enemy_bars
-from name_reader import NameReader, clean_ocr_text, match_species_name, parse_level
+from name_reader import (
+    NameReader,
+    clean_ocr_text,
+    detect_gender,
+    match_species_name,
+    parse_level,
+)
 
 ROOT = Path(__file__).parent.parent
 FIXTURES = ROOT / "fixtures"
@@ -66,7 +72,31 @@ _OCR_FIXTURES = [
     ("1_HP_red_health_no_status_cave", "Ursaring"),
     ("full_health_trainer_battle_poisoned", "Pachirisu"),
     ("1920x1080_resolution", "Tentacool"),
+    # Gender-split pair: OCR drops the ♂/♀ glyph, so the gender icon decides.
+    ("full_health_nidoran_male", "Nidoran♂"),
+    ("full_health_nidoran_female", "Nidoran♀"),
 ]
+
+
+# --- gender icon detection (no OCR: isolates the color logic) -------------
+
+_GENDER_FIXTURES = [
+    ("full_health_nidoran_male", "♂"),
+    ("full_health_nidoran_female", "♀"),
+]
+
+
+@pytest.mark.parametrize(
+    ("fixture", "expected"), _GENDER_FIXTURES, ids=[f for f, _ in _GENDER_FIXTURES]
+)
+def test_detect_gender_from_banner_icon(fixture, expected):
+    img = cv2.imread(str(FIXTURES / f"{fixture}.png"))
+    bars = read_enemy_bars(img, CAL)
+    assert bars, f"no bar detected in {fixture}"
+    b = bars[0]
+    c = CAL.name
+    crop = img[b.y + c.dy0 : b.y + c.dy1, b.x + c.dx0 : b.x + c.dx1]
+    assert detect_gender(crop, c) == expected
 
 
 @pytest.fixture(scope="module")
