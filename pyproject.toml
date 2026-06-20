@@ -1,7 +1,7 @@
 [project]
 name = "shakechecker"
 # Keep in sync with paths.APP_VERSION (the runtime/display version).
-version = "1.1.0"
+version = "1.1.1"
 description = "Passive screen-reading catch-rate overlay for PokeMMO (read-only, capture + display)"
 requires-python = ">=3.11"
 dependencies = [

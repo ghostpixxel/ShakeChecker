@@ -3,6 +3,30 @@
 All notable changes to ShakeChecker are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-06-21
+
+### Fixed
+
+- **Nidoran gender** — a male Nidoran was recognized and shown as the female
+  one. OCR cannot read the gender glyph, so the name tied between the two
+  entries and always resolved to the female. The gender is now read from the
+  banner's colored gender icon (pink female / blue male). Catch rates were
+  correct before; the name, sprite, and dex record were not.
+- **Dex panel at region transitions** — the "missing here" panel no longer
+  disappears on a single garbled location read; it stays up through transient
+  OCR misses and only hides after several consecutive misses.
+
+### Added
+
+- **Single-instance lock** — starting ShakeChecker a second time now shows a
+  notice and exits instead of drawing a duplicate overlay.
+
+### Docs
+
+- Landing page and README note that ShakeChecker is built for the default
+  client theme.
+- README links the VirusTotal scan and a permanent latest-download link.
+
 ## [1.1.0] - 2026-06-18
 
 ### Added
