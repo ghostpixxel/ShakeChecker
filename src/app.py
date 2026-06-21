@@ -34,7 +34,14 @@ from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 import paths
 from account_store import AccountConfig, CaughtStore, delete_account_data
 from battle_log import AsyncChatReader, read_turn_number
-from battle_logic import apply_chat_turn, battle_end_grace, dex_panel_action, is_in_battle
+from battle_logic import (
+    apply_chat_turn,
+    battle_end_grace,
+    debounce_menu,
+    dex_panel_action,
+    is_horde_remnant,
+    is_in_battle,
+)
 from battle_reader import (
     BattleState,
     BattleTextReader,
@@ -615,13 +622,13 @@ class LiveLoop:
         # multi-target animation, which would look like the menu reappearing. So
         # debounce the menu signal: only accept a present/absent change after it
         # has held for MENU_STABLE_FRAMES frames.
-        if bt.menu_present == self._menu_raw:
-            self._menu_streak += 1
-        else:
-            self._menu_raw = bt.menu_present
-            self._menu_streak = 1
-        if self._menu_streak >= MENU_STABLE_FRAMES:
-            self._menu_stable = self._menu_raw
+        self._menu_raw, self._menu_streak, self._menu_stable = debounce_menu(
+            bt.menu_present,
+            self._menu_raw,
+            self._menu_streak,
+            self._menu_stable,
+            threshold=MENU_STABLE_FRAMES,
+        )
         before = self.turns.turns_completed
         self.turns.observe_menu(self._menu_stable, bt.action)
         if self.turns.turns_completed > before:
@@ -633,15 +640,10 @@ class LiveLoop:
         stable = bt.menu_present and reading.state is BattleState.SINGLE
         if stable and not self._trainer_decided:
             bar = reading.bars[0]
-            # A horde is always wild. When it narrows to one bar, the party-icon
-            # strip below that bar catches the other (fainted) horde mons + scene
-            # and falsely reads as a trainer party. Two resolution-independent
-            # signals mark it as a horde remnant (-> skip the trainer check):
-            #  1. _was_horde: we saw the spread pack earlier this battle (primary).
-            #  2. position: a lone bar right of the canonical single-enemy slot is a
-            #     remnant (backup, in case the pack was never cleanly counted).
+            # A horde is always wild; skip the trainer check for a horde remnant
+            # (see is_horde_remnant). Otherwise run the party-strip trainer check.
             x_frac = bar.x / frame.shape[1]
-            if self._was_horde or x_frac > self.cal.hp_bar.remnant_x_frac:
+            if is_horde_remnant(self._was_horde, x_frac, self.cal.hp_bar.remnant_x_frac):
                 self._is_trainer = False
             else:
                 self._is_trainer = is_trainer_battle(frame, bar, self.cal.trainer)

@@ -20,6 +20,39 @@ def is_in_battle(state: BattleState, bt: BattleText) -> bool:
     return has_bar or bt.menu_present or bt.action or bt.caught
 
 
+def debounce_menu(
+    present: bool, raw: bool, streak: int, stable: bool, *, threshold: int
+) -> tuple[bool, int, bool]:
+    """Debounce the command-menu present/absent signal, returning the new
+    (raw, streak, stable) state.
+
+    The menu template can flicker during the busy multi-target (horde/double)
+    animation, which would look like the menu reappearing and over-count turns.
+    So a present/absent change is only accepted into `stable` once the raw signal
+    has held for `threshold` consecutive frames. `stable` is the debounced value
+    the turn counter consumes."""
+    if present == raw:
+        streak += 1
+    else:
+        raw = present
+        streak = 1
+    if streak >= threshold:
+        stable = raw
+    return raw, streak, stable
+
+
+def is_horde_remnant(was_horde: bool, x_frac: float, remnant_x_frac: float) -> bool:
+    """True if a lone enemy HP bar is actually the leftover of a horde, so the
+    trainer check must be skipped (a horde is always wild).
+
+    When a horde narrows to one bar, the party-icon strip below it catches the
+    other fainted mons + scene and false-reads as a trainer party. Two
+    resolution-independent signals mark it as a remnant: we saw the spread pack
+    earlier this battle (`was_horde`), or the bar sits right of the canonical
+    single-enemy slot (`x_frac` past `remnant_x_frac`)."""
+    return was_horde or x_frac > remnant_x_frac
+
+
 def battle_end_grace(
     is_trainer: bool, ui_present: bool, *, trainer_s: float, anim_s: float, normal_s: float
 ) -> float:

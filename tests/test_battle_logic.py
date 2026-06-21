@@ -2,7 +2,14 @@
 lock the exact turn-correction and battle-end-grace behaviour that previously
 lived inline in app.py and could only be checked by playing the game."""
 
-from battle_logic import apply_chat_turn, battle_end_grace, dex_panel_action, is_in_battle
+from battle_logic import (
+    apply_chat_turn,
+    battle_end_grace,
+    debounce_menu,
+    dex_panel_action,
+    is_horde_remnant,
+    is_in_battle,
+)
 from battle_reader import BattleState, BattleText
 from turn_tracker import TurnTracker
 
@@ -29,6 +36,49 @@ def test_single_miss_keeps_panel():
 def test_hides_only_after_enough_consecutive_misses():
     assert dex_panel_action(False, 2, hide_after=3) == ("hide", 3)
     assert dex_panel_action(False, 5, hide_after=3) == ("hide", 6)
+
+
+# --- debounce_menu --------------------------------------------------------
+
+
+def test_menu_becomes_stable_after_threshold_consecutive_frames():
+    # raw flips immediately, but stable only updates once the signal holds.
+    raw, streak, stable = False, 0, False
+    raw, streak, stable = debounce_menu(True, raw, streak, stable, threshold=2)
+    assert (raw, streak, stable) == (True, 1, False)  # 1st True: not yet stable
+    raw, streak, stable = debounce_menu(True, raw, streak, stable, threshold=2)
+    assert (raw, streak, stable) == (True, 2, True)  # 2nd True: now stable
+
+
+def test_menu_single_flicker_does_not_change_stable():
+    # a lone opposite frame (animation flicker) resets the streak but keeps stable
+    raw, streak, stable = True, 5, True
+    raw, streak, stable = debounce_menu(False, raw, streak, stable, threshold=2)
+    assert (raw, streak, stable) == (False, 1, True)  # flicker noted, stable held
+    raw, streak, stable = debounce_menu(True, raw, streak, stable, threshold=2)
+    assert (raw, streak, stable) == (True, 1, True)  # back, still stable
+
+
+def test_menu_sustained_change_flips_stable():
+    raw, streak, stable = True, 5, True
+    raw, streak, stable = debounce_menu(False, raw, streak, stable, threshold=2)
+    raw, streak, stable = debounce_menu(False, raw, streak, stable, threshold=2)
+    assert (raw, streak, stable) == (False, 2, False)  # two in a row -> stable absent
+
+
+# --- is_horde_remnant -----------------------------------------------------
+
+
+def test_horde_remnant_true_when_seen_as_horde():
+    assert is_horde_remnant(True, 0.1, 0.5) is True  # was_horde wins regardless of x
+
+
+def test_horde_remnant_true_when_bar_right_of_slot():
+    assert is_horde_remnant(False, 0.6, 0.5) is True  # lone bar past the single slot
+
+
+def test_horde_remnant_false_for_canonical_single():
+    assert is_horde_remnant(False, 0.1, 0.5) is False  # normal single enemy -> check trainer
 
 
 # --- is_in_battle ---------------------------------------------------------
