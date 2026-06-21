@@ -19,8 +19,16 @@ Run standalone to preview the look without the game:
 from __future__ import annotations
 
 from PyQt6.QtCore import QPoint, Qt
-from PyQt6.QtGui import QFont, QGuiApplication, QMovie
-from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PyQt6.QtGui import QColor, QFont, QGuiApplication, QMovie
+from PyQt6.QtWidgets import (
+    QFrame,
+    QGraphicsDropShadowEffect,
+    QHBoxLayout,
+    QLabel,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 from sprite_loader import SpriteLoader
 
@@ -37,6 +45,7 @@ BASE_LEVEL_PX = 11
 BASE_MARGIN_X = 12
 BASE_MARGIN_Y = 10
 BASE_COL_SPACING = 4
+BASE_GLOW_BLUR = 14  # red aura blur radius for Alpha Pokémon (scaled with the sprite)
 BASE_HEADER_SPACING = 8
 BASE_ROW_SPACING = 6
 BASE_PCT_MINW = 48
@@ -125,13 +134,6 @@ def unknown_ball_order(ball_names: list[str], hidden: set[str]) -> list[str]:
     return [n for n in ball_names if n not in hidden]
 
 
-def sprite_bg_style(alpha: bool) -> str:
-    """Stylesheet for the header sprite label. An Alpha Pokémon (PokeMMO draws
-    alphas with a red outline) gets a translucent red tile behind the sprite;
-    a normal encounter gets no background."""
-    return "background: rgba(200,40,40,70); border-radius: 6px;" if alpha else ""
-
-
 class Overlay(QWidget):
     def __init__(self, ball_names: list[str], loader: SpriteLoader | None = None) -> None:
         super().__init__()
@@ -179,6 +181,14 @@ class Overlay(QWidget):
         self._header = QHBoxLayout()
         self._sprite = QLabel()
         self._sprite.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
+        # Red glow/aura behind the sprite to mark an Alpha Pokémon (offset 0 so it
+        # haloes the silhouette rather than sitting as a box). Toggled per battle;
+        # blur set in apply_scale. Disabled = no effect, normal sprite.
+        self._alpha_glow = QGraphicsDropShadowEffect(self)
+        self._alpha_glow.setOffset(0, 0)
+        self._alpha_glow.setColor(QColor(235, 45, 45))
+        self._sprite.setGraphicsEffect(self._alpha_glow)
+        self._alpha_glow.setEnabled(False)
         self._name = QLabel("—")
         self._name.setTextFormat(Qt.TextFormat.RichText)  # bold name + small "Lv.N"
         # Ignored width: a long name clips instead of widening the panel.
@@ -245,6 +255,7 @@ class Overlay(QWidget):
         self.setFixedWidth(self._panel_w)
         self._sprite_h = px(BASE_SPRITE_H)
         self._level_px = px(BASE_LEVEL_PX)
+        self._alpha_glow.setBlurRadius(px(BASE_GLOW_BLUR))
 
         name_font = self._font(px(BASE_NAME_PX), bold=True)
         row_font = self._font(px(BASE_ROW_PX))
@@ -302,7 +313,7 @@ class Overlay(QWidget):
         `alpha` draws a red tile behind the sprite to mark an Alpha Pokémon."""
         unknown = catch_rate is None
         self._set_sprite(dex_id)
-        self._sprite.setStyleSheet(sprite_bg_style(alpha))
+        self._alpha_glow.setEnabled(alpha)  # red aura marks an Alpha Pokémon
         lvl = (
             f' <span style="font-size:{self._level_px}px; color:#9aa0aa;">Lv.{level}</span>'
             if level
