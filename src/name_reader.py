@@ -133,9 +133,9 @@ class NameReader:
                 name = variant
         result = {**self._by_name[name], "level": parse_level(raw)}
         if is_alpha:
-            # All alphas catch at a fixed rate of 10; keep the base id/sprite/dex,
-            # flag it, and show "Alpha <name>" so the overlay marks it.
+            # All alphas catch at a fixed rate of 10. Keep the base name/id/sprite/
+            # dex and just flag it -- the overlay marks alphas with a red sprite
+            # background, so the name needs no "Alpha" prefix.
             result["alpha"] = True
             result["catch_rate"] = ALPHA_CATCH_RATE
-            result["name"] = f"Alpha {result['name']}"
         return result

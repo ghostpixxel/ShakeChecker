@@ -129,7 +129,7 @@ def sprite_bg_style(alpha: bool) -> str:
     """Stylesheet for the header sprite label. An Alpha Pokémon (PokeMMO draws
     alphas with a red outline) gets a translucent red tile behind the sprite;
     a normal encounter gets no background."""
-    return "background: rgba(200,40,40,170); border-radius: 6px;" if alpha else ""
+    return "background: rgba(200,40,40,70); border-radius: 6px;" if alpha else ""
 
 
 class Overlay(QWidget):

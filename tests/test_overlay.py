@@ -184,7 +184,7 @@ def test_missing_ball_shows_dash(qt_app):
 
 def test_alpha_sprite_gets_red_background(qt_app):
     ov = Overlay(BALLS)
-    ov.show_battle(164, "Alpha Noctowl", 10, 1, {"Poké Ball": 0.5}, alpha=True)
+    ov.show_battle(164, "Noctowl", 10, 1, {"Poké Ball": 0.5}, alpha=True)
     assert "rgba(200,40,40" in ov._sprite.styleSheet()  # red tile shown
     ov.show_battle(164, "Noctowl", 90, 1, {"Poké Ball": 0.5}, alpha=False)
     assert ov._sprite.styleSheet() == ""  # cleared for a normal encounter

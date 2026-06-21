@@ -39,17 +39,17 @@
       "scene": "wild_single",
       "overlay_visible": true,
       "enemies": [
-        { "name": "Alpha Noctowl", "level": 66, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
+        { "name": "Noctowl", "level": 66, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
       ],
-      "notes": "Alpha spawn: banner reads 'Alpha Noctowl'. All alphas catch at a fixed rate of 10 (not Noctowl's 90); name shows the Alpha prefix, base id 164 drives the sprite/dex. The red Poké Ball icon means it is already OT-caught."
+      "notes": "Alpha spawn: banner reads 'Alpha Noctowl'. The tool reads the base species (Noctowl, id 164 for sprite/dex) with an alpha flag + fixed catch rate 10 (not Noctowl's 90); the overlay marks it with a red sprite background, no name prefix. The red Poké Ball icon means it is already OT-caught."
     },
     "wild_encounter_alpha_noctowl_slp_1hp.png": {
       "scene": "wild_single",
       "overlay_visible": true,
       "enemies": [
-        { "name": "Alpha Noctowl", "level": 66, "hp_pct": 0.9, "hp_color": "red", "status": "slp" }
+        { "name": "Noctowl", "level": 66, "hp_pct": 0.9, "hp_color": "red", "status": "slp" }
       ],
-      "notes": "Same Alpha Noctowl at ~1 HP and asleep (realistic catch setup). Catch rate is still the fixed Alpha 10; low HP + Sleep push the per-ball odds up."
+      "notes": "Same Alpha Noctowl at ~1 HP and asleep (realistic catch setup). Banner reads 'Alpha Noctowl'; tool reads base Noctowl + alpha flag, fixed rate 10. Low HP + Sleep push the per-ball odds up."
     },
     "full_health_sleeping.png": {
       "scene": "wild_single",
