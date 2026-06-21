@@ -264,7 +264,7 @@ class DexPanel(QWidget):
     # --- public API ---
 
     def apply_scale(self, scale: float) -> None:
-        scale = max(MIN_SCALE, min(1.0, scale))
+        scale = max(MIN_SCALE, min(3.0, scale))
         if abs(scale - self._scale) < 0.02:
             return
         self._scale = scale

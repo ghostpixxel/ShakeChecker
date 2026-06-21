@@ -54,6 +54,7 @@ DOCK_TOP_OFFSET = 160
 # window so it stays inside a small battle view.
 REF_WINDOW_HEIGHT = 1400
 MIN_SCALE = 0.6
+UI_SCALE_MULTIPLIER = 1.66  # Manual override multiplier to increase UI size
 
 # probability colour thresholds (fraction 0-1) -> hex
 _RED, _YELLOW, _GREEN = "#ff5555", "#ffcc44", "#55dd66"
@@ -76,8 +77,8 @@ def subheader_text(catch_rate: int | None, turn: int) -> str:
 
 
 def scale_for_window(height_px: int) -> float:
-    """Overlay scale for a game-window client height: 1.0 (the cap) down to MIN_SCALE."""
-    return max(MIN_SCALE, min(1.0, height_px / REF_WINDOW_HEIGHT))
+    """Overlay scale for a game-window client height."""
+    return max(1.0, height_px / REF_WINDOW_HEIGHT) * UI_SCALE_MULTIPLIER
 
 
 # Status code -> (label, badge background) following the in-game colour scheme.
@@ -255,8 +256,8 @@ class Overlay(QWidget):
     # --- public API ---
 
     def apply_scale(self, scale: float) -> None:
-        """Resize the whole overlay by `scale` (<=1.0). Cheap no-op if unchanged."""
-        scale = max(MIN_SCALE, min(1.0, scale))
+        """Resize the whole overlay by `scale` (<=3.0). Cheap no-op if unchanged."""
+        scale = max(MIN_SCALE, min(3.0, scale))
         if abs(scale - self._scale) < 0.02:
             return
         self._scale = scale

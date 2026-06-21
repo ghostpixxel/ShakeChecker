@@ -590,10 +590,12 @@ class LiveLoop:
         #    TURN_DOWN_GUARD_S, so a stale async read just after a real advance
         #    can't briefly drag the live count below the truth.
         # Poll BEFORE submit: consume any finished read first, then start the next
-        # one. (Submitting first would replace a just-finished future and lose its
-        # result, so the turn never arrived -- the long-standing chat bug.)
+        # one. Throttled to 1.5s so background OCR doesn't burn CPU spinning.
         chat_turn = self.chat.poll()
-        self.chat.submit(frame)
+        if now - getattr(self, "_last_chat_submit", 0.0) >= 1.5:
+            self.chat.submit(frame)
+            self._last_chat_submit = now
+
         if chat_turn is not None and chat_turn != self._last_chat_turn:
             self._last_chat_turn = chat_turn  # shows the chat IS read (dedup the log)
             log.debug("chat: Turn %d  (counter Turn %d)", chat_turn, self.turns.turns_completed + 1)
