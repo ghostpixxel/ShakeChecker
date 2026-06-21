@@ -72,8 +72,8 @@ If you would rather verify than trust:
 
 - The full source is in this repo. It only captures the screen and draws an
   overlay, it never sends inputs, reads game memory, or touches the network.
-- **VirusTotal scan** (`v1.1.1`):
-  [4 / 70 detections](https://www.virustotal.com/gui/file/41aae676980c6bfd0c89a3ef3449bc9e479538f7ad24c6108938c71135ce420d),
+- **VirusTotal scan** (`v1.2.0`):
+  [4 / 70 detections](https://www.virustotal.com/gui/file/d09275af91f548dafc4feb24c7b0f33c099487274a76fd7054b3166707ee49cc),
   all heuristic/ML (Arctic Wolf, SecureAge, SentinelOne, McAfee). The mainstream
   engines (BitDefender, ESET, Avast, AVG, CrowdStrike, Fortinet, Google) all pass.
   The few hits are the usual false positives for unsigned PyInstaller builds.
