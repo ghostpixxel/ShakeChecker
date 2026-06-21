@@ -35,6 +35,10 @@ Desktop.ini
 # Local artifacts
 *.log
 fixtures/_debug_crops/
+# ad-hoc debug crops
+fixtures/_dbg_*.png
+# local screen-capture debug recordings
+docs/media/BongoCat_*.mp4
 
 # Per-account user data (caught lists, active-account config) -- local only
 userdata/
