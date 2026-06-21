@@ -204,6 +204,7 @@ class DexPanel(QWidget):
             " background: transparent; }"
         )
         root.addWidget(panel)
+        self._root = root  # kept so show_here can force a synchronous relayout
         self._col = QVBoxLayout(panel)
 
         # top icon bar: stretch + profile (gear) + info. Icons are drawn (not OS
@@ -321,6 +322,12 @@ class DexPanel(QWidget):
             r0["name"].setText('<span style="color:#9aa0aa;">all caught here!</span>')
             r0["way"].setText("")
         self._fit_list_height()
+        # Recompute the outer layouts synchronously too, so the window shrinks to
+        # the new content immediately instead of lagging a refresh behind.
+        self._col.invalidate()
+        self._col.activate()
+        self._root.invalidate()
+        self._root.activate()
         self.adjustSize()
         self.show()
         self._apply_click_through(True)  # start passing input through
@@ -630,6 +637,12 @@ class DexPanel(QWidget):
     def _fit_list_height(self) -> None:
         """Size the scroll viewport to the content, capped at DEX_MAX_VISIBLE_ROWS
         rows (the rest scroll)."""
+        # Force a synchronous relayout first: when rows were just hidden (e.g. the
+        # list shrank after toggling "show caught" off) the layout's sizeHint is
+        # otherwise stale until the next event loop, so the panel would keep the
+        # old, taller height for a refresh cycle.
+        self._list_layout.invalidate()
+        self._list_layout.activate()
         self._list.adjustSize()
         content = self._list.sizeHint().height()
         row_h = self._rows[0]["w"].sizeHint().height() if self._rows else self._sprite_h

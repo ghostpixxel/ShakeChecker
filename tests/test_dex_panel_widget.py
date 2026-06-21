@@ -103,6 +103,23 @@ def test_keep_caught_toggle_uses_callback(qt_app):
     assert calls == [True]
 
 
+def test_panel_height_tracks_row_count(qt_app):
+    # The scroll viewport grows with more rows and shrinks back to the same height
+    # for the same content (e.g. after toggling "show caught" off). The live "stays
+    # tall for a refresh" lag is a deferred-relayout issue that only shows with a
+    # running event loop; the synchronous invalidate/activate in show_here fixes it
+    # but cannot be reproduced headless, so this only locks the resize invariant.
+    many = [DexEntry(i, f"Mon{i}", (), "Common", False) for i in range(1, 13)]
+    few = [DexEntry(1, "A", (), "Common", False)]
+    p = DexPanel()
+    p.show_here(view(few))
+    small = p._scroll.height()
+    p.show_here(view(many))
+    assert p._scroll.height() > small  # grew with more rows
+    p.show_here(view(few))
+    assert p._scroll.height() == small  # back to the same height for the same content
+
+
 def test_row_click_invokes_toggle_with_dex_id(qt_app):
     got: list[int] = []
     p = DexPanel()
