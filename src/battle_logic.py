@@ -96,15 +96,20 @@ def apply_chat_turn(
     now: float,
     last_advance: float,
     down_guard_s: float,
+    battle_start: float,
+    start_grace_s: float,
 ) -> str:
     """Fold one chat-OCR turn reading into `tracker`; return what happened, for the
     caller's debug log:
 
     - "none"  -- no reading this frame.
-    - "start" -- ignored because it's still turn 1. At battle start the PREVIOUS
-      battle's higher "Turn N" still lingers in the chat and the async OCR lags a
-      frame or two, so a read can predate the new battle's "Turn 1 started!". Turn
-      1 is the battle-start default and needs no correction.
+    - "start" -- ignored as a possibly-stale battle-boundary read. Right after a
+      battle starts the PREVIOUS battle's higher "Turn N" can still linger in the
+      async chat OCR, predating the new battle's "Turn 1 started!". So while the
+      count is still at turn 1 AND we are within `start_grace_s` of the battle
+      start, a reading is ignored. Once that window passes the chat is trusted even
+      from turn 1, so a stuck menu counter (e.g. when the command menu isn't
+      detected) is still corrected up to the real turn.
     - "down"  -- corrected the count DOWN (the menu over-counted and the menu has
       been quiet for `down_guard_s`, so the chat is trusted to lower it).
     - "up"    -- corrected the count UP (a missed turn, e.g. a 2-turn move).
@@ -113,7 +118,7 @@ def apply_chat_turn(
     """
     if chat_turn is None:
         return "none"
-    if tracker.turns_completed == 0:
+    if tracker.turns_completed == 0 and now - battle_start < start_grace_s:
         return "start"
     completed = chat_turn - 1
     if completed < tracker.turns_completed and now - last_advance > down_guard_s:

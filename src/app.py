@@ -110,6 +110,11 @@ MENU_STABLE_FRAMES = 2
 # menu hasn't advanced for this long, so a stale async read right after a real
 # turn advance can't briefly drag the count down.
 TURN_DOWN_GUARD_S = 3.0
+# Right after a battle starts, the previous battle's last "Turn N" can still be
+# in-flight from the async chat OCR. Ignore a turn-1 chat reading only within this
+# window; after it, trust the chat even from turn 1 so a stuck menu counter (e.g.
+# command menu not detected) is still corrected up to the real turn.
+BATTLE_START_GRACE_S = 3.0
 # Location OCR for the dex panel is comparatively expensive and the location
 # changes slowly, so refresh it at most this often while walking around (IDLE).
 DEX_LOC_INTERVAL_S = 2.5
@@ -489,7 +494,7 @@ class LiveLoop:
         if in_battle:
             self.last_seen_battle = now
             if self.state is not AppState.BATTLE:
-                self._enter_battle()
+                self._enter_battle(now)
             self._battle_step(frame, reading, bt, client_rect, now)
         elif self.state is AppState.BATTLE and now - self.last_seen_battle > grace:
             self.state = AppState.IDLE
@@ -535,8 +540,9 @@ class LiveLoop:
 
         return self._frame_interval()
 
-    def _enter_battle(self) -> None:
+    def _enter_battle(self, now: float) -> None:
         self.state = AppState.BATTLE
+        self._battle_start = now  # for the chat turn-1 start grace
         self.cached = None  # new battle: re-identify the species
         self.last_line = ""
         self.turns.reset()
@@ -604,6 +610,8 @@ class LiveLoop:
             now=now,
             last_advance=self._last_advance,
             down_guard_s=TURN_DOWN_GUARD_S,
+            battle_start=self._battle_start,
+            start_grace_s=BATTLE_START_GRACE_S,
         )
         if outcome in ("down", "up"):  # the formatter prefixes '[dbg]' only when --debug
             shown = self.turns.turns_completed + 1
