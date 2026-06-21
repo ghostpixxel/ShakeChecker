@@ -51,6 +51,22 @@
       ],
       "notes": "Same Alpha Noctowl at ~1 HP and asleep (realistic catch setup). Banner reads 'Alpha Noctowl'; tool reads base Noctowl + alpha flag, fixed rate 10. Low HP + Sleep push the per-ball odds up."
     },
+    "wild_encounter_alpha_houndoom.png": {
+      "scene": "wild_single",
+      "overlay_visible": true,
+      "enemies": [
+        { "name": "Houndoom", "level": 70, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
+      ],
+      "notes": "Second alpha species. Banner reads 'Alpha Houndoom'; tool reads base Houndoom (id 229) + alpha flag, fixed rate 10 (not Houndoom's 45)."
+    },
+    "wild_encounter_alpha_houndoom_slp_1hp.png": {
+      "scene": "wild_single",
+      "overlay_visible": true,
+      "enemies": [
+        { "name": "Houndoom", "level": 70, "hp_pct": 0.9, "hp_color": "red", "status": "slp" }
+      ],
+      "notes": "Alpha Houndoom at ~1 HP and asleep. Fixed alpha rate 10; the screenshot this came from confirmed the turn-counter fix (overlay showed the correct turn)."
+    },
     "full_health_sleeping.png": {
       "scene": "wild_single",
       "location": "Eterna Forest",

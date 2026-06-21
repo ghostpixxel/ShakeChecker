@@ -123,18 +123,26 @@ def test_ocr_reads_species_from_fixture(name_reader, fixture, expected):
     assert species["name"] == expected
 
 
-_ALPHA_FIXTURES = ["wild_encounter_alpha_noctowl", "wild_encounter_alpha_noctowl_slp_1hp"]
+# (fixture, base species name, dex id) -- the banner's "Alpha " prefix is stripped
+# and the red sprite background marks the alpha instead, so the name stays base.
+_ALPHA_FIXTURES = [
+    ("wild_encounter_alpha_noctowl", "Noctowl", 164),
+    ("wild_encounter_alpha_noctowl_slp_1hp", "Noctowl", 164),
+    ("wild_encounter_alpha_houndoom", "Houndoom", 229),
+    ("wild_encounter_alpha_houndoom_slp_1hp", "Houndoom", 229),
+]
 
 
-@pytest.mark.parametrize("fixture", _ALPHA_FIXTURES)
-def test_ocr_reads_alpha_with_fixed_rate(name_reader, fixture):
-    # "Alpha Noctowl" banner -> base species name/id (the red sprite background
-    # marks it as alpha, so no name prefix), flagged alpha, and the fixed Alpha
-    # catch rate of 10 (not Noctowl's normal 90).
+@pytest.mark.parametrize(
+    ("fixture", "base_name", "dex_id"), _ALPHA_FIXTURES, ids=[f for f, _, _ in _ALPHA_FIXTURES]
+)
+def test_ocr_reads_alpha_with_fixed_rate(name_reader, fixture, base_name, dex_id):
+    # base species name/id (no "Alpha" prefix), flagged alpha, and the fixed Alpha
+    # catch rate of 10 regardless of the species' normal rate.
     img = cv2.imread(str(FIXTURES / f"{fixture}.png"))
     species = name_reader.read(img, read_enemy_bars(img, CAL)[0])
     assert species is not None
-    assert species["name"] == "Noctowl"  # base name, no "Alpha" prefix
-    assert species["id"] == 164  # base Noctowl drives the sprite/dex record
+    assert species["name"] == base_name  # base name, no "Alpha" prefix
+    assert species["id"] == dex_id  # base species drives the sprite/dex record
     assert species["alpha"] is True
     assert species["catch_rate"] == ALPHA_CATCH_RATE == 10
