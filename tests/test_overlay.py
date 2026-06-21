@@ -10,7 +10,6 @@ from overlay import (
     phys_to_logical,
     prob_color_hex,
     scale_for_window,
-    sprite_bg_style,
     status_badge,
     subheader_text,
     unknown_ball_order,
@@ -59,11 +58,6 @@ def test_unknown_ball_order_keeps_all_non_hidden_in_order():
     names = ["Poke", "Great", "Ultra", "Net"]
     assert unknown_ball_order(names, set()) == names
     assert unknown_ball_order(names, {"Great"}) == ["Poke", "Ultra", "Net"]
-
-
-def test_sprite_bg_style_red_only_for_alpha():
-    assert "rgba(200,40,40" in sprite_bg_style(True)  # red tile marks an alpha
-    assert sprite_bg_style(False) == ""  # normal encounter: no background
 
 
 def test_scale_for_window_caps_at_one_and_floors():
@@ -182,12 +176,13 @@ def test_missing_ball_shows_dash(qt_app):
     assert ov._pct_labels["Great Ball"].text() == "—"
 
 
-def test_alpha_sprite_gets_red_background(qt_app):
+def test_alpha_sprite_gets_red_glow(qt_app):
     ov = Overlay(BALLS)
     ov.show_battle(164, "Noctowl", 10, 1, {"Poké Ball": 0.5}, alpha=True)
-    assert "rgba(200,40,40" in ov._sprite.styleSheet()  # red tile shown
+    assert ov._alpha_glow.isEnabled() is True  # red aura shown for an alpha
+    assert ov._alpha_glow.blurRadius() > 0
     ov.show_battle(164, "Noctowl", 90, 1, {"Poké Ball": 0.5}, alpha=False)
-    assert ov._sprite.styleSheet() == ""  # cleared for a normal encounter
+    assert ov._alpha_glow.isEnabled() is False  # off for a normal encounter
 
 
 def test_unknown_catch_rate_shows_question_marks(qt_app):
