@@ -3,6 +3,31 @@
 All notable changes to ShakeChecker are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-06-21
+
+### Added
+
+- **Keep caught species in the dex panel** — caught Pokémon now stay in the
+  "missing here" list, shown checked (✓) and sorted by Pokédex number at the
+  bottom, instead of disappearing. Toggle it under the gear menu ("Show
+  caught"); on by default.
+- **Mystery catch rate** — species with no published catch rate (the roaming
+  Latias, Latios, Mesprit and Cresselia) show the rate and every ball as "??"
+  instead of nothing.
+
+### Fixed
+
+- **Roaming legendary catch rates** — the roaming birds and beasts (Articuno,
+  Zapdos, Moltres, Raikou, Entei, Suicune) used the wrong base rate; corrected
+  to match the in-client PokeMMO catch calculator. A species with no known rate
+  no longer breaks the battle overlay (it shows "??").
+- **Dex panel resize lag** — the panel no longer stays too tall for a moment
+  after the list shrinks (e.g. after turning "Show caught" off).
+
+### Changed
+
+- A divider now separates the Profiles and Dex sections in the gear menu.
+
 ## [1.1.1] - 2026-06-21
 
 ### Fixed
