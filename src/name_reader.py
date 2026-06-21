@@ -28,9 +28,28 @@ _LEVEL_NUMBER = re.compile(r"\b[li][vu]\b\.?\s*(\d{1,3})", re.IGNORECASE)
 FEMALE = "♀"  # ♀
 MALE = "♂"  # ♂
 
+# Alpha Pokémon (PokeMMO special spawns) all share a fixed catch rate of 10,
+# regardless of species, and the battle banner prefixes the name with "Alpha "
+# (e.g. "Alpha Noctowl"). Verified against the in-client / community catch
+# calculators; fixture: wild_encounter_alpha_noctowl.png.
+ALPHA_CATCH_RATE = 10
+_ALPHA_PREFIX = "alpha "
+
 
 def clean_ocr_text(raw: str) -> str:
     return _LEVEL_MARKER.split(raw, maxsplit=1)[0].strip()
+
+
+def strip_alpha_prefix(raw: str) -> tuple[bool, str]:
+    """Detect and remove the leading "Alpha " marker from an OCR'd name banner.
+
+    Returns (is_alpha, text_without_prefix). Stripping before the species match
+    keeps the fuzzy matcher resolving the base species ("Alpha Noctowl" ->
+    "Noctowl"); the flag drives the fixed Alpha catch rate."""
+    lead = raw.lstrip()
+    if lead[: len(_ALPHA_PREFIX)].lower() == _ALPHA_PREFIX:
+        return True, lead[len(_ALPHA_PREFIX) :].lstrip()
+    return False, raw
 
 
 def _strip_gender(name: str) -> str:
@@ -99,7 +118,10 @@ class NameReader:
             return None
         up = cv2.resize(crop, None, fx=c.upscale, fy=c.upscale, interpolation=cv2.INTER_CUBIC)
         raw = " ".join(run_ocr(up))
-        name = match_species_name(raw, self._names, c.min_match_score)
+        # An Alpha banner reads "Alpha <Species>"; strip the marker before the
+        # match so the base species resolves, and remember it for the rate below.
+        is_alpha, match_text = strip_alpha_prefix(raw)
+        name = match_species_name(match_text, self._names, c.min_match_score)
         if not name:
             return None
         # OCR loses the ♂/♀ glyph, so a gender-split species (Nidoran) always
@@ -109,4 +131,11 @@ class NameReader:
             variant = base + detect_gender(crop, c)
             if variant in self._by_name:
                 name = variant
-        return {**self._by_name[name], "level": parse_level(raw)}
+        result = {**self._by_name[name], "level": parse_level(raw)}
+        if is_alpha:
+            # All alphas catch at a fixed rate of 10; keep the base id/sprite/dex,
+            # flag it, and show "Alpha <name>" so the overlay marks it.
+            result["alpha"] = True
+            result["catch_rate"] = ALPHA_CATCH_RATE
+            result["name"] = f"Alpha {result['name']}"
+        return result

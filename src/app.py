@@ -760,6 +760,7 @@ class LiveLoop:
                 level=self.cached.get("level"),
                 status=status,
                 hp_pct=hp_pct,
+                alpha=bool(self.cached.get("alpha")),
             )
             self.overlay.dock_to(rect.left, rect.top, rect.width)
         if line != self.last_line:

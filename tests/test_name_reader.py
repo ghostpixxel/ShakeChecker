@@ -14,11 +14,13 @@ import pytest
 
 from battle_reader import load_calibration, read_enemy_bars
 from name_reader import (
+    ALPHA_CATCH_RATE,
     NameReader,
     clean_ocr_text,
     detect_gender,
     match_species_name,
     parse_level,
+    strip_alpha_prefix,
 )
 
 ROOT = Path(__file__).parent.parent
@@ -55,6 +57,13 @@ def test_parse_level():
 )
 def test_match_species_name(raw, expected):
     assert match_species_name(raw, NAMES, CAL.name.min_match_score) == expected
+
+
+def test_strip_alpha_prefix():
+    assert strip_alpha_prefix("Alpha Noctowl Lv. 66") == (True, "Noctowl Lv. 66")
+    assert strip_alpha_prefix("alpha pidgey lv 9") == (True, "pidgey lv 9")  # case-insensitive
+    assert strip_alpha_prefix("Noctowl Lv. 66") == (False, "Noctowl Lv. 66")  # not an alpha
+    assert strip_alpha_prefix("Alphasaur Lv. 5")[0] is False  # needs the trailing space
 
 
 def test_match_rejects_garbage():
@@ -112,3 +121,19 @@ def test_ocr_reads_species_from_fixture(name_reader, fixture, expected):
     species = name_reader.read(img, bars[0])
     assert species is not None
     assert species["name"] == expected
+
+
+_ALPHA_FIXTURES = ["wild_encounter_alpha_noctowl", "wild_encounter_alpha_noctowl_slp_1hp"]
+
+
+@pytest.mark.parametrize("fixture", _ALPHA_FIXTURES)
+def test_ocr_reads_alpha_with_fixed_rate(name_reader, fixture):
+    # "Alpha Noctowl" -> base species (id 164) for sprite/dex, flagged alpha,
+    # and the fixed Alpha catch rate of 10 (not Noctowl's normal 90).
+    img = cv2.imread(str(FIXTURES / f"{fixture}.png"))
+    species = name_reader.read(img, read_enemy_bars(img, CAL)[0])
+    assert species is not None
+    assert species["name"] == "Alpha Noctowl"
+    assert species["id"] == 164  # base Noctowl drives the sprite/dex record
+    assert species["alpha"] is True
+    assert species["catch_rate"] == ALPHA_CATCH_RATE == 10

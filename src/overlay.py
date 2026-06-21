@@ -125,6 +125,13 @@ def unknown_ball_order(ball_names: list[str], hidden: set[str]) -> list[str]:
     return [n for n in ball_names if n not in hidden]
 
 
+def sprite_bg_style(alpha: bool) -> str:
+    """Stylesheet for the header sprite label. An Alpha Pokémon (PokeMMO draws
+    alphas with a red outline) gets a translucent red tile behind the sprite;
+    a normal encounter gets no background."""
+    return "background: rgba(200,40,40,170); border-radius: 6px;" if alpha else ""
+
+
 class Overlay(QWidget):
     def __init__(self, ball_names: list[str], loader: SpriteLoader | None = None) -> None:
         super().__init__()
@@ -286,13 +293,16 @@ class Overlay(QWidget):
         level: int | None = None,
         status: str | None = None,
         hp_pct: float | None = None,
+        alpha: bool = False,
     ) -> None:
         """Update the overlay for the current enemy and show it.
 
         `catch_rate` is None for species with no known rate (roaming Latias/Latios/
-        Mesprit/Cresselia): the rate and every ball percentage then show "??"."""
+        Mesprit/Cresselia): the rate and every ball percentage then show "??".
+        `alpha` draws a red tile behind the sprite to mark an Alpha Pokémon."""
         unknown = catch_rate is None
         self._set_sprite(dex_id)
+        self._sprite.setStyleSheet(sprite_bg_style(alpha))
         lvl = (
             f' <span style="font-size:{self._level_px}px; color:#9aa0aa;">Lv.{level}</span>'
             if level
