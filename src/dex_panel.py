@@ -49,6 +49,7 @@ from overlay import DOCK_MARGIN, DOCK_SIDE, DOCK_TOP_OFFSET, MIN_SCALE, phys_to_
 from sprite_loader import SpriteLoader
 
 HOVER_POLL_MS = 120  # how often to check if the cursor is over the panel
+ANIMATE_SPRITES = True  # Toggle animated GIFs for the Dex Panel (False saves CPU)
 
 # WoW-style rarity -> name colour (user's scheme). Very Common/Horde fall back to
 # the Common grey; unknown rarities too. Ordered for the info legend.
@@ -685,7 +686,7 @@ class DexPanel(QWidget):
         if r["movie"] is not None:
             r["movie"].stop()
             r["movie"] = None
-        movie = self._loader.species_movie(dex_id, self._sprite_h, max_width=col_w)
+        movie = self._loader.species_movie(dex_id, self._sprite_h, max_width=col_w) if ANIMATE_SPRITES else None
         if movie is not None:
             r["movie"] = movie
             r["sprite"].setMovie(movie)

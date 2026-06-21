@@ -60,6 +60,26 @@ def is_cave_location(name: str) -> bool:
     return any(all(word in n for word in group) for group in _CAVE_WORD_GROUPS)
 
 
+def extract_location_mask(frame_bgr: np.ndarray, cal: LocationCalibration) -> np.ndarray | None:
+    """Extract a binarized mask of the white HUD text, ignoring the background.
+    Used for fast visual delta checking to skip OCR when the screen hasn't changed."""
+    h, w = frame_bgr.shape[:2]
+    crop = frame_bgr[int(h * cal.top) : int(h * cal.bottom), int(w * cal.left) : int(w * cal.right)]
+    if crop.size == 0:
+        return None
+    gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+    
+    # The game's day/night cycle tints the entire screen, drastically altering
+    # the brightness of the white HUD text. Dynamically threshold based on the
+    # brightest pixel in the crop to reliably isolate the text.
+    max_val = gray.max()
+    if max_val < 50:  # HUD is completely empty or hidden
+        return np.zeros_like(gray)
+        
+    _, mask = cv2.threshold(gray, max_val * 0.6, 255, cv2.THRESH_BINARY)
+    return mask
+
+
 def read_location(frame_bgr: np.ndarray, cal: LocationCalibration) -> str:
     """OCR the top-left HUD location (cleaned), or '' if not readable."""
     h, w = frame_bgr.shape[:2]

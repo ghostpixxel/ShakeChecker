@@ -23,6 +23,7 @@ import logging
 import sys
 import time
 
+import numpy as np
 import win32api
 import win32con
 import win32event
@@ -401,7 +402,9 @@ class LiveLoop:
         self._last_loc_check = 0.0  # last IDLE location OCR (throttle)
         self._loc_miss_streak = 0  # consecutive unmatched location reads (debounce hide)
         self._dex_log = ""  # last printed dex panel text (console dedup)
-        self._last_hud = ""  # last HUD location seen (to refresh the panel on a toggle)
+        self._last_hud = ""  # last resolved HUD location (drives dex panel refresh)
+        self._loc_ocr_raw = ""  # last raw OCR text (tracks what the screen actually shows)
+        self._last_loc_mask: np.ndarray | None = None  # fast visual delta for location OCR
         if self.dex_panel is not None and self.dex is not None:
             self.dex_panel.on_toggle_caught = self._dex_toggle_caught
             self.dex_panel.on_select_profile = self._dex_use_profile
@@ -520,18 +523,26 @@ class LiveLoop:
         dex_due = now - self._last_loc_check >= DEX_LOC_INTERVAL_S
         if self.state is AppState.IDLE and self.dex is not None and dex_due:
             self._last_loc_check = now
-            view = self._update_dex(read_location(frame, self.cal.location))
-            action, self._loc_miss_streak = dex_panel_action(
-                view is not None, self._loc_miss_streak, hide_after=DEX_LOC_MISS_HIDE
-            )
-            if self.dex_panel is not None:
-                if view is not None:  # matched -> show (action == "show")
-                    self.dex_panel.apply_scale(scale_for_window(client_rect.height))
-                    self.dex_panel.show_here(view)
-                    self.dex_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
-                elif action == "hide":  # several misses in a row -> truly left the area
-                    self.dex_panel.hide_panel()
-                # "keep": a transient miss -> leave the last good panel on screen
+            import location_reader
+            mask = location_reader.extract_location_mask(frame, self.cal.location)
+            if mask is not None:
+                if self._last_loc_mask is None or not np.array_equal(mask, self._last_loc_mask):
+                    # Pixels changed — run the heavy OCR and update the raw cache.
+                    self._last_loc_mask = mask
+                    self._loc_ocr_raw = location_reader.read_location(frame, self.cal.location)
+                
+                view = self._update_dex(self._loc_ocr_raw)
+                action, self._loc_miss_streak = dex_panel_action(
+                    view is not None, self._loc_miss_streak, hide_after=DEX_LOC_MISS_HIDE
+                )
+                if self.dex_panel is not None:
+                    if view is not None:  # matched -> show (action == "show")
+                        self.dex_panel.apply_scale(scale_for_window(client_rect.height))
+                        self.dex_panel.show_here(view)
+                        self.dex_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
+                    elif action == "hide":  # several misses in a row -> truly left the area
+                        self.dex_panel.hide_panel()
+                    # "keep": a transient miss -> leave the last good panel on screen
 
         return self._frame_interval()
 

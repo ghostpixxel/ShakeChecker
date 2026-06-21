@@ -54,7 +54,7 @@ DOCK_TOP_OFFSET = 160
 # window so it stays inside a small battle view.
 REF_WINDOW_HEIGHT = 1400
 MIN_SCALE = 0.6
-UI_SCALE_MULTIPLIER = 1.66  # Manual override multiplier to increase UI size
+UI_SCALE_MULTIPLIER = 1.0  # Manual override multiplier to increase UI size
 
 # probability colour thresholds (fraction 0-1) -> hex
 _RED, _YELLOW, _GREEN = "#ff5555", "#ffcc44", "#55dd66"
