@@ -459,6 +459,19 @@ class LiveLoop:
     def _frame_interval(self) -> float:
         return BATTLE_FRAME_S if self.state is AppState.BATTLE else IDLE_FRAME_S
 
+    def _set_owner(self, widget, owner_hwnd: int) -> None:
+        if widget is not None:
+            from PyQt6.QtGui import QWindow
+            # Force Qt to create the native window handle even if the widget hasn't been shown yet
+            widget.winId()
+            handle = widget.windowHandle()
+            if handle:
+                if owner_hwnd == 0:
+                    handle.setTransientParent(None)
+                else:
+                    foreign = QWindow.fromWinId(owner_hwnd)
+                    handle.setTransientParent(foreign)
+
     def _tick(self) -> float:
         if self.state is AppState.WAITING:
             self.hwnd = find_pokemmo_hwnd()
@@ -466,6 +479,8 @@ class LiveLoop:
                 return WAITING_POLL_S
             log.info("PokeMMO window found")
             self.state = AppState.IDLE
+            self._set_owner(self.overlay, self.hwnd)
+            self._set_owner(self.dex_panel, self.hwnd)
 
         assert self.hwnd is not None
         # Capture the FULL window (matches the full-window fixtures the CV regions
@@ -476,6 +491,8 @@ class LiveLoop:
             if not is_window_alive(self.hwnd):
                 log.info("window lost, waiting...")
                 self.state = AppState.WAITING
+                self._set_owner(self.overlay, 0)
+                self._set_owner(self.dex_panel, 0)
                 self.hwnd = None
                 self.overlay.hide_battle()
                 if self.dex_panel is not None:

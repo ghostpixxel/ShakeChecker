@@ -188,7 +188,6 @@ class DexPanel(QWidget):
 
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.Tool  # click-through handled via Win32 (hover toggle)
             | Qt.WindowType.WindowDoesNotAcceptFocus
         )
