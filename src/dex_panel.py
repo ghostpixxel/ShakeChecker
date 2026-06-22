@@ -30,6 +30,7 @@ from PyQt6.QtCore import QPointF, QSize, Qt, QTimer
 from PyQt6.QtGui import QColor, QCursor, QFont, QFontMetrics, QIcon, QPainter, QPen, QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QComboBox,
     QFrame,
     QHBoxLayout,
@@ -39,6 +40,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSlider,
     QVBoxLayout,
     QWidget,
 )
@@ -272,7 +274,7 @@ class DexPanel(QWidget):
     # --- public API ---
 
     def apply_scale(self, scale: float) -> None:
-        scale = max(MIN_SCALE, min(3.0, scale))
+        scale = max(0.1, min(2.0, scale))
         if abs(scale - self._scale) < 0.02:
             return
         self._scale = scale
@@ -512,38 +514,54 @@ class DexPanel(QWidget):
         sep3.setFrameShape(QFrame.Shape.HLine)
         sep3.setStyleSheet("color: rgba(255,255,255,40);")
         box.addWidget(sep3)
+        
+        scale_head_layout = QHBoxLayout()
         scale_head = QLabel("Panel Scale")
         scale_head.setFont(self._font(12, bold=True))
         scale_head.setStyleSheet("color: #ffffff;")
-        box.addWidget(scale_head)
-
-        scale_combo = QComboBox()
-        scale_combo.addItems(["Auto", "0.5x", "1.0x", "1.5x", "2.0x", "2.5x", "3.0x"])
-        scale_combo.setStyleSheet(
-            "QComboBox {"
-            " color: #eeeeee; background: rgba(255,255,255,20);"
-            " border: 1px solid rgba(255,255,255,40); border-radius: 4px; padding: 2px 4px;"
-            "}"
-            "QComboBox::drop-down { border: none; }"
-            "QComboBox QAbstractItemView {"
-            " color: #eeeeee; background: rgba(18,18,20,255);"
-            " selection-background-color: rgba(255,255,255,40);"
-            "}"
+        
+        self._scale_val_label = QLabel("")
+        self._scale_val_label.setFont(self._font(11))
+        self._scale_val_label.setStyleSheet("color: #aaaaaa;")
+        
+        scale_head_layout.addWidget(scale_head)
+        scale_head_layout.addStretch(1)
+        scale_head_layout.addWidget(self._scale_val_label)
+        
+        box.addLayout(scale_head_layout)
+        
+        scale_row = QHBoxLayout()
+        
+        self._scale_auto_cb = QCheckBox("Auto")
+        self._scale_auto_cb.setFont(self._font(11))
+        self._scale_auto_cb.setStyleSheet("QCheckBox { color: #eeeeee; }")
+        
+        self._scale_slider = QSlider(Qt.Orientation.Horizontal)
+        self._scale_slider.setRange(10, 200) # 0.10 to 2.00
+        self._scale_slider.setStyleSheet(
+            "QSlider::groove:horizontal { border: 1px solid #444; height: 4px; background: #222; border-radius: 2px; }"
+            "QSlider::handle:horizontal { background: #cfd2d6; width: 14px; margin: -5px 0; border-radius: 7px; }"
         )
-        scale_combo.setFont(self._font(11))
-        scale_combo.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._scale_slider.setCursor(Qt.CursorShape.PointingHandCursor)
+        
+        scale_row.addWidget(self._scale_auto_cb)
+        scale_row.addWidget(self._scale_slider)
+        box.addLayout(scale_row)
+        
         curr_scale = self.get_panel_scale() if self.get_panel_scale else None
-        if curr_scale:
-            idx = scale_combo.findText(f"{curr_scale}x")
-            if idx >= 0:
-                scale_combo.setCurrentIndex(idx)
-            else:
-                scale_combo.setCurrentIndex(0)
+        if curr_scale is not None:
+            self._scale_auto_cb.setChecked(False)
+            self._scale_slider.setValue(int(curr_scale * 100))
+            self._scale_val_label.setText(f"{curr_scale:.2f}x")
+            self._scale_slider.setEnabled(True)
         else:
-            scale_combo.setCurrentIndex(0)
+            self._scale_auto_cb.setChecked(True)
+            self._scale_slider.setValue(100)
+            self._scale_val_label.setText("Auto")
+            self._scale_slider.setEnabled(False)
             
-        scale_combo.currentTextChanged.connect(self._scale_changed)
-        box.addWidget(scale_combo)
+        self._scale_auto_cb.stateChanged.connect(self._scale_auto_changed)
+        self._scale_slider.valueChanged.connect(self._scale_slider_changed)
 
         return w
 
@@ -551,15 +569,22 @@ class DexPanel(QWidget):
         if self.on_override_region is not None:
             self.on_override_region(text if text != "Auto" else None)
 
-    def _scale_changed(self, text: str) -> None:
-        if self.on_set_panel_scale is not None:
-            if text == "Auto":
+    def _scale_auto_changed(self, state: int) -> None:
+        if state == Qt.CheckState.Checked.value:
+            self._scale_slider.setEnabled(False)
+            self._scale_val_label.setText("Auto")
+            if self.on_set_panel_scale is not None:
                 self.on_set_panel_scale(None)
-            else:
-                try:
-                    self.on_set_panel_scale(float(text.replace("x", "")))
-                except ValueError:
-                    self.on_set_panel_scale(None)
+        else:
+            self._scale_slider.setEnabled(True)
+            self._scale_slider_changed(self._scale_slider.value())
+
+    def _scale_slider_changed(self, value: int) -> None:
+        if not self._scale_auto_cb.isChecked():
+            scale = value / 100.0
+            self._scale_val_label.setText(f"{scale:.2f}x")
+            if self.on_set_panel_scale is not None:
+                self.on_set_panel_scale(scale)
 
     def _toggle_keep_caught(self) -> None:
         if self.on_toggle_keep_caught is not None:
