@@ -67,6 +67,30 @@
       ],
       "notes": "Alpha Houndoom at ~1 HP and asleep. Fixed alpha rate 10; the screenshot this came from confirmed the turn-counter fix (overlay showed the correct turn)."
     },
+    "rain_wild_encounter_2.png": {
+      "scene": "wild_single",
+      "overlay_visible": true,
+      "enemies": [
+        { "name": "Sandshrew", "level": 12, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
+      ],
+      "notes": "Rain (Drizzle) wild battle. Regression: rain must not break bar/HP/UI reading. dark_frac in the command band stays ~1.0 despite rain streaks."
+    },
+    "rain_wild_encounter_3.png": {
+      "scene": "wild_single",
+      "overlay_visible": true,
+      "enemies": [
+        { "name": "Bellsprout", "level": 13, "hp_pct": 100.0, "hp_color": "green", "status": "none" }
+      ],
+      "notes": "Rain wild battle (Bellsprout). Reads cleanly in rain."
+    },
+    "rain_wild_encounter_4.png": {
+      "scene": "wild_single",
+      "overlay_visible": true,
+      "enemies": [
+        { "name": "Meowth", "level": 14, "hp_pct": 100.0, "hp_color": "green", "status": "slp" }
+      ],
+      "notes": "Rain wild battle (Meowth, asleep). Reads cleanly in rain incl. the sleep status."
+    },
     "full_health_sleeping.png": {
       "scene": "wild_single",
       "location": "Eterna Forest",
