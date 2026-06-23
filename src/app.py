@@ -567,7 +567,15 @@ class LiveLoop:
         now = time.monotonic()
         # Pass the horde hint so a horde narrowed to ONE bar still reads its status
         # at the horde (right-side) badge offset; full hordes auto-detect by spread.
-        if self.mode_override != "dex":
+        # Always read text/UI signals so we can detect battles and catches even in Dex mode
+        bt = self.battle_text.read(frame)
+        ui_present = is_battle_ui_present(frame, self.cal.battle_ui)
+
+        # In Dex mode, we skip heavy HP bar tracking IF we already know the enemy (cached).
+        # We always track it in Battle mode, or if we haven't identified the enemy yet.
+        needs_reading = (self.mode_override != "dex") or (self.state == AppState.BATTLE and self.cached is None)
+
+        if needs_reading:
             reading = read_battle(frame, self.cal, horde=self._was_horde)
             if reading.is_horde:
                 self._was_horde = True
@@ -577,19 +585,19 @@ class LiveLoop:
             # attack animation the bar vanishes but the "X used Y!" text shows; brief
             # gaps are covered by the end grace. The panel (ui_present) only tunes the
             # grace; it never extends in_battle, so a dark cave still ends the battle.
-            bt = self.battle_text.read(frame)
             in_battle = is_in_battle(reading.state, bt)
-            ui_present = is_battle_ui_present(frame, self.cal.battle_ui)
-            grace = battle_end_grace(
-                self._is_trainer,
-                ui_present,
-                trainer_s=TRAINER_END_GRACE_S,
-                anim_s=BATTLE_ANIM_GRACE_S,
-                normal_s=BATTLE_END_GRACE_S,
-            )
         else:
-            in_battle = False
-            grace = 0.0
+            from battle_reader import BattleReading, BattleState
+            reading = BattleReading(state=BattleState.NO_BATTLE, bars=[], is_horde=False)
+            in_battle = bt.menu_present or bt.action or bt.caught or ui_present
+
+        grace = battle_end_grace(
+            self._is_trainer,
+            ui_present,
+            trainer_s=TRAINER_END_GRACE_S,
+            anim_s=BATTLE_ANIM_GRACE_S,
+            normal_s=BATTLE_END_GRACE_S,
+        )
 
         if in_battle:
             self.last_seen_battle = now
@@ -738,17 +746,36 @@ class LiveLoop:
             if getattr(self, "_battle_loc_future", None) and self._battle_loc_future.done():
                 loc = self._battle_loc_future.result()
                 self._battle_loc_future = None
+                self._loc_read = True  # Stop retrying, don't saturate thread pool
                 if loc:
                     from location_reader import is_cave_location
                     cave = is_cave_location(loc)
                     night = self._is_night(frame)  # Dusk Ball also boosts at night (locked here)
                     self.dusk_active = cave or night
-                    self._loc_read = True
                     bits = [b for b, on in (("cave", cave), ("night", night)) if on]
                     note = f" ({'+'.join(bits)} -> Dusk Ball boosted)" if bits else ""
                     log.info(f"location: {loc}{note}")
-                    if self.dex is not None:  # same read drives the dex panel
-                        self._update_dex(loc)
+                
+                if self.dex is not None:
+                    view = self._update_dex(loc)
+                    if view is not None and self.dex_panel is not None:
+                        self.dex_panel.apply_scale(self.settings.panel_scale or scale_for_window(rect.height))
+                        self.dex_panel.show_here(view)
+                        self.dex_panel.dock_to(rect.left, rect.top, rect.width)
+                    elif view is None and self.dex_panel is not None and not loc:
+                        # If we started mid-battle, HUD is hidden so loc is empty.
+                        from game_time import Period
+                        from dex_session import LocationView
+                        dummy_view = LocationView(
+                            route="Unknown Route",
+                            region="Finish battle to read HUD",
+                            period=Period.DAY,
+                            season=0,
+                            entries=[],
+                        )
+                        self.dex_panel.apply_scale(self.settings.panel_scale or scale_for_window(rect.height))
+                        self.dex_panel.show_here(dummy_view)
+                        self.dex_panel.dock_to(rect.left, rect.top, rect.width)
 
         asleep = reading.state is BattleState.SINGLE and reading.bars[0].status is Status.SLP
 
@@ -827,7 +854,7 @@ class LiveLoop:
         # -- the loop keeps updating so the turn still self-corrects from the chat;
         # the battle ends on its own when the UI clears (grace).
         self._catch_streak = self._catch_streak + 1 if bt.caught else 0
-        if self._catch_streak >= 2 and not self._caught_printed and self.cached is not None:
+        if self._catch_streak >= 1 and not self._caught_printed and self.cached is not None:
             log.info(f"caught {self.cached['name']}!")
             self._caught_printed = True
             self._on_catch(self.cached)
@@ -841,7 +868,11 @@ class LiveLoop:
             # wild battle (trainer detection has run and said "not trainer"). This
             # avoids briefly flashing the overlay before a trainer is confirmed.
             if self._trainer_decided:
-                self._update_single(frame, reading.bars[0], rect, is_trainer=self._is_trainer)
+                if self.mode_override == "dex" and self.cached is not None:
+                    # In Dex mode, skip continuous HP tracking once identified
+                    pass
+                else:
+                    self._update_single(frame, reading.bars[0], rect, is_trainer=self._is_trainer)
             else:
                 if self.mode_override != "dex":
                     self.battle_panel.apply_scale(scale_for_window(rect.height))
