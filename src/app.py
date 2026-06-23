@@ -496,6 +496,20 @@ class LiveLoop:
             if self.state is not AppState.BATTLE:
                 self._enter_battle(now)
             self._battle_step(frame, reading, bt, client_rect, now)
+        elif self.state is AppState.BATTLE and now - self.last_seen_battle <= grace:
+            # In a battle but no battle signal this frame (animation gap). Log what
+            # dropped out so a false "battle ended" can be diagnosed: which signal
+            # is missing and whether ui_present held the grace at the longer value.
+            log.debug(
+                "battle gap: ui=%s state=%s menu=%s action=%s caught=%s grace=%.1f since=%.2f",
+                ui_present,
+                reading.state.name,
+                bt.menu_present,
+                bt.action,
+                bt.caught,
+                grace,
+                now - self.last_seen_battle,
+            )
         elif self.state is AppState.BATTLE and now - self.last_seen_battle > grace:
             self.state = AppState.IDLE
             self.last_line = ""
