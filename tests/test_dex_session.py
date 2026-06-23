@@ -40,7 +40,9 @@ def test_on_location_builds_view(data, tmp_path):
 
 def test_ambiguous_location_resolves_after_region_known(data, tmp_path):
     s = make_session(data, tmp_path)
-    assert s.on_location("Route 5") is None  # ambiguous, no region yet
+    res = s.on_location("Route 5")
+    assert res is not None
+    assert len(res.entries) == 0  # ambiguous, no region yet
     s.on_location("Viridian Forest")  # pins Kanto
     view = s.on_location("Route 5")
     assert view is not None and view.region == "KANTO"

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-from dex_panel import DexPanel, rarity_color_hex
+from dex_panel import DexPanel
 from dex_session import LocationView
 from dex_tracker import DexEntry
 from game_time import Period
+from ui_theme import rarity_color_hex
 
 # --- pure helper ---
 
@@ -45,10 +46,10 @@ def test_show_here_fills_rows_and_colors(qt_app):
     p = DexPanel()
     p.show_here(view(entries))
     assert "2 left" in p._subtitle.text()
-    assert "Bulbasaur" in p._rows[0]["name"].text()
-    assert "#b86bff" in p._rows[0]["name"].text()  # Lure -> purple
-    assert "Water" in p._rows[1]["way"].text()
-    assert "#4aa3ff" in p._rows[1]["name"].text()  # Very Rare -> blue
+    assert "Bulbasaur" in p._rows[0].name.text()
+    assert "#b86bff" in p._rows[0].name.text()  # Lure -> purple
+    assert "Water" in p._rows[1].way.text()
+    assert "#4aa3ff" in p._rows[1].name.text()  # Very Rare -> blue
 
 
 def test_lists_all_entries_scrollable(qt_app):
@@ -56,9 +57,9 @@ def test_lists_all_entries_scrollable(qt_app):
     entries = [DexEntry(i, f"Mon{i}", (), "Common", False) for i in range(1, 9)]  # 8 uncaught
     p = DexPanel()
     p.show_here(view(entries))
-    visible = [r for r in p._rows if r["w"].isVisibleTo(p)]
+    visible = [r for r in p._rows if r.isVisibleTo(p)]
     assert len(visible) == 8
-    assert "Mon8" in p._rows[7]["name"].text()
+    assert "Mon8" in p._rows[7].name.text()
     assert not hasattr(p, "_overflow")
 
 
@@ -70,7 +71,7 @@ def test_caught_padding_marked_with_check(qt_app):
     p = DexPanel()
     p.show_here(view(entries))
     assert "1 left" in p._subtitle.text()
-    assert "✓" in p._rows[1]["way"].text()
+    assert "✓" in p._rows[1].way.text()
 
 
 def test_all_caught_message_in_hide_mode(qt_app):
@@ -79,7 +80,7 @@ def test_all_caught_message_in_hide_mode(qt_app):
     p.get_keep_caught = lambda: False  # hide-mode: caught commons removed -> empty
     p.show_here(view(entries))
     assert "0 left" in p._subtitle.text()
-    assert "all caught here" in p._rows[0]["name"].text()
+    assert "all caught here" in p._rows[0].name.text()
 
 
 def test_keep_caught_keeps_caught_common_checked(qt_app):
@@ -89,9 +90,9 @@ def test_keep_caught_keeps_caught_common_checked(qt_app):
     p.get_keep_caught = lambda: True
     p.show_here(view(entries))
     assert "0 left" in p._subtitle.text()
-    assert "A" in p._rows[0]["name"].text()
-    assert "✓" in p._rows[0]["way"].text()
-    assert "all caught here" not in p._rows[0]["name"].text()
+    assert "A" in p._rows[0].name.text()
+    assert "✓" in p._rows[0].way.text()
+    assert "all caught here" not in p._rows[0].name.text()
 
 
 def test_keep_caught_toggle_uses_callback(qt_app):
@@ -139,36 +140,16 @@ def test_profile_menu_uses_callback_list(qt_app):
     assert active == "Red" and names == ["Red", "Blue"]
 
 
-def test_ball_picker_toggle_invokes_callback(qt_app):
-    toggled: list[str] = []
-    p = DexPanel()
-    p.get_ball_state = lambda: ([("poke", "Poké Ball"), ("dusk", "Dusk Ball")], {"dusk"})
-    p.on_toggle_ball = toggled.append
-    p._open_balls()  # builds the popup from get_ball_state (no crash on missing sprites)
-    assert p._balls is not None
-    p._toggle_ball("poke")
-    assert toggled == ["poke"]
-
-
-def test_ball_picker_set_all_invokes_callback(qt_app):
-    calls: list[bool] = []
-    p = DexPanel()
-    p.get_ball_state = lambda: ([("poke", "Poké Ball")], set())
-    p.on_set_all_balls = calls.append
-    p._set_all_balls(False)
-    assert calls == [False]
-
-
 def test_popup_closes_when_app_goes_inactive(qt_app):
     from PyQt6.QtCore import Qt
 
     p = DexPanel()
-    p.get_ball_state = lambda: ([("poke", "Poké Ball"), ("dusk", "Dusk Ball")], set())
-    p._open_balls()
-    assert p._balls is not None and p._balls.isVisible()
+    p.get_profiles = lambda: ("Red", ["Red", "Blue"])
+    p._open_profiles()
+    assert p._profiles is not None and p._profiles.isVisible()
     # staying active (e.g. our own profile dialog) must NOT close it
     p._on_app_state_changed(Qt.ApplicationState.ApplicationActive)
-    assert p._balls.isVisible()
+    assert p._profiles.isVisible()
     # clicking back into the game deactivates the app -> popup closes
     p._on_app_state_changed(Qt.ApplicationState.ApplicationInactive)
-    assert not p._balls.isVisible()
+    assert p._profiles is None

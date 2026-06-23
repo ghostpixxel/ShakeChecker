@@ -68,14 +68,14 @@ def extract_location_mask(frame_bgr: np.ndarray, cal: LocationCalibration) -> np
     if crop.size == 0:
         return None
     gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
-    
+
     # The game's day/night cycle tints the entire screen, drastically altering
     # the brightness of the white HUD text. Dynamically threshold based on the
     # brightest pixel in the crop to reliably isolate the text.
     max_val = gray.max()
     if max_val < 50:  # HUD is completely empty or hidden
         return np.zeros_like(gray)
-        
+
     _, mask = cv2.threshold(gray, max_val * 0.6, 255, cv2.THRESH_BINARY)
     return mask
 
@@ -91,7 +91,9 @@ def read_location(frame_bgr: np.ndarray, cal: LocationCalibration) -> str:
     return clean_location(" ".join(texts)) if texts else ""
 
 
-def read_location_and_clock(frame_bgr: np.ndarray, loc_cal: LocationCalibration, time_cal: LocationCalibration) -> tuple[str, int | None]:
+def read_location_and_clock(
+    frame_bgr: np.ndarray, loc_cal: LocationCalibration, time_cal: LocationCalibration
+) -> tuple[str, int | None]:
     """Read both the location and the game clock in a single background task.
     This avoids blocking the main thread for the clock OCR."""
     loc = read_location(frame_bgr, loc_cal)

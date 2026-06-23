@@ -2,20 +2,19 @@ from __future__ import annotations
 
 import pytest
 
-from overlay import (
+from battle_panel import (
     BASE_PANEL_W,
-    MIN_SCALE,
-    REF_WINDOW_HEIGHT,
-    Overlay,
-    phys_to_logical,
-    prob_color_hex,
-    scale_for_window,
     sprite_bg_style,
     status_badge,
     subheader_text,
     unknown_ball_order,
     visible_ball_order,
 )
+from battle_panel import (
+    BattlePanel as Overlay,
+)
+from ui_overlay import MIN_SCALE, REF_WINDOW_HEIGHT, phys_to_logical, scale_for_window
+from ui_theme import prob_color_hex
 
 # --- pure helpers (no Qt) ---
 
@@ -96,10 +95,10 @@ def test_show_battle_sets_header_and_percentages(qt_app):
     )
     assert ov._name.text() == "Floatzel"
     assert ov._sub.text() == subheader_text(75, 2)
-    assert ov._pct_labels["Poké Ball"].text().strip() == "9.8%"
-    assert "ff5555" in ov._pct_labels["Poké Ball"].styleSheet()  # red, <50%
-    assert "ffcc44" in ov._pct_labels["Great Ball"].styleSheet()  # yellow, 60%
-    assert "55dd66" in ov._pct_labels["Quick Ball"].styleSheet()  # green, 80%
+    assert ov._ball_rows["Poké Ball"].pct.text().strip() == "9.8%"
+    assert "ff5555" in ov._ball_rows["Poké Ball"].pct.styleSheet()  # red, <50%
+    assert "ffcc44" in ov._ball_rows["Great Ball"].pct.styleSheet()  # yellow, 60%
+    assert "55dd66" in ov._ball_rows["Quick Ball"].pct.styleSheet()  # green, 80%
 
 
 def test_show_battle_hides_and_sorts_rows(qt_app):
@@ -179,7 +178,7 @@ def test_status_badge_shown_and_hidden(qt_app):
 def test_missing_ball_shows_dash(qt_app):
     ov = Overlay(BALLS)
     ov.show_battle(1, "Bulbasaur", 45, 1, {"Poké Ball": 0.1})  # no Great/Quick
-    assert ov._pct_labels["Great Ball"].text() == "—"
+    assert ov._ball_rows["Great Ball"].pct.text() == ""
 
 
 def test_alpha_sprite_gets_red_background(qt_app):
@@ -197,7 +196,7 @@ def test_unknown_catch_rate_shows_question_marks(qt_app):
     ov.show_battle(380, "Latias", None, 1, {})
     assert ov._sub.text() == "Rate: ??  ·  Turn 1"
     for ball in BALLS:
-        assert ov._pct_labels[ball].text() == "??"
+        assert ov._ball_rows[ball].pct.text() == "??"
         assert not ov._ball_rows[ball].isHidden()
     assert ov._last_order == BALLS  # natural order, nothing sorted/dropped
 
@@ -223,8 +222,8 @@ def test_apply_scale_shrinks_panel_and_caps(qt_app):
     assert ov._panel_w == BASE_PANEL_W  # starts at full size
     ov.apply_scale(0.8)
     assert ov._panel_w == round(BASE_PANEL_W * 0.8)
-    ov.apply_scale(2.0)  # capped at 1.0 -> back to full, never larger
-    assert ov._panel_w == BASE_PANEL_W
+    ov.apply_scale(4.0)  # capped at 3.0 -> never larger than 3x
+    assert ov._panel_w == round(BASE_PANEL_W * 3.0)
 
 
 def test_phys_to_logical_scales_by_dpr(qt_app):

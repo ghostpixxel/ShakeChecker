@@ -66,7 +66,9 @@ class DexSession:
             # If the name is substantial but unknown (e.g. a city), return an empty view
             # so the panel stays open. Ignore tiny strings to prevent OCR noise flickering.
             if len(hud_name.strip()) > 3:
-                return LocationView(hud_name.strip().title(), self.region or "Unknown", period, season, [])
+                return LocationView(
+                    hud_name.strip().title(), self.region or "Unknown", period, season, []
+                )
             return None
         entries = self._data.entries_here(key, period.value, season, self._caught.caught)
         loc = self._data.location_for_key(key)

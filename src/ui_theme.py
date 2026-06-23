@@ -11,11 +11,14 @@ _RARITY_COLORS = [
 _RARITY_COLOR = dict(_RARITY_COLORS) | {"Very Common": "#9d9d9d", "Horde": "#9d9d9d"}
 _DEFAULT_COLOR = "#9d9d9d"
 
+
 def rarity_color_hex(rarity: str) -> str:
     """Name colour for a rarity (WoW-style)."""
     return _RARITY_COLOR.get(rarity, _DEFAULT_COLOR)
 
+
 _RED, _YELLOW, _GREEN = "#ff5555", "#ffcc44", "#55dd66"
+
 
 def prob_color_hex(prob: float) -> str:
     """Colour hint for a catch probability (0-1): <35% red, 35-66% yellow, >=66% green."""
@@ -25,32 +28,33 @@ def prob_color_hex(prob: float) -> str:
         return _YELLOW
     return _GREEN
 
+
 def get_global_stylesheet() -> str:
     """Returns the central stylesheet (QSS) for the application."""
     return """
-        #panel { 
-            background: rgba(18,18,20,180); 
-            border-radius: 10px; 
+        #panel {
+            background: rgba(18,18,20,180);
+            border-radius: 10px;
         }
-        
+
         #legend, #profiles {
             background: rgba(18,18,20,238);
             border-radius: 8px;
         }
 
-        QLabel { 
-            color: #eeeeee; 
-            background: transparent; 
+        QLabel {
+            color: #eeeeee;
+            background: transparent;
         }
 
-        QPushButton { 
-            color: #cfd2d6; 
-            background: transparent; 
-            border: none; 
+        QPushButton {
+            color: #cfd2d6;
+            background: transparent;
+            border: none;
         }
 
-        QPushButton:hover { 
-            color: #ffffff; 
+        QPushButton:hover {
+            color: #ffffff;
         }
 
         QLabel#PrimaryText {
@@ -60,33 +64,33 @@ def get_global_stylesheet() -> str:
         QLabel#SecondaryText {
             color: #9aa0aa;
         }
-        
+
         QLabel#SecondaryTextDark {
             color: #888888;
         }
-        
+
         QLabel#HiddenText {
             color: #cccccc;
         }
-        
+
         QFrame#Divider {
             color: rgba(255,255,255,40);
         }
-        
+
         QPushButton#LeftAlignBtn {
             text-align: left;
         }
-        
+
         QPushButton#LeftAlignBtnSecondary {
             text-align: left;
             color: #9aa0aa;
         }
-        
+
         QPushButton#LeftAlignBtnChecked {
             text-align: left;
             color: #eeeeee;
         }
-        
+
         QPushButton#LeftAlignBtnUnchecked {
             text-align: left;
             color: #777777;
@@ -115,15 +119,15 @@ def get_global_stylesheet() -> str:
             color: #ffffff;
         }
 
-        QScrollArea { 
-            background: transparent; 
-            border: none; 
+        QScrollArea {
+            background: transparent;
+            border: none;
         }
 
-        QScrollBar:vertical { 
-            width: 6px; 
-            background: transparent; 
-            margin: 0; 
+        QScrollBar:vertical {
+            width: 6px;
+            background: transparent;
+            margin: 0;
         }
 
         QScrollBar::handle:vertical {
@@ -145,18 +149,18 @@ def get_global_stylesheet() -> str:
             background: none;
         }
 
-        QSlider::groove:horizontal { 
-            border: 1px solid #444; 
-            height: 4px; 
-            background: #222; 
-            border-radius: 2px; 
+        QSlider::groove:horizontal {
+            border: 1px solid #444;
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
         }
 
-        QSlider::handle:horizontal { 
-            background: #cfd2d6; 
-            width: 14px; 
-            margin: -5px 0; 
-            border-radius: 7px; 
+        QSlider::handle:horizontal {
+            background: #cfd2d6;
+            width: 14px;
+            margin: -5px 0;
+            border-radius: 7px;
         }
 
         QCheckBox {

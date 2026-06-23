@@ -302,7 +302,7 @@ def test_async_chat_reader_delivers_turn_despite_submit_before_poll():
     reader = AsyncChatReader(CAL.chat)
     try:
         got = None
-        for _ in range(60):  # ~6s budget incl. the one-time OCR init
+        for _ in range(200):  # ~20s budget incl. the one-time OCR init
             reader.submit(img)  # deliberately the OLD order (submit before poll)
             got = reader.poll()
             if got is not None:

@@ -24,6 +24,7 @@ htmlcov/
 # IDE
 .vscode/
 .idea/
+.agents/
 
 # Claude Code local settings
 .claude/settings.local.json
@@ -38,3 +39,6 @@ fixtures/_debug_crops/
 
 # Per-account user data (caught lists, active-account config) -- local only
 userdata/
+
+# Governance and AI files
+hidden/

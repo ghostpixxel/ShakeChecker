@@ -1,21 +1,23 @@
 from __future__ import annotations
-from typing import Callable, Any, TYPE_CHECKING
 
-from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtGui import QFont, QPixmap, QFontMetrics
+from collections.abc import Callable
+from typing import TYPE_CHECKING
+
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont, QFontMetrics, QPixmap
 from PyQt6.QtWidgets import (
-    QWidget,
-    QLabel,
-    QHBoxLayout,
-    QVBoxLayout,
-    QPushButton,
     QFrame,
     QGridLayout,
-    QSizePolicy
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
 )
 
 from sprite_loader import SpriteLoader
-from ui_theme import rarity_color_hex, prob_color_hex
+from ui_theme import get_global_stylesheet, prob_color_hex, rarity_color_hex
 
 ANIMATE_SPRITES = True  # Toggle animated GIFs for the Dex Panel (False saves CPU)
 
@@ -26,20 +28,22 @@ class BattleBallRow(QWidget):
         self.name = name
         self._layout = QHBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
-        
+
         self.icon = QLabel()
         self.label = QLabel(name)
         self.label.setObjectName("PrimaryText")
-        
+
         self.pct = QLabel("-")
         self.pct.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        
+
         self._layout.addWidget(self.icon)
         self._layout.addWidget(self.label)
         self._layout.addStretch(1)
         self._layout.addWidget(self.pct)
 
-    def apply_scale(self, font: QFont, icon_pixmap: QPixmap, height: int, pct_minw: int, spacing: int) -> None:
+    def apply_scale(
+        self, font: QFont, icon_pixmap: QPixmap, height: int, pct_minw: int, spacing: int
+    ) -> None:
         self._layout.setSpacing(spacing)
         self.icon.setPixmap(icon_pixmap)
         self.icon.setFixedHeight(height)
@@ -71,7 +75,7 @@ class DexSpeciesRow(QWidget):
         self._on_click = on_click
         self.setStyleSheet("background: transparent;")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        
+
         row = QHBoxLayout(self)
         row.setContentsMargins(0, 0, 0, 0)
         self.sprite = QLabel()
@@ -82,25 +86,41 @@ class DexSpeciesRow(QWidget):
         self.way = QLabel("")
         self.way.setObjectName("SecondaryText")
         self.way.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        
+
         row.addWidget(self.sprite)
         row.addWidget(self.name)
         row.addStretch(1)
         row.addWidget(self.way)
-        
-        self.dex = None
-        self.movie = None
+
+        from PyQt6.QtGui import QMovie
+
+        self.dex: int | None = None
+        self.movie: QMovie | None = None
 
     def mousePressEvent(self, _event) -> None:  # noqa: N802 (Qt override)
         self._on_click(self._index)
 
-    def apply_scale(self, spacing: int, row_font: QFont, sub_font: QFont, col_w: int, sprite_h: int) -> None:
-        self.layout().setSpacing(spacing)
+    def apply_scale(
+        self, spacing: int, row_font: QFont, sub_font: QFont, col_w: int, sprite_h: int
+    ) -> None:
+        lay = self.layout()
+        if lay:
+            lay.setSpacing(spacing)
         self.name.setFont(row_font)
         self.way.setFont(sub_font)
         self.sprite.setFixedSize(col_w, sprite_h)
 
-    def fill(self, entry, name_fm: QFontMetrics, way_fm: QFontMetrics, panel_w: int, margin_x: int, col_w: int, spacing: int, base_16: int) -> None:
+    def fill(
+        self,
+        entry,
+        name_fm: QFontMetrics,
+        way_fm: QFontMetrics,
+        panel_w: int,
+        margin_x: int,
+        col_w: int,
+        spacing: int,
+        base_16: int,
+    ) -> None:
         color = rarity_color_hex(entry.rarity)
         self.name.setText(f'<span style="color:{color};">{entry.name}</span>')
         way = "/".join(entry.ways)
@@ -149,21 +169,20 @@ class DexSpeciesRow(QWidget):
         self.dex = None
 
 
-from ui_theme import get_global_stylesheet
-
 if TYPE_CHECKING:
     from dex_panel import DexPanel
 
-def create_popup_window(obj_name: str, parent_widget: QWidget | None = None) -> tuple[QWidget, QVBoxLayout]:
+
+def create_popup_window(
+    obj_name: str, parent_widget: QWidget | None = None
+) -> tuple[QWidget, QVBoxLayout]:
     """A frameless dark popup matching the panel; returns (window, content box)."""
     w = QWidget(parent_widget)
     w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-    w.setWindowFlags(
-        Qt.WindowType.FramelessWindowHint
-        | Qt.WindowType.Tool
-    )
+    w.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool)
     w.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-    frame = QFrame(w, objectName=obj_name)  # type: ignore[call-arg]
+    frame = QFrame(w)
+    frame.setObjectName(obj_name)
     frame.setStyleSheet(get_global_stylesheet())
     outer = QVBoxLayout(w)
     outer.setContentsMargins(0, 0, 0, 0)
@@ -173,8 +192,10 @@ def create_popup_window(obj_name: str, parent_widget: QWidget | None = None) -> 
     box.setSpacing(3)
     return w, box
 
+
 def build_legend(panel: DexPanel, parent_widget: QWidget | None = None) -> QWidget:
     from ui_theme import _RARITY_COLORS
+
     w, box = create_popup_window("legend", parent_widget)
     head = QLabel("Rarity")
     head.setFont(panel._font(12, bold=True))
@@ -185,6 +206,7 @@ def build_legend(panel: DexPanel, parent_widget: QWidget | None = None) -> QWidg
         lab.setFont(panel._font(12))
         box.addWidget(lab)
     return w
+
 
 def build_profiles(panel: DexPanel, parent_widget: QWidget | None = None) -> QWidget:
     active, accounts = panel.get_profiles() if panel.get_profiles else (None, [])
@@ -240,7 +262,9 @@ def build_profiles(panel: DexPanel, parent_widget: QWidget | None = None) -> QWi
     auto_toggle = QPushButton(("✓  " if auto_switch else "    ") + "Auto-switch mode")
     auto_toggle.setFont(panel._font(12))
     auto_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-    auto_toggle.setToolTip("Automatically switch to Battle Mode when a battle starts, and Dex Mode in the overworld.")
+    auto_toggle.setToolTip(
+        "Automatically switch to Battle Mode when a battle starts, and Dex Mode in the overworld."
+    )
     auto_toggle.setObjectName("LeftAlignBtnChecked" if auto_switch else "LeftAlignBtnUnchecked")
     auto_toggle.clicked.connect(panel._toggle_auto_switch)
     box.addWidget(auto_toggle)
@@ -262,7 +286,7 @@ def build_profiles(panel: DexPanel, parent_widget: QWidget | None = None) -> QWi
     reg_head.setFont(panel._font(12, bold=True))
     reg_head.setObjectName("PrimaryText")
     box.addWidget(reg_head)
-    
+
     reg_grid = QGridLayout()
     reg_grid.setContentsMargins(0, 0, 0, 0)
     reg_grid.setSpacing(4)
@@ -275,7 +299,7 @@ def build_profiles(panel: DexPanel, parent_widget: QWidget | None = None) -> QWi
         btn.setObjectName("RegionBtn" if is_active else "RegionBtnInactive")
         btn.clicked.connect(lambda _=False, r=reg: panel._region_changed(r))
         reg_grid.addWidget(btn, i // 3, i % 3)
-        
+
     cont2 = QWidget()
     cont2.setLayout(reg_grid)
     box.addWidget(cont2)
@@ -284,39 +308,40 @@ def build_profiles(panel: DexPanel, parent_widget: QWidget | None = None) -> QWi
     sep3.setFrameShape(QFrame.Shape.HLine)
     sep3.setObjectName("Divider")
     box.addWidget(sep3)
-    
+
     scale_head_layout = QHBoxLayout()
     scale_head = QLabel("UI Scale")
     scale_head.setFont(panel._font(12, bold=True))
     scale_head.setObjectName("PrimaryText")
-    
+
     panel._scale_val_label = QLabel("1.00x")
     panel._scale_val_label.setFixedWidth(40)
     panel._scale_val_label.setObjectName("PrimaryText")
-    
+
     scale_head_layout.addWidget(scale_head)
     scale_head_layout.addStretch(1)
     scale_head_layout.addWidget(panel._scale_val_label)
-    
+
     scale_head_w = QWidget()
     scale_head_w.setLayout(scale_head_layout)
-    scale_head_layout.setContentsMargins(0,0,0,0)
+    scale_head_layout.setContentsMargins(0, 0, 0, 0)
     box.addWidget(scale_head_w)
-    
+
     scale_row = QHBoxLayout()
-    
+
     import PyQt6.QtWidgets as QtWidgets
+
     panel._scale_auto_cb = QtWidgets.QCheckBox("Auto")
     panel._scale_auto_cb.setFont(panel._font(11))
-    
+
     panel._scale_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
-    panel._scale_slider.setRange(10, 200) # 0.10 to 2.00
+    panel._scale_slider.setRange(10, 200)  # 0.10 to 2.00
     panel._scale_slider.setCursor(Qt.CursorShape.PointingHandCursor)
-    
+
     scale_row.addWidget(panel._scale_auto_cb)
     scale_row.addWidget(panel._scale_slider)
     box.addLayout(scale_row)
-    
+
     curr_scale = panel.get_panel_scale() if panel.get_panel_scale else None
     if curr_scale is not None:
         panel._scale_auto_cb.setChecked(False)
@@ -325,8 +350,8 @@ def build_profiles(panel: DexPanel, parent_widget: QWidget | None = None) -> QWi
     else:
         panel._scale_auto_cb.setChecked(True)
         panel._scale_slider.setEnabled(False)
-        panel._scale_slider.setValue(100) # default value when auto is checked
-        
+        panel._scale_slider.setValue(100)  # default value when auto is checked
+
     panel._scale_slider.valueChanged.connect(panel._scale_slider_changed)
     panel._scale_auto_cb.stateChanged.connect(panel._scale_auto_changed)
 

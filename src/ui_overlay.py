@@ -2,34 +2,38 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import win32api
 import win32con
 import win32gui
-from PyQt6.QtGui import QGuiApplication, QFont, QCursor
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFrame, QPushButton, QLabel
 from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QCursor, QFont, QGuiApplication
+from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 # Base (scale 1.0) sizes in logical px. apply_scale() multiplies these; 1.0 is the
 # cap, so the overlay is never larger than this.
 DOCK_MARGIN = 12  # gap from the game window's side edge
 DOCK_SIDE = "left"  # "left" or "right"
 # Push the overlay down past the game's fixed top-left HUD (location, money,
-# time, ability, and a possible donator line) AND the enemy HP meter block. 
-# The HUD and HP meters are fixed pixel sizes regardless of window size. 
-# The HP meter block (including the trainer party icons) extends to ~260px, 
+# time, ability, and a possible donator line) AND the enemy HP meter block.
+# The HUD and HP meters are fixed pixel sizes regardless of window size.
+# The HP meter block (including the trainer party icons) extends to ~260px,
 # so 270 ensures we clear it without being unnecessarily low.
 DOCK_TOP_OFFSET = 180
 
 # Window-height (physical px) at/above which the overlay is at full size, and the
 # smallest scale it will shrink to. Below REF the overlay scales down with the
 # window so it stays inside a small battle view.
-REF_WINDOW_HEIGHT = 1400
+REF_WINDOW_HEIGHT = 1000
 MIN_SCALE = 0.6
 UI_SCALE_MULTIPLIER = 1.0  # Manual override multiplier to increase UI size
 
+
 def scale_for_window(height_px: int) -> float:
     """Overlay scale for a game-window client height."""
-    return max(1.0, height_px / REF_WINDOW_HEIGHT) * UI_SCALE_MULTIPLIER
+    return max(MIN_SCALE, min(1.0, height_px / REF_WINDOW_HEIGHT)) * UI_SCALE_MULTIPLIER
+
 
 def phys_to_logical(px: int, py: int) -> tuple[int, int]:
     """Convert a physical-pixel screen point (from win32) to Qt's logical-pixel
@@ -62,6 +66,7 @@ def phys_to_logical(px: int, py: int) -> tuple[int, int]:
 
     return round(lx), round(ly)
 
+
 def bring_overlay_above_game(widget: QWidget) -> None:
     """Insert the overlay just below the game window in the Z-order,
     without stealing focus or changing its state."""
@@ -75,29 +80,37 @@ def bring_overlay_above_game(widget: QWidget) -> None:
         game_hwnd = int(parent.winId())
         if not game_hwnd:
             return
-        
+
         hwnd = int(widget.winId())
         prev_hwnd = win32gui.GetWindow(game_hwnd, win32con.GW_HWNDPREV)
         insert_after = prev_hwnd if prev_hwnd else win32con.HWND_TOP
-        
-        flags = win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_NOACTIVATE | win32con.SWP_NOOWNERZORDER
+
+        flags = (
+            win32con.SWP_NOMOVE
+            | win32con.SWP_NOSIZE
+            | win32con.SWP_NOACTIVATE
+            | win32con.SWP_NOOWNERZORDER
+        )
         win32gui.SetWindowPos(hwnd, insert_after, 0, 0, 0, 0, flags)
     except Exception:
         pass
 
+
 class BaseOverlay(QWidget):
     """Shared parent class for DexPanel and BattlePanel overlays.
-    Handles the transparent click-through window frame, generic top-bar layout, 
+    Handles the transparent click-through window frame, generic top-bar layout,
     CSS initialization, scaling helpers, and Win32 docking logic."""
-    
-    def __init__(self, mode_name: str, mode_tooltip: str, base_panel_w: int, extra_css: str = "") -> None:
+
+    def __init__(
+        self, mode_name: str, mode_tooltip: str, base_panel_w: int, extra_css: str = ""
+    ) -> None:
         super().__init__()
         self._scale = 0.0
         self._panel_w = base_panel_w
-        self._last_pos: tuple[int, int] | None = None
+        self._last_pos: tuple[int, int] | tuple[int, int, int] | None = None
         self._click_through: bool | None = None
-        
-        self.on_mode_toggle = None
+
+        self.on_mode_toggle: Callable[[], None] | None = None
 
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint
@@ -109,36 +122,40 @@ class BaseOverlay(QWidget):
 
         self._mono = QFont("Consolas")
         self._mono.setStyleHint(QFont.StyleHint.Monospace)
-        
+
         from ui_theme import get_global_stylesheet
+
         self.setStyleSheet(get_global_stylesheet() + extra_css)
-        
+
         self._root = QVBoxLayout(self)
         self._root.setContentsMargins(0, 0, 0, 0)
-        panel = QFrame(objectName="panel")
+        panel = QFrame()
+        panel.setObjectName("panel")
         self._root.addWidget(panel)
         self._col = QVBoxLayout(panel)
 
         self._bar = QHBoxLayout()
         self._mode_btn = QPushButton()
         self._mode_btn.setToolTip(mode_tooltip)
-        self._mode_btn.clicked.connect(lambda: self.on_mode_toggle() if self.on_mode_toggle else None)
+        self._mode_btn.clicked.connect(
+            lambda: self.on_mode_toggle() if self.on_mode_toggle else None
+        )
         self._bar.addWidget(self._mode_btn)
-        
+
         self._mode_label = QLabel(mode_name)
         self._mode_label.setObjectName("PrimaryText")
         self._bar.addWidget(self._mode_label)
         self._bar.addStretch(1)
-        
+
         self._settings_btn = QPushButton()
         self._settings_btn.setToolTip("Profiles: create / load / delete")
-        
+
         self.setup_middle_btn()
         self._bar.addWidget(self._settings_btn)
-        
+
         for b in (self._mode_btn, self._settings_btn):
             b.setCursor(Qt.CursorShape.PointingHandCursor)
-            
+
         self._col.addLayout(self._bar)
 
         self._hover = QTimer(self)
@@ -146,7 +163,8 @@ class BaseOverlay(QWidget):
         self._hover.timeout.connect(self._check_hover)
 
     def setup_middle_btn(self) -> None:
-        """Override in subclasses to insert a button before the profile button (e.g. Info or Balls)"""
+        """Override in subclasses to insert a button before the profile button
+        (e.g. Info or Balls)"""
         pass
 
     def _px(self, base: float) -> int:
@@ -163,7 +181,11 @@ class BaseOverlay(QWidget):
         if self._last_pos == (left, top, client_w):
             return
         self._last_pos = (left, top, client_w)
-        x = left + client_w - self.width() - DOCK_MARGIN if DOCK_SIDE == "right" else left + DOCK_MARGIN
+        x = (
+            left + client_w - self.width() - DOCK_MARGIN
+            if DOCK_SIDE == "right"
+            else left + DOCK_MARGIN
+        )
         lx, ly = phys_to_logical(x, top + DOCK_TOP_OFFSET)
         self.move(lx, ly)
 

@@ -21,26 +21,19 @@ Preview without the game:  python src/dex_panel.py
 
 from __future__ import annotations
 
-import math
 from collections.abc import Callable
 
-import win32con
-import win32gui
-from PyQt6.QtCore import QPointF, QSize, Qt, QTimer
-from PyQt6.QtGui import QColor, QCursor, QFont, QFontMetrics, QIcon, QPainter, QPen, QPixmap
+from PyQt6.QtCore import QPoint, QSize, Qt
+from PyQt6.QtGui import QCursor, QFont, QFontMetrics, QIcon
 from PyQt6.QtWidgets import (
     QApplication,
-    QCheckBox,
-    QGridLayout,
     QFrame,
-    QHBoxLayout,
     QInputDialog,
     QLabel,
     QMessageBox,
     QPushButton,
     QScrollArea,
     QSizePolicy,
-    QSlider,
     QVBoxLayout,
     QWidget,
 )
@@ -48,12 +41,17 @@ from PyQt6.QtWidgets import (
 from dex_session import LocationView
 from dex_tracker import display_order
 from game_time import season_name
-from ui_overlay import (
-    DOCK_MARGIN, DOCK_SIDE, DOCK_TOP_OFFSET, MIN_SCALE, 
-    phys_to_logical, bring_overlay_above_game
-)
 from sprite_loader import SpriteLoader
+from ui_components import DexSpeciesRow
 from ui_icons import icon_pixmap
+from ui_overlay import (
+    DOCK_MARGIN,
+    DOCK_SIDE,
+    DOCK_TOP_OFFSET,
+    BaseOverlay,
+    bring_overlay_above_game,
+    phys_to_logical,
+)
 
 HOVER_POLL_MS = 40  # how often to check if the cursor is over the panel
 ANIMATE_SPRITES = True  # Toggle animated GIFs for the Dex Panel (False saves CPU)
@@ -76,16 +74,11 @@ BASE_ROW_SPACING = 6
 DEX_MAX_VISIBLE_ROWS = 6  # show at most this many rows; the rest scroll
 
 
-
-
-from ui_overlay import BaseOverlay
-from ui_components import DexSpeciesRow
-
 class DexPanel(BaseOverlay):
     def __init__(self, loader: SpriteLoader | None = None) -> None:
         super().__init__(
-            mode_name="Dex Mode", 
-            mode_tooltip="Switch to Battle Mode\n(Note: auto-switch is enabled)", 
+            mode_name="Dex Mode",
+            mode_tooltip="Switch to Battle Mode\n(Note: auto-switch is enabled)",
             base_panel_w=BASE_PANEL_W,
             extra_css=(
                 " QScrollArea { background: transparent; border: none; }"
@@ -95,13 +88,18 @@ class DexPanel(BaseOverlay):
                 " QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
                 " QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
                 " background: transparent; }"
-            )
+            ),
         )
         self._loader = loader or SpriteLoader()
         self._sprite_h = BASE_SPRITE_H
         self._legend: QWidget | None = None
         self._profiles: QWidget | None = None  # profile management popup
         self._rows: list[DexSpeciesRow] = []  # reused row-widget pool, grown as needed
+        import PyQt6.QtWidgets as QtWidgets
+
+        self._scale_val_label: QtWidgets.QLabel | None = None
+        self._scale_auto_cb: QtWidgets.QCheckBox | None = None
+        self._scale_slider: QtWidgets.QSlider | None = None
         self._settings_btn.clicked.connect(self._toggle_profiles)
 
         # Close the header popups when ShakeChecker stops being the active app,
@@ -135,8 +133,8 @@ class DexPanel(BaseOverlay):
         self._init_dex()
 
     def setup_middle_btn(self) -> None:
-        from PyQt6.QtWidgets import QPushButton
         from PyQt6.QtCore import Qt
+
         self._info_btn = QPushButton()
         self._info_btn.setToolTip("Rarity colour legend")
         self._info_btn.clicked.connect(self._toggle_legend)
@@ -170,11 +168,12 @@ class DexPanel(BaseOverlay):
         self._list = QWidget()
         self._list.setStyleSheet("background: transparent;")
         self._list_layout = QVBoxLayout(self._list)
-        self._list_layout.setContentsMargins(0, 0, 16, 0)  # gap so the scrollbar clears the way text
+        self._list_layout.setContentsMargins(
+            0, 0, 16, 0
+        )  # gap so the scrollbar clears the way text
         self._list_layout.addStretch(1)  # keep rows top-aligned
         self._scroll.setWidget(self._list)
         self._col.addWidget(self._scroll)
-
 
         self.apply_scale(1.0)
 
@@ -190,12 +189,12 @@ class DexPanel(BaseOverlay):
         self._sprite_h = self._px(BASE_SPRITE_H)
         self._name_fm = QFontMetrics(self._font(self._px(BASE_ROW_PX)))
         self._way_fm = QFontMetrics(self._font(self._px(BASE_SUB_PX)))
-        
+
         title_font = self._font(self._px(BASE_TITLE_PX), bold=True)
         sub_font = self._font(self._px(BASE_SUB_PX))
         self._title.setFont(title_font)
         self._subtitle.setFont(sub_font)
-        
+
         self._mode_label.setFont(self._font(self._px(13), bold=True))
         isz = self._px(BASE_ICON_PX)
         for btn, kind in (
@@ -238,10 +237,12 @@ class DexPanel(BaseOverlay):
         col_w = self._px(BASE_SPRITE_COL_W)
         spacing = self._px(BASE_ROW_SPACING)
         base_16 = self._px(16)
-        
+
         for i, entry in enumerate(entries):
             r = self._rows[i]
-            r.fill(entry, self._name_fm, self._way_fm, self._panel_w, margin_x, col_w, spacing, base_16)
+            r.fill(
+                entry, self._name_fm, self._way_fm, self._panel_w, margin_x, col_w, spacing, base_16
+            )
             r.set_sprite(self._loader, entry.id, self._sprite_h, col_w)
             r.setVisible(True)
 
@@ -250,7 +251,7 @@ class DexPanel(BaseOverlay):
             if r.isVisible():  # only clear sprite on the visible->hidden transition
                 r.suspend_sprite()
                 r.setVisible(False)
-        
+
         if not entries:  # nothing left here
             r0 = self._rows[0]
             r0.hide_sprite()
@@ -261,7 +262,6 @@ class DexPanel(BaseOverlay):
                 r0.name.setText('<span style="color:#9aa0aa;">all caught here!</span>')
             r0.way.setText("")
 
-        visible = max(1, len(entries)) if entries else 1
         self._fit_list_height()
         self._col.invalidate()
         self._col.activate()
@@ -329,7 +329,9 @@ class DexPanel(BaseOverlay):
         over = self.frameGeometry().adjusted(-30, -30, 30, 30).contains(QCursor.pos())
         for popup in (self._legend, self._profiles):
             if popup is not None and popup.isVisible():
-                over = over or popup.frameGeometry().adjusted(-30, -30, 30, 30).contains(QCursor.pos())
+                over = over or popup.frameGeometry().adjusted(-30, -30, 30, 30).contains(
+                    QCursor.pos()
+                )
         self._apply_click_through(not over)
 
     def _row_clicked(self, index: int) -> None:
@@ -339,7 +341,9 @@ class DexPanel(BaseOverlay):
         if dex is not None and self.on_toggle_caught is not None:
             self.on_toggle_caught(dex)
 
-    def _toggle_profiles(self, anchor_pos: QPoint | bool | None = None, parent_widget: QWidget | None = None) -> None:
+    def _toggle_profiles(
+        self, anchor_pos: QPoint | bool | None = None, parent_widget: QWidget | None = None
+    ) -> None:
         if isinstance(anchor_pos, bool):
             anchor_pos = None
         if self._profiles is not None and self._profiles.isVisible():
@@ -348,16 +352,21 @@ class DexPanel(BaseOverlay):
             return
         self._open_profiles(anchor_pos, parent_widget)
 
-    def _open_profiles(self, anchor_pos: QPoint | None = None, parent_widget: QWidget | None = None) -> None:
+    def _open_profiles(
+        self, anchor_pos: QPoint | None = None, parent_widget: QWidget | None = None
+    ) -> None:
         # rebuilt each time so it reflects the current profile list
         if self._profiles is not None:
             self._profiles.close()
         from ui_components import build_profiles
+
         self._profiles = build_profiles(self, parent_widget)
         if anchor_pos is not None:
             self._profiles.move(anchor_pos)
         else:
-            self._profiles.move(self._settings_btn.mapToGlobal(self._settings_btn.rect().bottomLeft()))
+            self._profiles.move(
+                self._settings_btn.mapToGlobal(self._settings_btn.rect().bottomLeft())
+            )
         self._profiles.show()
         self._profiles.raise_()
 
@@ -372,6 +381,7 @@ class DexPanel(BaseOverlay):
         if self._legend is not None:
             self._legend.close()
         from ui_components import build_legend
+
         self._legend = build_legend(self, parent_widget)
         self._legend.move(self._info_btn.mapToGlobal(self._info_btn.rect().bottomRight()))
         self._legend.show()
@@ -383,22 +393,23 @@ class DexPanel(BaseOverlay):
 
     def _scale_auto_changed(self, state: int) -> None:
         from PyQt6.QtCore import Qt
+
         if state == Qt.CheckState.Checked.value:
-            if hasattr(self, '_scale_slider'):
+            if self._scale_slider is not None:
                 self._scale_slider.setEnabled(False)
-            if hasattr(self, '_scale_val_label'):
+            if self._scale_val_label is not None:
                 self._scale_val_label.setText("Auto")
             if self.on_set_panel_scale is not None:
                 self.on_set_panel_scale(None)
         else:
-            if hasattr(self, '_scale_slider'):
+            if self._scale_slider is not None:
                 self._scale_slider.setEnabled(True)
                 self._scale_slider_changed(self._scale_slider.value())
 
     def _scale_slider_changed(self, value: int) -> None:
-        if hasattr(self, '_scale_auto_cb') and not self._scale_auto_cb.isChecked():
+        if self._scale_auto_cb is not None and not self._scale_auto_cb.isChecked():
             scale = value / 100.0
-            if hasattr(self, '_scale_val_label'):
+            if self._scale_val_label is not None:
                 self._scale_val_label.setText(f"{scale:.2f}x")
             if self.on_set_panel_scale is not None:
                 self.on_set_panel_scale(scale)
@@ -407,7 +418,7 @@ class DexPanel(BaseOverlay):
         if self.on_toggle_keep_caught is not None:
             self.on_toggle_keep_caught()
         self._open_profiles()  # rebuild so the check state updates, popup stays open
-        
+
     def _toggle_auto_switch(self) -> None:
         if self.on_toggle_auto_switch is not None:
             self.on_toggle_auto_switch()
@@ -425,7 +436,6 @@ class DexPanel(BaseOverlay):
             self._profiles.hide()
 
     def _remove_profile(self, name: str) -> None:
-        from PyQt6.QtWidgets import QMessageBox
         ok = QMessageBox.question(
             self, "Delete profile", f"Delete profile '{name}' and its caught list?"
         )
@@ -434,7 +444,6 @@ class DexPanel(BaseOverlay):
             self._open_profiles()  # rebuild with the updated list
 
     def _create_profile(self) -> None:
-        from PyQt6.QtWidgets import QInputDialog
         name, ok = QInputDialog.getText(self, "New profile", "Account name:")
         if ok and name.strip() and self.on_create_profile is not None:
             self.on_create_profile(name.strip())
@@ -450,12 +459,12 @@ class DexPanel(BaseOverlay):
     def _make_row(self) -> None:
         index = len(self._rows)
         row = DexSpeciesRow(index, self._row_clicked)
-        
+
         row_font = self._font(self._px(BASE_ROW_PX))
         sub_font = self._font(self._px(BASE_SUB_PX))
         col_w = self._px(BASE_SPRITE_COL_W)
         row.apply_scale(self._px(BASE_ROW_SPACING), row_font, sub_font, col_w, self._sprite_h)
-        
+
         # insert above the trailing stretch so rows stay top-aligned
         self._list_layout.insertWidget(self._list_layout.count() - 1, row)
         self._rows.append(row)
@@ -483,6 +492,3 @@ class DexPanel(BaseOverlay):
         f.setPixelSize(size_px)
         f.setBold(bold)
         return f
-
-
-

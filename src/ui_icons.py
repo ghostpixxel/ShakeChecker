@@ -1,4 +1,5 @@
 import math
+
 from PyQt6.QtCore import QPointF, Qt
 from PyQt6.QtGui import QColor, QPainter, QPen, QPixmap
 
@@ -34,18 +35,30 @@ def icon_pixmap(kind: str, size: int, color: str) -> QPixmap:
         p.drawEllipse(QPointF(cx, cy), size * 0.14, size * 0.14)  # centre button
     elif kind == "swords":
         p.setPen(QPen(c, size * 0.1, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
-        p.drawLine(QPointF(cx - size * 0.3, cy + size * 0.3), QPointF(cx + size * 0.3, cy - size * 0.3))
-        p.drawLine(QPointF(cx - size * 0.25, cy + size * 0.1), QPointF(cx - size * 0.1, cy + size * 0.25))
-        p.drawLine(QPointF(cx + size * 0.3, cy + size * 0.3), QPointF(cx - size * 0.3, cy - size * 0.3))
-        p.drawLine(QPointF(cx + size * 0.25, cy + size * 0.1), QPointF(cx + size * 0.1, cy + size * 0.25))
+        p.drawLine(
+            QPointF(cx - size * 0.3, cy + size * 0.3), QPointF(cx + size * 0.3, cy - size * 0.3)
+        )
+        p.drawLine(
+            QPointF(cx - size * 0.25, cy + size * 0.1), QPointF(cx - size * 0.1, cy + size * 0.25)
+        )
+        p.drawLine(
+            QPointF(cx + size * 0.3, cy + size * 0.3), QPointF(cx - size * 0.3, cy - size * 0.3)
+        )
+        p.drawLine(
+            QPointF(cx + size * 0.25, cy + size * 0.1), QPointF(cx + size * 0.1, cy + size * 0.25)
+        )
     elif kind == "book":
         p.setPen(QPen(c, size * 0.1, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
         p.drawLine(QPointF(cx - size * 0.35, cy - size * 0.2), QPointF(cx, cy - size * 0.1))
         p.drawLine(QPointF(cx - size * 0.35, cy + size * 0.2), QPointF(cx, cy + size * 0.3))
-        p.drawLine(QPointF(cx - size * 0.35, cy - size * 0.2), QPointF(cx - size * 0.35, cy + size * 0.2))
+        p.drawLine(
+            QPointF(cx - size * 0.35, cy - size * 0.2), QPointF(cx - size * 0.35, cy + size * 0.2)
+        )
         p.drawLine(QPointF(cx + size * 0.35, cy - size * 0.2), QPointF(cx, cy - size * 0.1))
         p.drawLine(QPointF(cx + size * 0.35, cy + size * 0.2), QPointF(cx, cy + size * 0.3))
-        p.drawLine(QPointF(cx + size * 0.35, cy - size * 0.2), QPointF(cx + size * 0.35, cy + size * 0.2))
+        p.drawLine(
+            QPointF(cx + size * 0.35, cy - size * 0.2), QPointF(cx + size * 0.35, cy + size * 0.2)
+        )
         p.drawLine(QPointF(cx, cy - size * 0.1), QPointF(cx, cy + size * 0.3))
     else:  # info
         p.setPen(QPen(c, size * 0.10))

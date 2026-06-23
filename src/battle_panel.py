@@ -18,16 +18,30 @@ Run standalone to preview the look without the game:
 
 from __future__ import annotations
 
-import win32api
-import win32gui
-import win32con
-from PyQt6.QtCore import QPoint, Qt, QTimer, QSize
-from PyQt6.QtGui import QFont, QGuiApplication, QMovie, QCursor, QIcon, QPixmap
-from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget, QPushButton
+from collections.abc import Callable
+
+from PyQt6.QtCore import QPoint, QSize, Qt
+from PyQt6.QtGui import QIcon, QMovie
+from PyQt6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
+
 from sprite_loader import SpriteLoader
+from ui_components import BattleBallRow
 from ui_overlay import (
-    DOCK_MARGIN, DOCK_SIDE, DOCK_TOP_OFFSET, MIN_SCALE, 
-    phys_to_logical, scale_for_window, bring_overlay_above_game
+    DOCK_MARGIN,
+    DOCK_SIDE,
+    DOCK_TOP_OFFSET,
+    MIN_SCALE,
+    BaseOverlay,
+    bring_overlay_above_game,
+    phys_to_logical,
 )
 
 # Base (scale 1.0) sizes in logical px. apply_scale() multiplies these; 1.0 is the
@@ -59,7 +73,6 @@ def subheader_text(catch_rate: int | None, turn: int) -> str:
     return f"Rate: {rate}  ·  Turn {turn}"
 
 
-
 # Status code -> (label, badge background) following the in-game colour scheme.
 _STATUS_BADGE = {
     "slp": ("SLP", "#7a7a7a"),
@@ -73,7 +86,6 @@ _STATUS_BADGE = {
 def status_badge(status: str | None) -> tuple[str, str] | None:
     """(label, background colour) for a status, or None for no status (-> hidden)."""
     return _STATUS_BADGE.get(status.lower()) if status else None
-
 
 
 def visible_ball_order(
@@ -98,15 +110,10 @@ def sprite_bg_style(alpha: bool) -> str:
     return "background: rgba(200,40,40,170); border-radius: 6px;" if alpha else ""
 
 
-from ui_overlay import BaseOverlay
-from ui_components import BattleBallRow
-
 class BattlePanel(BaseOverlay):
     def __init__(self, ball_names: list[str], loader: SpriteLoader | None = None) -> None:
         super().__init__(
-            mode_name="Battle Mode",
-            mode_tooltip="Switch to Dex Mode",
-            base_panel_w=BASE_PANEL_W
+            mode_name="Battle Mode", mode_tooltip="Switch to Dex Mode", base_panel_w=BASE_PANEL_W
         )
         self._loader = loader or SpriteLoader()
         self._movie: QMovie | None = None
@@ -116,20 +123,21 @@ class BattlePanel(BaseOverlay):
         self._hidden_names: set[str] = set()  # balls the user chose to hide
         self._last_order: list[str] | None = None  # skip reordering when unchanged
         self.on_settings_click: Callable[[QPoint], None] | None = None
-        
+
         self.get_ball_state: Callable[[], tuple[list[tuple[str, str]], set[str]]] | None = None
         self.on_toggle_ball: Callable[[str], None] | None = None
         self.on_set_all_balls: Callable[[bool], None] | None = None
         self._balls: QWidget | None = None
-        
+
         self._sprite_h = BASE_SPRITE_H
         self._level_px = BASE_LEVEL_PX
         self._init_header()
         self._settings_btn.clicked.connect(self._on_settings_click)
 
     def setup_middle_btn(self) -> None:
-        from PyQt6.QtWidgets import QPushButton
         from PyQt6.QtCore import Qt
+        from PyQt6.QtWidgets import QPushButton
+
         self._balls_btn = QPushButton()
         self._balls_btn.setToolTip("Select Pokeballs to show")
         self._balls_btn.clicked.connect(self._on_balls_click)
@@ -137,9 +145,9 @@ class BattlePanel(BaseOverlay):
         self._bar.addWidget(self._balls_btn)
 
     def _init_header(self) -> None:
-        from PyQt6.QtWidgets import QHBoxLayout, QLabel
         from PyQt6.QtCore import Qt
-        from PyQt6.QtWidgets import QSizePolicy
+        from PyQt6.QtWidgets import QHBoxLayout, QLabel
+
         self._header = QHBoxLayout()
         self._sprite = QLabel()
         self._sprite.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
@@ -184,7 +192,7 @@ class BattlePanel(BaseOverlay):
         _row_e.setContentsMargins(0, 0, 0, 0)
         self._empty_label = QLabel()
         self._empty_label.setTextFormat(Qt.TextFormat.RichText)
-        self._empty_label.setText('no battles detected')
+        self._empty_label.setText("no battles detected")
         self._empty_label.setObjectName("SecondaryText")
         self._empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
         _row_e.addWidget(self._empty_label)
@@ -220,20 +228,20 @@ class BattlePanel(BaseOverlay):
         row_font = self._font(px(BASE_ROW_PX))
         sub_font = self._font(px(BASE_SUB_PX))
         status_font = self._font(px(BASE_STATUS_PX), bold=True)
-        
+
         self._name.setFont(name_font)
         self._sub.setFont(sub_font)
         self._hp.setFont(sub_font)
         self._status.setFont(status_font)
         self._empty_label.setFont(row_font)
-        
+
         self._mode_label.setFont(self._font(px(13), bold=True))
 
         self._sprite.setFixedHeight(self._sprite_h)
         ball_h = px(BASE_BALL_H)
         pct_minw = px(BASE_PCT_MINW)
         row_spacing = px(BASE_ROW_SPACING)
-        
+
         self._empty_row.setFixedHeight(ball_h)
         for name, row in self._ball_rows.items():
             pixmap = self._loader.ball_pixmap(name, ball_h)
@@ -241,6 +249,7 @@ class BattlePanel(BaseOverlay):
 
         isz = px(15)  # BASE_ICON_PX from dex_panel
         from ui_icons import icon_pixmap
+
         self._mode_btn.setIcon(QIcon(icon_pixmap("swords", isz, "#cfd2d6")))
         self._mode_btn.setIconSize(QSize(isz, isz))
         self._mode_btn.setFixedSize(isz + px(6), isz + px(6))
@@ -378,8 +387,8 @@ class BattlePanel(BaseOverlay):
     def _on_settings_click(self) -> None:
         if self.on_settings_click:
             pos = self._settings_btn.mapToGlobal(self._settings_btn.rect().bottomLeft())
-            self.on_settings_click(pos, self)
-            
+            self.on_settings_click(pos)
+
     def _on_balls_click(self) -> None:
         pos = self._balls_btn.mapToGlobal(self._balls_btn.rect().bottomLeft())
         self._toggle_balls(pos, self)
@@ -389,9 +398,12 @@ class BattlePanel(BaseOverlay):
         client rect (PHYSICAL screen coords from win32). Convert to Qt logical
         coords (DPI), anchor by the constant panel width, and only move on change
         so it cannot jitter."""
-        if getattr(self, "_drag_start", None) is not None or getattr(self, "_last_pos", None) is not None:
+        if (
+            getattr(self, "_drag_start", None) is not None
+            or getattr(self, "_last_pos", None) is not None
+        ):
             return  # user dragged it; leave it there
-            
+
         top += DOCK_TOP_OFFSET  # clear the location/money/time/ability HUD
         if DOCK_SIDE == "left":
             lx, ly = phys_to_logical(left, top)
@@ -446,12 +458,15 @@ class BattlePanel(BaseOverlay):
 
     # --- ball picker popup ---
 
-    def _popup_window(self, obj_name: str, parent_widget: QWidget | None = None) -> tuple[QWidget, QVBoxLayout]:
+    def _popup_window(
+        self, obj_name: str, parent_widget: QWidget | None = None
+    ) -> tuple[QWidget, QVBoxLayout]:
         w = QWidget(parent_widget)
         w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         w.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool)
         w.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        frame = QFrame(w, objectName=obj_name)
+        frame = QFrame(w)
+        frame.setObjectName(obj_name)
         frame.setStyleSheet(
             f"#{obj_name} {{ background: rgba(18,18,20,238); border-radius: 8px; }}"
             " QLabel { color: #eeeeee; background: transparent; }"
@@ -466,7 +481,9 @@ class BattlePanel(BaseOverlay):
         box.setSpacing(3)
         return w, box
 
-    def _toggle_balls(self, anchor_pos: QPoint | bool | None = None, parent_widget: QWidget | None = None) -> None:
+    def _toggle_balls(
+        self, anchor_pos: QPoint | bool | None = None, parent_widget: QWidget | None = None
+    ) -> None:
         if isinstance(anchor_pos, bool):
             anchor_pos = None
         if self._balls is not None and self._balls.isVisible():
@@ -475,7 +492,9 @@ class BattlePanel(BaseOverlay):
             return
         self._open_balls(anchor_pos, parent_widget)
 
-    def _open_balls(self, anchor_pos: QPoint | bool | None = None, parent_widget: QWidget | None = None) -> None:
+    def _open_balls(
+        self, anchor_pos: QPoint | bool | None = None, parent_widget: QWidget | None = None
+    ) -> None:
         if isinstance(anchor_pos, bool):
             anchor_pos = None
         if self._balls is not None:
