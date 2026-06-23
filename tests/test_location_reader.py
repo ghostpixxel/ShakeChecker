@@ -6,12 +6,7 @@ import cv2
 import pytest
 
 from battle_reader import load_calibration
-from location_reader import (
-    clean_location,
-    is_cave_location,
-    location_crop_fingerprint,
-    read_location,
-)
+from location_reader import clean_location, is_cave_location, read_location
 
 ROOT = Path(__file__).parent.parent
 FIXTURES = ROOT / "fixtures"
@@ -22,15 +17,6 @@ def test_clean_location_strips_channel_suffix():
     assert clean_location("Eterna Forest Ch. 2") == "Eterna Forest"
     assert clean_location(" Route 41 Ch.2") == "Route 41"
     assert clean_location("Wayward Cave Ch. 12") == "Wayward Cave"
-
-
-def test_location_fingerprint_stable_and_distinct():
-    # same frame -> same fingerprint (so the OCR is skipped while standing still);
-    # a different area's HUD -> different fingerprint (so a move triggers a re-OCR).
-    a = cv2.imread(str(FIXTURES / "wild_encounter_alpha_noctowl.png"))
-    b = cv2.imread(str(FIXTURES / "rain_wild_encounter_3.png"))
-    assert location_crop_fingerprint(a, CAL.location) == location_crop_fingerprint(a, CAL.location)
-    assert location_crop_fingerprint(a, CAL.location) != location_crop_fingerprint(b, CAL.location)
 
 
 def test_is_cave_by_keyword():

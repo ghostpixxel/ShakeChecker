@@ -4,44 +4,12 @@ from __future__ import annotations
 
 import numpy as np
 
-# Cap the onnxruntime CPU threads per OCR inference. By default onnxruntime runs
-# on ALL logical cores, so each OCR (location every ~2.5s, name once per battle,
-# chat ~5x/s in battle) briefly pegs the whole CPU. On weak laptops that starves
-# the audio thread and stutters the entire system (reported in the wild). Two
-# threads keep OCR responsive while leaving cores free for the game and audio.
-OCR_THREADS = 2
-
 _ocr = None
-_threads_capped = False
-
-
-def _cap_ort_threads() -> None:
-    """Force RapidOCR's onnxruntime sessions to a small thread count.
-
-    The bundled OrtInferSession never sets intra_op_num_threads, and this RapidOCR
-    version exposes no config key for it, so we subclass the SessionOptions it
-    instantiates and set the limit there before the engine is built."""
-    global _threads_capped
-    if _threads_capped:
-        return
-    import rapidocr_onnxruntime.utils as ort_utils
-
-    base = ort_utils.SessionOptions
-
-    class _CappedSessionOptions(base):  # type: ignore[misc, valid-type]
-        def __init__(self) -> None:
-            super().__init__()
-            self.intra_op_num_threads = OCR_THREADS
-            self.inter_op_num_threads = 1
-
-    ort_utils.SessionOptions = _CappedSessionOptions
-    _threads_capped = True
 
 
 def _engine():
     global _ocr
     if _ocr is None:
-        _cap_ort_threads()
         from rapidocr_onnxruntime import RapidOCR
 
         _ocr = RapidOCR()

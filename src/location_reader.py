@@ -60,23 +60,6 @@ def is_cave_location(name: str) -> bool:
     return any(all(word in n for word in group) for group in _CAVE_WORD_GROUPS)
 
 
-def location_crop_fingerprint(frame_bgr: np.ndarray, cal: LocationCalibration) -> int:
-    """A cheap hash of the HUD location crop so the caller can skip the ~700 ms OCR
-    when the on-screen location hasn't changed.
-
-    The HUD location text is a static UI overlay -- byte-identical frame to frame
-    within an area, and different when you cross into a new area -- so a small
-    downscaled thumbnail hashes stably per location. ~0.3 ms vs the OCR's ~700 ms.
-    """
-    h, w = frame_bgr.shape[:2]
-    crop = frame_bgr[int(h * cal.top) : int(h * cal.bottom), int(w * cal.left) : int(w * cal.right)]
-    if crop.size == 0:
-        return 0
-    thumb = cv2.resize(crop, (32, 8), interpolation=cv2.INTER_AREA)
-    gray = cv2.cvtColor(thumb, cv2.COLOR_BGR2GRAY)
-    return hash(gray.tobytes())
-
-
 def read_location(frame_bgr: np.ndarray, cal: LocationCalibration) -> str:
     """OCR the top-left HUD location (cleaned), or '' if not readable."""
     h, w = frame_bgr.shape[:2]
