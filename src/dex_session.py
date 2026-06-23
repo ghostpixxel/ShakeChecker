@@ -63,6 +63,8 @@ class DexSession:
         period = self._period_fn()
         season = self._season_fn()
         if key is None:
+            if hud_name == "ShakeChecker":
+                return LocationView("ShakeChecker", "Main Menu", period, season, [])
             # If the name is substantial but unknown (e.g. a city), return an empty view
             # so the panel stays open. Ignore tiny strings to prevent OCR noise flickering.
             if len(hud_name.strip()) > 3:

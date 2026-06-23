@@ -19,7 +19,8 @@ from battle_reader import LocationCalibration
 from ocr_engine import run_ocr
 
 # Drops the " Ch. N" channel suffix (and any trailing noise) from the HUD line.
-_CH_SUFFIX = re.compile(r"\s*ch\.?\s*\d+.*$", re.IGNORECASE)
+# Tolerates OCR noise like "C h", "Ch,", "Ch .", or "Ch-"
+_CH_SUFFIX = re.compile(r"\s*c\s*h[\.,\-\s]*\d+.*$", re.IGNORECASE)
 # The location crop spans from the very top, so a full-window capture (fixtures
 # and live alike) picks up the "PokeMMO" window-title text before the HUD name.
 _TITLE_PREFIX = re.compile(r"^\s*pokemmo\s*", re.IGNORECASE)
@@ -49,7 +50,14 @@ def clean_location(raw: str) -> str:
     """The location name without the leading 'PokeMMO' title, the ' Ch. N'
     channel suffix, or stray edges."""
     s = _TITLE_PREFIX.sub("", raw.strip())
-    return _CH_SUFFIX.sub("", s).strip(" .|")
+    cleaned = _CH_SUFFIX.sub("", s).strip(" .|")
+    
+    # PokeMMO's main menu displays "Loaded ROMs" in the top left.
+    # We override it to display the app name instead.
+    if "load" in cleaned.lower():
+        return "ShakeChecker"
+        
+    return cleaned
 
 
 def is_cave_location(name: str) -> bool:

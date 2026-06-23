@@ -227,11 +227,15 @@ class DexPanel(BaseOverlay):
         keep_caught = self.get_keep_caught() if self.get_keep_caught is not None else True
         entries = display_order(view.entries, keep_caught=keep_caught)
         needed = sum(1 for e in view.entries if not e.caught)
-        self._title.setText(view.route.title())
-        self._subtitle.setText(
-            f"{view.region.title()} · {view.period.value.title()} · "
-            f"{season_name(view.season)} · {needed} left"
-        )
+        self._title.setText(view.route if view.route == "ShakeChecker" else view.route.title())
+        
+        if view.route == "ShakeChecker":
+            self._subtitle.setText(view.region.title())
+        else:
+            self._subtitle.setText(
+                f"{view.region.title()} · {view.period.value.title()} · "
+                f"{season_name(view.season)} · {needed} left"
+            )
         self._ensure_rows(max(1, len(entries)))
         margin_x = self._px(BASE_MARGIN_X)
         col_w = self._px(BASE_SPRITE_COL_W)

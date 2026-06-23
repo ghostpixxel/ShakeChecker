@@ -1120,6 +1120,19 @@ class LiveLoop:
         Returns the view (or None) so the caller can drive the overlay panel."""
         if self.dex is None or not hud_name:
             return None
+
+        # Debounce OCR jitter (e.g. "Casteliacity" vs "Castelia City")
+        if self._last_hud:
+            import re
+            from rapidfuzz import fuzz
+
+            def extract_digits(s: str) -> tuple[str, ...]:
+                return tuple(re.findall(r"\d+", s))
+
+            if extract_digits(hud_name) == extract_digits(self._last_hud):
+                if fuzz.ratio(hud_name, self._last_hud) >= 85.0:
+                    hud_name = self._last_hud
+
         view = self.dex.on_location(hud_name)
         if view is not None:
             self._last_hud = hud_name  # remember only locations we could resolve
