@@ -26,6 +26,7 @@ import time
 import win32api
 import win32con
 import win32event
+import win32process
 import winerror
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QAction, QIcon
@@ -44,6 +45,7 @@ from battle_logic import (
 )
 from battle_reader import (
     BattleState,
+    BattleText,
     BattleTextReader,
     Calibration,
     Status,
@@ -60,7 +62,7 @@ from dex_session import DexSession, LocationView
 from dex_tracker import EncounterData, select_display
 from game_time import current_game_minute, is_dusk_ball_night, season_name
 from hp_settler import HpSettler
-from location_reader import is_cave_location, read_game_clock, read_location
+from location_reader import is_cave_location, location_crop_fingerprint, read_location
 from name_reader import NameReader
 from overlay import Overlay, scale_for_window
 from settings_store import Settings
@@ -404,6 +406,8 @@ class LiveLoop:
         self._ot_checked = False  # enemy's OT-caught icon checked this battle
         self._was_horde = False  # read_battle horde hint (read every tick, so init here)
         self._last_loc_check = 0.0  # last IDLE location OCR (throttle)
+        self._loc_fp = 0  # fingerprint of the last location crop (skip OCR if unchanged)
+        self._loc_cached = ""  # last location string (reused while the HUD is unchanged)
         self._loc_miss_streak = 0  # consecutive unmatched location reads (debounce hide)
         self._dex_log = ""  # last printed dex panel text (console dedup)
         self._last_hud = ""  # last HUD location seen (to refresh the panel on a toggle)
@@ -481,9 +485,15 @@ class LiveLoop:
         # attack animation the bar vanishes but the "X used Y!" text shows; brief
         # gaps are covered by the end grace. The panel (ui_present) only tunes the
         # grace; it never extends in_battle, so a dark cave still ends the battle.
-        bt = self.battle_text.read(frame)
-        in_battle = is_in_battle(reading.state, bt)
         ui_present = is_battle_ui_present(frame, self.cal.battle_ui)
+        # battle_text.read is ~77 ms of template matching. Skip it in the plain
+        # overworld (no enemy bar AND no dark battle panel) so it doesn't burn CPU
+        # every frame; a battle always shows one or the other, so detection holds.
+        if reading.state is not BattleState.NO_BATTLE or ui_present:
+            bt = self.battle_text.read(frame)
+        else:
+            bt = BattleText(menu_present=False, caught=False, action=False)
+        in_battle = is_in_battle(reading.state, bt)
         grace = battle_end_grace(
             self._is_trainer,
             ui_present,
@@ -539,7 +549,15 @@ class LiveLoop:
         dex_due = now - self._last_loc_check >= DEX_LOC_INTERVAL_S
         if self.state is AppState.IDLE and self.dex is not None and dex_due:
             self._last_loc_check = now
-            view = self._update_dex(read_location(frame, self.cal.location))
+            # The location OCR is ~700 ms; only run it when the HUD location crop
+            # actually changed (you crossed into a new area). Standing still or in a
+            # menu reuses the last reading, which is what kills the periodic CPU
+            # spike users hit while just walking around.
+            fp = location_crop_fingerprint(frame, self.cal.location)
+            if fp != self._loc_fp:
+                self._loc_fp = fp
+                self._loc_cached = read_location(frame, self.cal.location)
+            view = self._update_dex(self._loc_cached)
             action, self._loc_miss_streak = dex_panel_action(
                 view is not None, self._loc_miss_streak, hide_after=DEX_LOC_MISS_HIDE
             )
@@ -591,7 +609,7 @@ class LiveLoop:
             loc = read_location(frame, self.cal.location)
             if loc:
                 cave = is_cave_location(loc)
-                night = self._is_night(frame)  # Dusk Ball also boosts at night (locked here)
+                night = self._is_night()  # Dusk Ball also boosts at night (locked here)
                 self.dusk_active = cave or night
                 self._loc_read = True
                 bits = [b for b, on in (("cave", cave), ("night", night)) if on]
@@ -789,14 +807,13 @@ class LiveLoop:
             log.info(line)
             self.last_line = line
 
-    def _is_night(self, frame) -> bool:
-        """Is it within the Dusk Ball night window (21:00-07:59 game time)? Reads
-        the HUD clock the player sees; falls back to the deterministic UTC game
-        time if the clock can't be read."""
-        minute = read_game_clock(frame, self.cal.hud_time)
-        if minute is None:
-            minute = current_game_minute()
-        return is_dusk_ball_night(minute)
+    def _is_night(self) -> bool:
+        """Is it within the Dusk Ball night window (21:00-07:59 game time)?
+
+        Game time is deterministic from the UTC clock (CLAUDE.md), so compute it
+        directly instead of OCRing the HUD clock every battle -- that OCR was a
+        ~1 s all-core burst just to learn the time we already know."""
+        return is_dusk_ball_night(current_game_minute())
 
     def _update_dex(self, hud_name: str) -> LocationView | None:
         """Resolve the HUD location to a view and log the panel when it changes.
@@ -910,6 +927,19 @@ def acquire_single_instance(name: str = SINGLE_INSTANCE_NAME) -> int | None:
     return handle
 
 
+def lower_process_priority() -> None:
+    """Drop to below-normal priority so ShakeChecker's periodic OCR CPU bursts
+    yield to the game and the audio thread. Without this, on weak machines the
+    all-core OCR spikes starve audio and stutter the whole system. Best-effort;
+    a failure here must never stop the app."""
+    try:
+        win32process.SetPriorityClass(
+            win32api.GetCurrentProcess(), win32process.BELOW_NORMAL_PRIORITY_CLASS
+        )
+    except Exception:
+        log.debug("could not lower process priority", exc_info=True)
+
+
 def run(
     species_override: dict | None,
     status_override: str | None,
@@ -918,6 +948,7 @@ def run(
     debug: bool = False,
 ) -> None:
     setup_logging(debug)
+    lower_process_priority()
     # Only one instance may run: a second would draw a duplicate overlay over the
     # first (looks like ghosting). Hold the lock for the whole process via `lock`.
     lock = acquire_single_instance()
