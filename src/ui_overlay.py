@@ -7,7 +7,7 @@ from collections.abc import Callable
 import win32api
 import win32con
 import win32gui
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QPoint
 from PyQt6.QtGui import QCursor, QFont, QGuiApplication
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
@@ -96,6 +96,59 @@ def bring_overlay_above_game(widget: QWidget) -> None:
         pass
 
 
+class ResizeHandle(QWidget):
+    """A small drag-handle pip at the bottom of the overlay for manual vertical resizing."""
+    def __init__(self, on_drag: Callable[[int], None]):
+        super().__init__()
+        self.on_drag = on_drag
+        self._drag_start_y: int | None = None
+        self.setCursor(Qt.CursorShape.SizeVerCursor)
+        self.setObjectName("ResizeHandle")
+        # Keep a comfortably large hit target, but slightly smaller than before
+        self.setFixedSize(100, 20)
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 8, 0, 8)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        self.pip = QFrame()
+        self.pip.setFixedSize(32, 4)
+        self.pip.setObjectName("Pip")
+        self.pip.setStyleSheet("""
+            #Pip {
+                background: rgba(255, 255, 255, 0.4);
+                border-radius: 2px;
+            }
+            #ResizeHandle:hover #Pip {
+                background: rgba(255, 255, 255, 0.8);
+            }
+        """)
+        # Explicitly set the wrapper background transparent so Qt handles hit testing properly
+        self.setStyleSheet("#ResizeHandle { background: transparent; }")
+        layout.addWidget(self.pip)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._drag_start_y = event.globalPosition().y()
+            self.grabMouse()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self._drag_start_y is not None:
+            current_y = event.globalPosition().y()
+            dy = current_y - self._drag_start_y
+            if dy != 0:
+                self.on_drag(dy)
+                self._drag_start_y = current_y
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._drag_start_y = None
+            self.releaseMouse()
+            event.accept()
+
+
 class BaseOverlay(QWidget):
     """Shared parent class for DexPanel and BattlePanel overlays.
     Handles the transparent click-through window frame, generic top-bar layout,
@@ -109,6 +162,7 @@ class BaseOverlay(QWidget):
         self._panel_w = base_panel_w
         self._last_pos: tuple[int, int] | tuple[int, int, int] | None = None
         self._click_through: bool | None = None
+        self._manual_height: int | None = None
 
         self.on_mode_toggle: Callable[[], None] | None = None
 
@@ -132,7 +186,13 @@ class BaseOverlay(QWidget):
         panel = QFrame()
         panel.setObjectName("panel")
         self._root.addWidget(panel)
-        self._col = QVBoxLayout(panel)
+        
+        self._main_layout = QVBoxLayout(panel)
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
+        self._main_layout.setSpacing(0)
+        
+        self._col = QVBoxLayout()
+        self._main_layout.addLayout(self._col)
 
         self._bar = QHBoxLayout()
         self._mode_btn = QPushButton()
@@ -161,6 +221,20 @@ class BaseOverlay(QWidget):
         self._hover = QTimer(self)
         self._hover.setInterval(40)
         self._hover.timeout.connect(self._check_hover)
+
+        self._resize_handle = ResizeHandle(self._on_drag_resize)
+        self._main_layout.addWidget(self._resize_handle, alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
+
+    def _on_drag_resize(self, dy: int) -> None:
+        new_h = max(100, self.height() + int(dy))
+        self._manual_height = new_h
+        self.setFixedHeight(new_h)
+        # Re-apply docking to stay clamped if we grew downwards
+        if self._last_pos is not None:
+            if len(self._last_pos) == 3:
+                self.dock_to(*self._last_pos)
+            else:
+                self.move(*self._last_pos)
 
     def setup_middle_btn(self) -> None:
         """Override in subclasses to insert a button before the profile button
@@ -192,6 +266,13 @@ class BaseOverlay(QWidget):
     def _check_hover(self) -> None:
         if not self.isVisible():
             return
+            
+        # If the user is currently holding the left mouse button, they might be dragging
+        # the resize handle or a scrollbar. Do not abruptly toggle click-through!
+        from PyQt6.QtGui import Qt, QGuiApplication
+        if QGuiApplication.mouseButtons() & Qt.MouseButton.LeftButton:
+            return
+            
         over = self.frameGeometry().adjusted(-30, -30, 30, 30).contains(QCursor.pos())
         self._apply_click_through(not over)
 

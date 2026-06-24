@@ -57,6 +57,9 @@ def clean_location(raw: str) -> str:
     if "load" in cleaned.lower():
         return "ShakeChecker"
         
+    # Prevent OCR from dropping the space before a number (e.g. "Route4" -> "Route 4")
+    cleaned = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', cleaned)
+        
     return cleaned
 
 

@@ -173,11 +173,15 @@ class DexPanel(BaseOverlay):
         )  # gap so the scrollbar clears the way text
         self._list_layout.addStretch(1)  # keep rows top-aligned
         self._scroll.setWidget(self._list)
-        self._col.addWidget(self._scroll)
+        self._col.addWidget(self._scroll, 1)
 
         self.apply_scale(1.0)
 
     # --- public API ---
+
+    def _on_drag_resize(self, dy: int) -> None:
+        super()._on_drag_resize(dy)
+        self._fit_list_height()
 
     def apply_scale(self, scale: float) -> None:
         scale = max(0.1, min(2.0, scale))
@@ -280,7 +284,8 @@ class DexPanel(BaseOverlay):
         self._col.activate()
         self._root.invalidate()
         self._root.activate()
-        self.adjustSize()
+        if self._manual_height is None:
+            self.adjustSize()
         self.show()
         bring_overlay_above_game(self)
         self._apply_click_through(True)  # start passing input through
@@ -497,6 +502,12 @@ class DexPanel(BaseOverlay):
     def _fit_list_height(self) -> None:
         """Size the scroll viewport to the content, capped at DEX_MAX_VISIBLE_ROWS
         rows (the rest scroll)."""
+        if self._manual_height is not None:
+            # If manually resized, let the scroll area expand to fill the available layout space
+            self._scroll.setMinimumHeight(100)
+            self._scroll.setMaximumHeight(16777215)
+            return
+
         # Compute height directly from visible row count so we never race against
         # Qt's layout pass (sizeHint/adjustSize can be stale for a frame).
         row_h = self._sprite_h

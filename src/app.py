@@ -454,13 +454,10 @@ class LiveLoop:
 
     def start(self) -> None:
         log.info(f"ShakeChecker v{paths.APP_VERSION}")
-        species_src = (
-            f"override {self.species_override['name']}"
-            if self.species_override
-            else "OCR from screen"
-        )
-        status_src = f"override {self.status_override}" if self.status_override else "from screen"
-        log.info(f"species: {species_src}, status: {status_src}")
+        if self.species_override or self.status_override:
+            species_src = f"override {self.species_override['name']}" if self.species_override else "OCR from screen"
+            status_src = f"override {self.status_override}" if self.status_override else "from screen"
+            log.info(f"override mode active - species: {species_src}, status: {status_src}")
         log.info("loading OCR neural networks...")
         import ocr_engine
         ocr_engine.preload()
@@ -791,7 +788,7 @@ class LiveLoop:
                     elif self.dex_panel is not None:
                         self.dex_panel.set_loading(False)
 
-                if self.mode_override == "dex":
+                if self.mode_override == "dex" or (self.mode_override == "auto" and self.settings.auto_switch and self.state != AppState.BATTLE):
                     view = self._update_dex(self._loc_ocr_raw)
 
                     if not self._last_hud and getattr(self, "_loc_future", None) is not None:
@@ -843,10 +840,6 @@ class LiveLoop:
                     probs={},
                     is_empty=True,
                 )
-                if self.dex_panel is not None:
-                    # Keep the exact same size as the dex panel
-                    self.battle_panel.setFixedHeight(self.dex_panel.height())
-
         # Sync positions so toggling doesn't cause panels to jump
         bp_pos = getattr(self.battle_panel, "_last_pos", None)
         dp_pos = getattr(self.dex_panel, "_last_pos", None) if self.dex_panel is not None else None
@@ -921,32 +914,6 @@ class LiveLoop:
                 bits = [b for b, on in (("cave", cave), ("night", night)) if on]
                 note = f" ({'+'.join(bits)} -> Dusk Ball boosted)" if bits else ""
                 log.info(f"location: {loc}{note}")
-
-            if self.dex is not None:
-                view = self._update_dex(loc)
-                if view is not None and self.dex_panel is not None:
-                    self.dex_panel.apply_scale(
-                        self.settings.panel_scale or scale_for_window(rect.height)
-                    )
-                    self.dex_panel.show_here(view)
-                    self.dex_panel.dock_to(rect.left, rect.top, rect.width)
-                elif view is None and self.dex_panel is not None and not loc:
-                    # If we started mid-battle, HUD is hidden so loc is empty.
-                    from dex_session import LocationView
-                    from game_time import Period
-
-                    dummy_view = LocationView(
-                        route="Unknown Route",
-                        region="Finish battle to read HUD",
-                        period=Period.DAY,
-                        season=0,
-                        entries=[],
-                    )
-                    self.dex_panel.apply_scale(
-                        self.settings.panel_scale or scale_for_window(rect.height)
-                    )
-                    self.dex_panel.show_here(dummy_view)
-                    self.dex_panel.dock_to(rect.left, rect.top, rect.width)
 
         asleep = reading.state is BattleState.SINGLE and reading.bars[0].status is Status.SLP
 

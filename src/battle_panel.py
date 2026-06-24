@@ -183,7 +183,7 @@ class BattlePanel(BaseOverlay):
         self._balls_container = QWidget()
         self._balls_layout = QVBoxLayout(self._balls_container)
         self._balls_layout.setContentsMargins(0, 0, 0, 0)
-        self._col.addWidget(self._balls_container)
+        self._col.addWidget(self._balls_container, 1)
 
         # "no battles detected" placeholder - built as a plain ball-style row so
         # it gets identical height and spacing to the real ball rows.
@@ -367,13 +367,20 @@ class BattlePanel(BaseOverlay):
         self._balls_layout.activate()
         self._balls_container.adjustSize()
         content_h = self._balls_container.sizeHint().height()
-        self._balls_container.setFixedHeight(content_h)
+        
+        if self._manual_height is not None:
+            self._balls_container.setMinimumHeight(content_h)
+            self._balls_container.setMaximumHeight(16777215)
+        else:
+            self._balls_container.setFixedHeight(content_h)
 
         self._col.invalidate()
         self._col.activate()
         self._root.invalidate()
         self._root.activate()
-        self.setFixedHeight(self.sizeHint().height())
+        
+        if self._manual_height is None:
+            self.setFixedHeight(self.sizeHint().height())
 
     def hide_battle(self) -> None:
         if self._movie is not None:
