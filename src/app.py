@@ -375,6 +375,8 @@ class LiveLoop:
         self.battle_panel = battle_panel
         self.dex = dex  # None if the dex data couldn't be loaded
         self.dex_panel = dex_panel  # overworld "missing here" overlay
+        from settings_panel import SettingsPanel
+        self.settings_panel = SettingsPanel()
         self.balls = load_balls()
         self.settings = Settings.load(USERDATA)  # which balls the overlay shows
         self.battle_panel.set_hidden_names(self._hidden_ball_names())
@@ -411,7 +413,9 @@ class LiveLoop:
         self.mode_override: str = "auto" if self.settings.auto_switch else "dex"
         if self.dex_panel is not None:
             self.dex_panel.on_mode_toggle = self._on_mode_toggle
-            self.battle_panel.on_settings_click = self.dex_panel._toggle_profiles
+            self.dex_panel.on_settings_click = lambda anchor: self.settings_panel.show(mode="dex", anchor_pos=anchor)
+            
+        self.battle_panel.on_settings_click = lambda anchor: self.settings_panel.show(mode="battle", anchor_pos=anchor)
 
         self.battle_panel.on_mode_toggle = self._on_mode_toggle
         self.battle_panel.on_toggle_ball = self._toggle_ball
@@ -435,22 +439,28 @@ class LiveLoop:
         self._was_horde = False  # read_battle horde hint (read every tick, so init here)
         self._last_loc_check = 0.0  # last IDLE location OCR (throttle)
         self._dex_log = ""  # last printed dex panel text (console dedup)
+        
         if self.dex_panel is not None and self.dex is not None:
             self.dex_panel.on_toggle_caught = self._dex_toggle_caught
-            self.dex_panel.on_select_profile = self._dex_use_profile
-            self.dex_panel.on_create_profile = self._dex_use_profile
-            self.dex_panel.on_delete_profile = self._dex_delete_profile
-            self.dex_panel.get_profiles = self._dex_profiles
             self.dex_panel.get_keep_caught = lambda: self.settings.keep_caught
-            self.dex_panel.on_toggle_keep_caught = self._toggle_keep_caught
-            self.dex_panel.get_auto_switch = lambda: self.settings.auto_switch
-            self.dex_panel.on_toggle_auto_switch = self._app_toggle_auto_switch
             self.dex_panel.get_click_to_catch = lambda: self.settings.click_to_catch
-            self.dex_panel.on_toggle_click_to_catch = self._app_toggle_click_to_catch
-            self.dex_panel.get_current_region = lambda: self.dex.region if self.dex else None
-            self.dex_panel.on_override_region = self._dex_override_region
-            self.dex_panel.get_panel_scale = lambda: self.settings.panel_scale
-            self.dex_panel.on_set_panel_scale = self._set_panel_scale
+
+        self.settings_panel.on_choose_profile = self._dex_use_profile
+        self.settings_panel.on_create_profile = self._dex_use_profile
+        self.settings_panel.on_remove_profile = self._dex_delete_profile
+        self.settings_panel.get_profiles = self._dex_profiles
+        self.settings_panel.get_keep_caught = lambda: self.settings.keep_caught
+        self.settings_panel.on_toggle_keep_caught = self._toggle_keep_caught
+        self.settings_panel.get_auto_switch = lambda: self.settings.auto_switch
+        self.settings_panel.on_toggle_auto_switch = self._app_toggle_auto_switch
+        self.settings_panel.get_click_to_catch = lambda: self.settings.click_to_catch
+        self.settings_panel.on_toggle_click_to_catch = self._app_toggle_click_to_catch
+        self.settings_panel.get_current_region = lambda: self.dex.region if self.dex else None
+        self.settings_panel.on_override_region = self._dex_override_region
+        self.settings_panel.get_dex_scale = lambda: self.settings.dex_scale
+        self.settings_panel.on_set_dex_scale = self._set_dex_scale
+        self.settings_panel.get_battle_scale = lambda: self.settings.battle_scale
+        self.settings_panel.on_set_battle_scale = self._set_battle_scale
 
     def start(self) -> None:
         log.info(f"ShakeChecker v{paths.APP_VERSION}")
@@ -479,6 +489,7 @@ class LiveLoop:
         return BATTLE_FRAME_S if self.state is AppState.BATTLE else IDLE_FRAME_S
 
     def _apply_mode_change(self, log_msg: str) -> None:
+        self.settings_panel.close()
         if self.mode_override == "dex":
             self.battle_panel.hide()
         elif self.mode_override == "battle" and self.dex_panel is not None:
@@ -532,6 +543,7 @@ class LiveLoop:
     def _tick(self) -> float:
         # Reset manual override if the app state changes naturally
         if self.state != getattr(self, "_last_state", None):
+            self.settings_panel.close()
             if (
                 getattr(self, "_last_state", None) is not None
                 and self.mode_override != "auto"
@@ -652,7 +664,7 @@ class LiveLoop:
                 view = self.dex.on_location(self._last_hud)
                 if view is not None:
                     self.dex_panel.apply_scale(
-                        self.settings.panel_scale or scale_for_window(client_rect.height)
+                        self.settings.dex_scale or scale_for_window(client_rect.height)
                     )
                     self.dex_panel.show_here(view)
                     self.dex_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
@@ -738,7 +750,7 @@ class LiveLoop:
                                 entries=[],
                             )
                             self.dex_panel.apply_scale(
-                                self.settings.panel_scale or scale_for_window(client_rect.height)
+                                self.settings.dex_scale or scale_for_window(client_rect.height)
                             )
                             self.dex_panel.show_here(dummy_view)
                             self.dex_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
@@ -806,7 +818,7 @@ class LiveLoop:
                     if self.dex_panel is not None:
                         if view is not None:  # matched -> show (action == "show")
                             self.dex_panel.apply_scale(
-                                self.settings.panel_scale or scale_for_window(client_rect.height)
+                                self.settings.dex_scale or scale_for_window(client_rect.height)
                             )
                             if self.mode_override != "battle":
                                 self.dex_panel.show_here(view)
@@ -830,7 +842,7 @@ class LiveLoop:
                 self.dex_panel.hide_panel()
             if self.state == AppState.IDLE and not self.battle_panel.isVisible():
                 self.battle_panel.apply_scale(
-                    self.settings.panel_scale or scale_for_window(client_rect.height)
+                    self.settings.battle_scale or scale_for_window(client_rect.height)
                 )
                 self.battle_panel.show_battle(
                     dex_id=0,
@@ -1014,7 +1026,7 @@ class LiveLoop:
                     self._update_single(frame, reading.bars[0], rect, is_trainer=self._is_trainer)
             else:
                 if self.mode_override != "dex":
-                    self.battle_panel.apply_scale(scale_for_window(rect.height))
+                    self.battle_panel.apply_scale(self.settings.battle_scale or scale_for_window(rect.height))
                     self.battle_panel.show_battle(
                         dex_id=0,
                         name="Reading battle...",
@@ -1057,7 +1069,7 @@ class LiveLoop:
 
         if is_trainer:
             if self.mode_override != "dex":
-                self.battle_panel.apply_scale(scale_for_window(rect.height))
+                self.battle_panel.apply_scale(self.settings.battle_scale or scale_for_window(rect.height))
                 self.battle_panel.show_battle(
                     dex_id=0,
                     name="Trainer's Pokémon",
@@ -1119,7 +1131,7 @@ class LiveLoop:
         if self.cached is None:
             line = f"{'?':12.12s} HP {hp_pct:5.1f}% [{status}]  ({turn_note})"
             if self.mode_override != "dex":
-                self.battle_panel.apply_scale(scale_for_window(rect.height))
+                self.battle_panel.apply_scale(self.settings.battle_scale or scale_for_window(rect.height))
                 self.battle_panel.show_battle(
                     dex_id=0,
                     name="Reading...",
@@ -1146,7 +1158,7 @@ class LiveLoop:
             )
             line = f"[{turn_note}] " + format_line(self.cached["name"], hp_pct, status, probs)
             if self.mode_override != "dex":
-                self.battle_panel.apply_scale(scale_for_window(rect.height))
+                self.battle_panel.apply_scale(self.settings.battle_scale or scale_for_window(rect.height))
                 # Pass only known probabilities to the overlay; for an unknown rate
                 # this is empty and show_battle renders "??" from catch_rate=None.
                 overlay_probs = {name: p for name, p in probs if p is not None}
@@ -1232,24 +1244,36 @@ class LiveLoop:
                 client_rect = get_client_rect(self.hwnd)
                 if view is not None and client_rect is not None:
                     self.dex_panel.apply_scale(
-                        self.settings.panel_scale or scale_for_window(client_rect.height)
+                        self.settings.dex_scale or scale_for_window(client_rect.height)
                     )
                     self.dex_panel.show_here(view)
                     self.dex_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
                 elif view is None:
                     self.dex_panel.hide_panel()
 
-    def _set_panel_scale(self, scale: float | None) -> None:
-        self.settings.set_panel_scale(scale)
-        log.info(f"dex: panel scale override set to {scale if scale else 'Auto'}")
-        if self.dex_panel is not None and self.hwnd is not None:
+    def _set_dex_scale(self, scale: float | None) -> None:
+        self.settings.set_dex_scale(scale)
+        log.info(f"dex: scale override set to {scale if scale else 'Auto'}")
+        if self.hwnd is not None:
+            client_rect = get_client_rect(self.hwnd)
+            if client_rect is not None and self.dex_panel is not None:
+                new_scale = self.settings.dex_scale or scale_for_window(client_rect.height)
+                self.dex_panel.apply_scale(new_scale)
+                self.dex_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
+        
+        # Only refresh dex panel if it's supposed to be visible
+        if self.mode_override == "dex" or (self.mode_override == "auto" and self.state != AppState.BATTLE):
+            self._refresh_dex_panel()
+
+    def _set_battle_scale(self, scale: float | None) -> None:
+        self.settings.set_battle_scale(scale)
+        log.info(f"battle: scale override set to {scale if scale else 'Auto'}")
+        if self.hwnd is not None:
             client_rect = get_client_rect(self.hwnd)
             if client_rect is not None:
-                self.dex_panel.apply_scale(
-                    self.settings.panel_scale or scale_for_window(client_rect.height)
-                )
-                self.dex_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
-        self._refresh_dex_panel()
+                new_scale = self.settings.battle_scale or scale_for_window(client_rect.height)
+                self.battle_panel.apply_scale(new_scale)
+                self.battle_panel.dock_to(client_rect.left, client_rect.top, client_rect.width)
 
     def _dex_toggle_caught(self, dex_id: int) -> None:
         if self.dex is None:

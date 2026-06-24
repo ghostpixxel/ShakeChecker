@@ -179,8 +179,13 @@ def create_popup_window(
     """A frameless dark popup matching the panel; returns (window, content box)."""
     w = QWidget(parent_widget)
     w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-    w.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool)
+    w.setWindowFlags(
+        Qt.WindowType.FramelessWindowHint 
+        | Qt.WindowType.Tool 
+        | Qt.WindowType.WindowDoesNotAcceptFocus
+    )
     w.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+    w.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
     frame = QFrame(w)
     frame.setObjectName(obj_name)
     frame.setStyleSheet(get_global_stylesheet())
@@ -208,151 +213,4 @@ def build_legend(panel: DexPanel, parent_widget: QWidget | None = None) -> QWidg
     return w
 
 
-def build_profiles(panel: DexPanel, parent_widget: QWidget | None = None) -> QWidget:
-    active, accounts = panel.get_profiles() if panel.get_profiles else (None, [])
-    w, box = create_popup_window("profiles", parent_widget)
-    head = QLabel("Profiles")
-    head.setFont(panel._font(12, bold=True))
-    head.setObjectName("PrimaryText")
-    box.addWidget(head)
-    for name in accounts:
-        row = QHBoxLayout()
-        row.setSpacing(8)
-        sw = QPushButton(("● " if name == active else "    ") + name)
-        sw.setFont(panel._font(12))
-        sw.setCursor(Qt.CursorShape.PointingHandCursor)
-        sw.setObjectName("LeftAlignBtn")
-        sw.clicked.connect(lambda _=False, n=name: panel._choose_profile(n))
-        minus = QPushButton("−")
-        minus.setFont(panel._font(14, bold=True))
-        minus.setCursor(Qt.CursorShape.PointingHandCursor)
-        minus.setToolTip(f"Delete profile '{name}'")
-        minus.setFixedWidth(20)
-        minus.clicked.connect(lambda _=False, n=name: panel._remove_profile(n))
-        row.addWidget(sw, 1)
-        row.addWidget(minus)
-        cont = QWidget()
-        cont.setLayout(row)
-        box.addWidget(cont)
-    new = QPushButton("+  New profile…")
-    new.setFont(panel._font(12))
-    new.setCursor(Qt.CursorShape.PointingHandCursor)
-    new.setObjectName("LeftAlignBtnSecondary")
-    new.clicked.connect(panel._create_profile)
-    box.addWidget(new)
 
-    sep = QFrame()
-    sep.setFrameShape(QFrame.Shape.HLine)
-    sep.setObjectName("Divider")
-    box.addWidget(sep)
-    dex_head = QLabel("Dex")
-    dex_head.setFont(panel._font(12, bold=True))
-    dex_head.setObjectName("PrimaryText")
-    box.addWidget(dex_head)
-    keep = panel.get_keep_caught() if panel.get_keep_caught is not None else True
-    toggle = QPushButton(("✓  " if keep else "    ") + "Show caught")
-    toggle.setFont(panel._font(12))
-    toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-    toggle.setToolTip("Keep caught species in the list, checked, at the bottom")
-    toggle.setObjectName("LeftAlignBtnChecked" if keep else "LeftAlignBtnUnchecked")
-    toggle.clicked.connect(panel._toggle_keep_caught)
-    box.addWidget(toggle)
-
-    auto_switch = panel.get_auto_switch() if panel.get_auto_switch is not None else True
-    auto_toggle = QPushButton(("✓  " if auto_switch else "    ") + "Auto-switch mode")
-    auto_toggle.setFont(panel._font(12))
-    auto_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-    auto_toggle.setToolTip(
-        "Automatically switch to Battle Mode when a battle starts, and Dex Mode in the overworld."
-    )
-    auto_toggle.setObjectName("LeftAlignBtnChecked" if auto_switch else "LeftAlignBtnUnchecked")
-    auto_toggle.clicked.connect(panel._toggle_auto_switch)
-    box.addWidget(auto_toggle)
-
-    click_to_catch = panel.get_click_to_catch() if panel.get_click_to_catch is not None else True
-    click_toggle = QPushButton(("✓  " if click_to_catch else "    ") + "Click to mark caught")
-    click_toggle.setFont(panel._font(12))
-    click_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-    click_toggle.setToolTip("Click a species in the list to manually toggle its caught status.")
-    click_toggle.setObjectName("LeftAlignBtnChecked" if click_to_catch else "LeftAlignBtnUnchecked")
-    click_toggle.clicked.connect(panel._toggle_click_to_catch)
-    box.addWidget(click_toggle)
-
-    sep2 = QFrame()
-    sep2.setFrameShape(QFrame.Shape.HLine)
-    sep2.setObjectName("Divider")
-    box.addWidget(sep2)
-    reg_head = QLabel("Region Override")
-    reg_head.setFont(panel._font(12, bold=True))
-    reg_head.setObjectName("PrimaryText")
-    box.addWidget(reg_head)
-
-    reg_grid = QGridLayout()
-    reg_grid.setContentsMargins(0, 0, 0, 0)
-    reg_grid.setSpacing(4)
-    curr = panel.get_current_region() if panel.get_current_region is not None else None
-    for i, reg in enumerate(["Auto", "Kanto", "Johto", "Hoenn", "Sinnoh", "Unova"]):
-        btn = QPushButton(reg)
-        btn.setFont(panel._font(12))
-        btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        is_active = (curr == reg) or (curr is None and reg == "Auto")
-        btn.setObjectName("RegionBtn" if is_active else "RegionBtnInactive")
-        btn.clicked.connect(lambda _=False, r=reg: panel._region_changed(r))
-        reg_grid.addWidget(btn, i // 3, i % 3)
-
-    cont2 = QWidget()
-    cont2.setLayout(reg_grid)
-    box.addWidget(cont2)
-
-    sep3 = QFrame()
-    sep3.setFrameShape(QFrame.Shape.HLine)
-    sep3.setObjectName("Divider")
-    box.addWidget(sep3)
-
-    scale_head_layout = QHBoxLayout()
-    scale_head = QLabel("UI Scale")
-    scale_head.setFont(panel._font(12, bold=True))
-    scale_head.setObjectName("PrimaryText")
-
-    panel._scale_val_label = QLabel("1.00x")
-    panel._scale_val_label.setFixedWidth(40)
-    panel._scale_val_label.setObjectName("PrimaryText")
-
-    scale_head_layout.addWidget(scale_head)
-    scale_head_layout.addStretch(1)
-    scale_head_layout.addWidget(panel._scale_val_label)
-
-    scale_head_w = QWidget()
-    scale_head_w.setLayout(scale_head_layout)
-    scale_head_layout.setContentsMargins(0, 0, 0, 0)
-    box.addWidget(scale_head_w)
-
-    scale_row = QHBoxLayout()
-
-    import PyQt6.QtWidgets as QtWidgets
-
-    panel._scale_auto_cb = QtWidgets.QCheckBox("Auto")
-    panel._scale_auto_cb.setFont(panel._font(11))
-
-    panel._scale_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
-    panel._scale_slider.setRange(10, 200)  # 0.10 to 2.00
-    panel._scale_slider.setCursor(Qt.CursorShape.PointingHandCursor)
-
-    scale_row.addWidget(panel._scale_auto_cb)
-    scale_row.addWidget(panel._scale_slider)
-    box.addLayout(scale_row)
-
-    curr_scale = panel.get_panel_scale() if panel.get_panel_scale else None
-    if curr_scale is not None:
-        panel._scale_auto_cb.setChecked(False)
-        panel._scale_slider.setEnabled(True)
-        panel._scale_slider.setValue(int(curr_scale * 100))
-    else:
-        panel._scale_auto_cb.setChecked(True)
-        panel._scale_slider.setEnabled(False)
-        panel._scale_slider.setValue(100)  # default value when auto is checked
-
-    panel._scale_slider.valueChanged.connect(panel._scale_slider_changed)
-    panel._scale_auto_cb.stateChanged.connect(panel._scale_auto_changed)
-
-    return w

@@ -97,10 +97,8 @@ class DexPanel(BaseOverlay):
         self._rows: list[DexSpeciesRow] = []  # reused row-widget pool, grown as needed
         import PyQt6.QtWidgets as QtWidgets
 
-        self._scale_val_label: QtWidgets.QLabel | None = None
-        self._scale_auto_cb: QtWidgets.QCheckBox | None = None
-        self._scale_slider: QtWidgets.QSlider | None = None
-        self._settings_btn.clicked.connect(self._toggle_profiles)
+        self.on_settings_click: Callable[[QPoint], None] | None = None
+        self._settings_btn.clicked.connect(self._on_settings_click)
 
         # Close the header popups when ShakeChecker stops being the active app,
         # i.e. the user clicked back into the game window.
@@ -110,25 +108,9 @@ class DexPanel(BaseOverlay):
 
         # callbacks the app wires in (no-ops until set)
         self.on_toggle_caught: Callable[[int], None] | None = None
-        self.on_select_profile: Callable[[str], None] | None = None
-        self.on_create_profile: Callable[[str], None] | None = None
-        self.on_delete_profile: Callable[[str], None] | None = None
-        self.get_profiles: Callable[[], tuple[str | None, list[str]]] | None = None
-        # dex mode: read/flip whether caught species stay in the list (issue #16)
         self.get_keep_caught: Callable[[], bool] | None = None
-        self.on_toggle_keep_caught: Callable[[], None] | None = None
-        # auto-switch between dex and battle mode
-        self.get_auto_switch: Callable[[], bool] | None = None
-        self.on_toggle_auto_switch: Callable[[], None] | None = None
-        # enable/disable clicking a row to mark as caught
         self.get_click_to_catch: Callable[[], bool] | None = None
-        self.on_toggle_click_to_catch: Callable[[], None] | None = None
-        # region overrides
-        self.get_current_region: Callable[[], str | None] | None = None
-        self.on_override_region: Callable[[str | None], None] | None = None
-        # panel scale override
-        self.get_panel_scale: Callable[[], float | None] | None = None
-        self.on_set_panel_scale: Callable[[float | None], None] | None = None
+
 
         self._init_dex()
 
@@ -371,35 +353,6 @@ class DexPanel(BaseOverlay):
         if dex is not None and self.on_toggle_caught is not None:
             self.on_toggle_caught(dex)
 
-    def _toggle_profiles(
-        self, anchor_pos: QPoint | bool | None = None, parent_widget: QWidget | None = None
-    ) -> None:
-        if isinstance(anchor_pos, bool):
-            anchor_pos = None
-        if self._profiles is not None and self._profiles.isVisible():
-            self._profiles.close()
-            self._profiles = None
-            return
-        self._open_profiles(anchor_pos, parent_widget)
-
-    def _open_profiles(
-        self, anchor_pos: QPoint | None = None, parent_widget: QWidget | None = None
-    ) -> None:
-        # rebuilt each time so it reflects the current profile list
-        if self._profiles is not None:
-            self._profiles.close()
-        from ui_components import build_profiles
-
-        self._profiles = build_profiles(self, parent_widget)
-        if anchor_pos is not None:
-            self._profiles.move(anchor_pos)
-        else:
-            self._profiles.move(
-                self._settings_btn.mapToGlobal(self._settings_btn.rect().bottomLeft())
-            )
-        self._profiles.show()
-        self._profiles.raise_()
-
     def _toggle_legend(self, _=False) -> None:
         if self._legend is not None and self._legend.isVisible():
             self._legend.close()
@@ -416,69 +369,10 @@ class DexPanel(BaseOverlay):
         self._legend.move(self._info_btn.mapToGlobal(self._info_btn.rect().bottomRight()))
         self._legend.show()
 
-    def _region_changed(self, text: str) -> None:
-        if self.on_override_region is not None:
-            self.on_override_region(text if text != "Auto" else None)
-        self._open_profiles()
-
-    def _scale_auto_changed(self, state: int) -> None:
-        from PyQt6.QtCore import Qt
-
-        if state == Qt.CheckState.Checked.value:
-            if self._scale_slider is not None:
-                self._scale_slider.setEnabled(False)
-            if self._scale_val_label is not None:
-                self._scale_val_label.setText("Auto")
-            if self.on_set_panel_scale is not None:
-                self.on_set_panel_scale(None)
-        else:
-            if self._scale_slider is not None:
-                self._scale_slider.setEnabled(True)
-                self._scale_slider_changed(self._scale_slider.value())
-
-    def _scale_slider_changed(self, value: int) -> None:
-        if self._scale_auto_cb is not None and not self._scale_auto_cb.isChecked():
-            scale = value / 100.0
-            if self._scale_val_label is not None:
-                self._scale_val_label.setText(f"{scale:.2f}x")
-            if self.on_set_panel_scale is not None:
-                self.on_set_panel_scale(scale)
-
-    def _toggle_keep_caught(self) -> None:
-        if self.on_toggle_keep_caught is not None:
-            self.on_toggle_keep_caught()
-        self._open_profiles()  # rebuild so the check state updates, popup stays open
-
-    def _toggle_auto_switch(self) -> None:
-        if self.on_toggle_auto_switch is not None:
-            self.on_toggle_auto_switch()
-        self._open_profiles()  # rebuild so the check state updates, popup stays open
-
-    def _toggle_click_to_catch(self) -> None:
-        if self.on_toggle_click_to_catch is not None:
-            self.on_toggle_click_to_catch()
-        self._open_profiles()
-
-    def _choose_profile(self, name: str) -> None:
-        if self.on_select_profile is not None:
-            self.on_select_profile(name)
-        if self._profiles is not None:
-            self._profiles.hide()
-
-    def _remove_profile(self, name: str) -> None:
-        ok = QMessageBox.question(
-            self, "Delete profile", f"Delete profile '{name}' and its caught list?"
-        )
-        if ok == QMessageBox.StandardButton.Yes and self.on_delete_profile is not None:
-            self.on_delete_profile(name)
-            self._open_profiles()  # rebuild with the updated list
-
-    def _create_profile(self) -> None:
-        name, ok = QInputDialog.getText(self, "New profile", "Account name:")
-        if ok and name.strip() and self.on_create_profile is not None:
-            self.on_create_profile(name.strip())
-        if self._profiles is not None:
-            self._profiles.hide()
+    def _on_settings_click(self, _=False) -> None:
+        if self.on_settings_click:
+            anchor = self._settings_btn.mapToGlobal(self._settings_btn.rect().bottomLeft())
+            self.on_settings_click(anchor)
 
     # --- internals ---
 

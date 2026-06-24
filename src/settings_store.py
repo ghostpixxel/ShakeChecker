@@ -24,14 +24,16 @@ class Settings:
         path: Path,
         hidden_balls: set[str],
         keep_caught: bool,
-        panel_scale: float | None = None,
+        dex_scale: float | None = None,
+        battle_scale: float | None = None,
         auto_switch: bool = True,
         click_to_catch: bool = True,
     ) -> None:
         self.path = path
         self.hidden_balls = hidden_balls
         self.keep_caught = keep_caught
-        self.panel_scale = panel_scale
+        self.dex_scale = dex_scale
+        self.battle_scale = battle_scale
         self.auto_switch = auto_switch
         self.click_to_catch = click_to_catch
 
@@ -40,7 +42,8 @@ class Settings:
         path = Path(userdata_dir) / "settings.json"
         hidden: set[str] = set()
         keep_caught = DEFAULT_KEEP_CAUGHT
-        panel_scale: float | None = None
+        dex_scale: float | None = None
+        battle_scale: float | None = None
         auto_switch = True
         click_to_catch = True
         if path.exists():
@@ -50,19 +53,31 @@ class Settings:
                 keep_caught = bool(raw.get("keep_caught", DEFAULT_KEEP_CAUGHT))
                 auto_switch = bool(raw.get("auto_switch", True))
                 click_to_catch = bool(raw.get("click_to_catch", True))
-                ps = raw.get("panel_scale")
-                if ps is not None:
-                    panel_scale = float(ps)
+                
+                old_ps = raw.get("panel_scale")
+                d_ps = raw.get("dex_scale")
+                b_ps = raw.get("battle_scale")
+                
+                if d_ps is not None:
+                    dex_scale = float(d_ps)
+                elif old_ps is not None:
+                    dex_scale = float(old_ps)
+                    
+                if b_ps is not None:
+                    battle_scale = float(b_ps)
+                elif old_ps is not None:
+                    battle_scale = float(old_ps)
             except (json.JSONDecodeError, OSError, ValueError):
                 pass  # corrupt/unreadable -> fall back to defaults
-        return cls(path, hidden, keep_caught, panel_scale, auto_switch, click_to_catch)
+        return cls(path, hidden, keep_caught, dex_scale, battle_scale, auto_switch, click_to_catch)
 
     def save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         payload = {
             "hidden_balls": sorted(self.hidden_balls),
             "keep_caught": self.keep_caught,
-            "panel_scale": self.panel_scale,
+            "dex_scale": self.dex_scale,
+            "battle_scale": self.battle_scale,
             "auto_switch": self.auto_switch,
             "click_to_catch": self.click_to_catch,
         }
@@ -94,9 +109,14 @@ class Settings:
         self.save()
         return self.keep_caught
 
-    def set_panel_scale(self, scale: float | None) -> None:
+    def set_dex_scale(self, scale: float | None) -> None:
         """Set the manual dex panel scale override and persist."""
-        self.panel_scale = scale
+        self.dex_scale = scale
+        self.save()
+
+    def set_battle_scale(self, scale: float | None) -> None:
+        """Set the manual battle panel scale override and persist."""
+        self.battle_scale = scale
         self.save()
 
     def toggle_auto_switch(self) -> bool:
