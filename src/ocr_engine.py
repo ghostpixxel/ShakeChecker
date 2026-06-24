@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import csv
 import time
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
 
 _ocr_det = None
 _ocr_no_det = None
+
+
 
 
 def _engine_det():

@@ -40,7 +40,7 @@ class Settings:
     @classmethod
     def load(cls, userdata_dir: Path | str) -> Settings:
         path = Path(userdata_dir) / "settings.json"
-        hidden: set[str] = set()
+        hidden: set[str] = {"timer"}
         keep_caught = DEFAULT_KEEP_CAUGHT
         dex_scale: float | None = None
         battle_scale: float | None = None
@@ -49,7 +49,7 @@ class Settings:
         if path.exists():
             try:
                 raw = json.loads(path.read_text("utf-8"))
-                hidden = {str(b) for b in raw.get("hidden_balls", [])}
+                hidden = {str(b) for b in raw.get("hidden_balls", ["timer"])}
                 keep_caught = bool(raw.get("keep_caught", DEFAULT_KEEP_CAUGHT))
                 auto_switch = bool(raw.get("auto_switch", True))
                 click_to_catch = bool(raw.get("click_to_catch", True))

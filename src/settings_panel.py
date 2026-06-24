@@ -46,6 +46,7 @@ class SettingsPanel:
         self.on_override_region: Callable[[str | None], None] | None = None
         self.on_set_dex_scale: Callable[[float | None], None] | None = None
         self.on_set_battle_scale: Callable[[float | None], None] | None = None
+        self.on_dump_debug: Callable[[], None] | None = None
 
         self._popup: QWidget | None = None
         self._mono = QFont("Consolas")
@@ -267,6 +268,19 @@ class SettingsPanel:
         self._scale_slider.valueChanged.connect(self._scale_slider_changed)
         self._scale_auto_cb.stateChanged.connect(self._scale_auto_changed)
 
+        sep4 = QFrame()
+        sep4.setFrameShape(QFrame.Shape.HLine)
+        sep4.setObjectName("Divider")
+        box.addWidget(sep4)
+
+        dump_btn = QPushButton("Dump OCR Debug Images")
+        dump_btn.setFont(self._font(12, bold=True))
+        dump_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        dump_btn.setObjectName("LeftAlignBtnSecondary")
+        dump_btn.setToolTip("Save all currently processed OCR crops to disk for debugging false positives.")
+        dump_btn.clicked.connect(self._handle_dump_debug)
+        box.addWidget(dump_btn)
+
     # --- Internal Event Handlers ---
     def _handle_choose_profile(self, name: str) -> None:
         if self.on_choose_profile:
@@ -337,3 +351,8 @@ class SettingsPanel:
                 self.on_set_dex_scale(scale)
             elif mode == "battle" and self.on_set_battle_scale is not None:
                 self.on_set_battle_scale(scale)
+
+    def _handle_dump_debug(self) -> None:
+        if self.on_dump_debug:
+            self.on_dump_debug()
+        self.close()

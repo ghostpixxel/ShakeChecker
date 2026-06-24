@@ -430,6 +430,8 @@ class LiveLoop:
             mode="battle", anchor_pos=anchor
         )
 
+        self.settings_panel.on_dump_debug = self._trigger_debug_dump
+
         self.battle_panel.on_mode_toggle = self._on_mode_toggle
         self.battle_panel.on_toggle_ball = self._toggle_ball
         self.battle_panel.on_set_all_balls = self._set_all_balls
@@ -546,7 +548,61 @@ class LiveLoop:
         if self.dex_panel is not None:
             self.dex_panel._hide_popups()
 
-    def _set_owner(self, widget, owner_hwnd: int) -> None:
+    def _trigger_debug_dump(self) -> None:
+        import cv2
+        from pathlib import Path
+        from datetime import datetime
+        if getattr(self, "_last_frame", None) is not None:
+            debug_dir = Path("debug")
+            debug_dir.mkdir(exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:19]
+            frame = self._last_frame
+            h, w = frame.shape[:2]
+
+            # 1. Dump full frame
+            cv2.imwrite(str(debug_dir / f"full_frame_{timestamp}.png"), frame)
+
+            # 2. Dump Location
+            try:
+                c_loc = self.cal.location
+                x0, x1 = c_loc.crop_x(w)
+                loc_crop = frame[int(h * c_loc.top) : int(h * c_loc.bottom), x0:x1]
+                if loc_crop.size > 0:
+                    scale = 48.0 / loc_crop.shape[0]
+                    up = cv2.resize(loc_crop, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+                    cv2.imwrite(str(debug_dir / f"location_{timestamp}.png"), up)
+            except Exception as e:
+                log.warning("Failed to dump location: %s", e)
+
+            # 3. Dump Chat
+            try:
+                c_chat = self.cal.chat
+                x0, x1 = c_chat.crop_x(w)
+                chat_crop = frame[int(h * c_chat.top) : int(h * c_chat.bottom), x0:x1]
+                if chat_crop.size > 0:
+                    up = cv2.resize(chat_crop, None, fx=c_chat.upscale, fy=c_chat.upscale, interpolation=cv2.INTER_CUBIC)
+                    cv2.imwrite(str(debug_dir / f"chat_{timestamp}.png"), up)
+            except Exception as e:
+                log.warning("Failed to dump chat: %s", e)
+
+            # 4. Dump Name (if in battle)
+            if getattr(self, "_last_reading", None) is not None and self._last_reading.bars:
+                try:
+                    bar = self._last_reading.bars[0]
+                    c_name = self.cal.name
+                    y0, y1 = bar.y + c_name.dy0, bar.y + c_name.dy1
+                    x0, x1 = bar.x + c_name.dx0, bar.x + c_name.dx1
+                    if 0 <= y0 < y1 <= h and 0 <= x0 < x1 <= w:
+                        name_crop = frame[y0:y1, x0:x1]
+                        if name_crop.size > 0:
+                            up = cv2.resize(name_crop, None, fx=c_name.upscale, fy=c_name.upscale, interpolation=cv2.INTER_CUBIC)
+                            cv2.imwrite(str(debug_dir / f"name_{timestamp}.png"), up)
+                except Exception as e:
+                    log.warning("Failed to dump name: %s", e)
+            
+            log.info("Successfully dumped all debug crops to 'debug/' folder!")
+
+    def _set_owner(self, widget: QWidget | None, owner_hwnd: int) -> None:
         if widget is not None:
             from PyQt6.QtGui import QWindow
 
@@ -600,6 +656,7 @@ class LiveLoop:
             return WAITING_POLL_S
 
         frame = self.capture.grab(win_rect)
+        self._last_frame = frame
         now = time.monotonic()
         # Pass the horde hint so a horde narrowed to ONE bar still reads its status
         # at the horde (right-side) badge offset; full hordes auto-detect by spread.
@@ -984,7 +1041,10 @@ class LiveLoop:
         # one. Throttled to 1.5s so background OCR doesn't burn CPU spinning.
         chat_turn = self.chat.poll()
         if self.mode_override != "dex" and now - getattr(self, "_last_chat_submit", 0.0) >= 1.5:
-            self.chat.submit(frame)
+            # OPTIMIZATION: Only burn CPU on chat OCR if the user actually cares about 
+            # turn-dependent mechanics (Timer Ball is active in the overlay).
+            if "timer" not in self.settings.hidden_balls:
+                self.chat.submit(frame)
             self._last_chat_submit = now
 
         if chat_turn is not None and chat_turn != self._last_chat_turn:
